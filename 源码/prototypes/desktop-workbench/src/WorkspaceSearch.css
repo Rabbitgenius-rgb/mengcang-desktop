@@ -1,0 +1,44 @@
+/* Search replaces redundant workspace names; navigation carries the page label. */
+.desktop-app .view-content .workspace-search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  padding: 18px 30px;
+  min-height: 74px;
+  flex-shrink: 0;
+}
+.workspace-search-header .workspace-search {
+  flex: 1 1 260px;
+  min-width: 160px;
+  max-width: 560px;
+  height: 40px;
+}
+.workspace-search input {
+  min-width: 0;
+  height: 40px;
+  padding-right: 36px;
+  border-radius: var(--radius-md);
+}
+.workspace-search input::-webkit-search-cancel-button { display: none; }
+.workspace-search .icon-btn {
+  position: absolute;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+}
+.desktop-app .collections-page-header.workspace-search-header { padding-left: 38px; padding-right: 38px; }
+.desktop-app .inspiration-page-header.workspace-search-header { padding-left: 25px; padding-right: 19px; }
+.desktop-app .schedule-header.workspace-search-header { min-height: 74px; }
+.schedule-header.workspace-search-header .workspace-search { max-width: 430px; }
+.schedule-header.workspace-search-header > .btn { white-space: nowrap; }
+.schedule-view .schedule-list-tabs { margin-bottom: 0; }
+@media (max-width: 1100px) {
+  .schedule-header.workspace-search-header .workspace-search { flex-basis: 200px; }
+}
+@media (max-width: 699px) {
+  .desktop-app .view-content .workspace-search-header { padding: 15px 20px; gap: 10px; }
+  .workspace-search-header .workspace-search { flex-basis: 180px; }
+  .schedule-header.workspace-search-header .workspace-search { flex-basis: 100%; max-width: none; }
+}

@@ -1,0 +1,27 @@
+// Synthetic renderer test data only. Not included in the desktop build entry.
+const identity={id:'fixture-vault',name:'Personal AI OS · 测试副本',path:'/private/tmp/mengcang-synthetic-fixture'};
+const notes=[
+ {id:'test-inspiration',path:'01_sources/cards/text/idea.md',kind:'entry',title:'测试灵感：月亮网站',hash:'a'.repeat(64),fields:{role:'seed',category:'交互设计'},role:'seed',category:'交互设计',roleStatus:'confirmed',summaryStatus:'pending',body:'保留这段原文。\n\n用月亮的圆缺作为页面切换的线索。',description:'一次关于月亮的网页探索',tags:['月亮','网页'],projectIds:['test-project'],explorations:[],materialPaths:['01_sources/cards/images/moon.md'],linkedPaths:['01_sources/cards/web/reference.md','01_sources/cards/text/quote.md']},
+ {id:'test-image',path:'01_sources/cards/images/moon.md',kind:'image',title:'月亮图像',hash:'b'.repeat(64),fields:{role:'material'},body:'真实文件未关联时需要明确显示。',description:'月面纹理参考',tags:['月亮'],projectIds:['test-project'],attachmentPath:'missing/moon.png'},
+ {id:'test-web',path:'01_sources/cards/web/reference.md',kind:'web',title:'网页参考',hash:'c'.repeat(64),fields:{caption:'一份网页配文'},body:'## 原始分享文字\n\n> 测试分享口令，应该折叠保留。\n\n## 页面快照\n\n![[missing/snapshot.png]]\n\n## 资料说明\n\n网页正文',description:'一份网页配文',tags:['网页'],projectIds:[],url:'https://example.org/reference',attachmentPath:'missing/snapshot.png'},
+ {id:'test-text',path:'01_sources/cards/text/quote.md',kind:'text',title:'诗句素材',hash:'d'.repeat(64),fields:{},body:'合成测试文本。',description:'一句文字',tags:['诗句'],projectIds:[]},
+ {id:'test-book',path:'01_sources/books/book.md',kind:'book',title:'真实书卡测试',hash:'e'.repeat(64),fields:{pages:120},body:'仅用于合成验收。',description:'已有书卡的原书入口。',tags:['艺术'],projectIds:[],author:'测试作者',readingStatus:'reading',coverPath:'missing/cover.png',originalPath:'/private/tmp/book.pdf'}
+];
+let revision=1,subscribers=[],relations=[],online=true;const drafts=new Map(),operations=new Map();let preferences={};
+const clone=value=>structuredClone(value),events=()=>subscribers.forEach(callback=>callback({type:'change'}));
+window.mengcang={
+ status:async()=>({connected:online,paired:true,identity}),pair:async()=>({connected:online=true,paired:true,identity}),snapshot:async()=>({identity,entries:clone(notes.filter(n=>n.kind==='entry')),materials:clone(notes.filter(n=>['image','web','text'].includes(n.kind))),books:clone(notes.filter(n=>n.kind==='book')),projects:[{id:'test-project',title:'月亮网站',path:'03_projects/moon.md',sourcePaths:[notes[0].path]}],revision,errors:[]}),
+ readNote:async path=>clone(notes.find(n=>n.path===path)),
+ related:async path=>({confirmed:relations.filter(r=>r.sourcePath===path),candidates:path===notes[0].path&&!relations.length?[{id:'preview-legacy-candidate',targetPath:notes[2].path,targetTitle:notes[2].title,explanation:'共同标签：网页'}]:[],repair:null}),
+ save:async input=>{if(!online)throw Object.assign(new Error('Obsidian 已断开'),{code:'OFFLINE'});if(operations.has(input.operationId))return {note:clone(operations.get(input.operationId))};const note=notes.find(n=>n.path===input.path);if(note.hash!==input.expectedHash)throw Object.assign(new Error('笔记有外部修改'),{code:'CONFLICT'});if(input.kind==='fields'){Object.assign(note.fields,input.fields);if(input.fields.caption!==undefined)note.description=input.fields.caption;if(input.fields.category!==undefined)note.category=input.fields.category;if(input.fields.tags)note.tags=input.fields.tags;if(input.fields.role)note.role=input.fields.role;if(input.fields.summary_status)note.summaryStatus=input.fields.summary_status;}else note.explorations=[...note.explorations,{id:input.operationId,text:input.text,createdAt:new Date().toISOString()}];revision++;note.hash=String(revision).padStart(64,'0');operations.set(input.operationId,clone(note));events();return {note:clone(note)};},
+ relation:async input=>{if(input.relationId && input.relationId!=='mc-rel-0123456789abcdef')throw new Error('错误的关系标识');if(input.action==='confirm')relations=[{relationId:'mc-rel-0123456789abcdef',sourcePath:input.sourcePath,peerPath:input.targetPath,peerTitle:notes.find(n=>n.path===input.targetPath)?.title,explanation:input.explanation}];else relations=[];revision++;events();return {ok:true};},
+ openNote:async path=>{document.getElementById('fixture-output').textContent=`已打开笔记 ${path}`;return {opened:true};},openOriginal:async path=>{document.getElementById('fixture-output').textContent=`已打开原书 ${path}`;return {opened:true};},
+ assetUrl:path=>`/missing-fixture/${encodeURIComponent(path)}`,subscribe:callback=>{subscribers.push(callback);return()=>{subscribers=subscribers.filter(c=>c!==callback);};},draftGet:async key=>clone(drafts.get(key)),draftSet:async(key,value)=>{drafts.set(key,clone(value));return {saved:true};},preferencesGet:async()=>preferences,preferencesSet:async value=>{preferences={...preferences,...value};return {saved:true};}
+};
+await import('../src/main.jsx');
+const controls=document.createElement('div');controls.style='position:fixed;z-index:200;right:8px;bottom:8px;padding:7px;background:#eee9d8;font:11px sans-serif;border:1px solid #d8cdb4';
+const button=(text,action)=>{const b=document.createElement('button');b.textContent=text;b.onclick=action;controls.append(b);};
+button('测试：外部改文',()=>{notes[0].description='Obsidian 外部修改';notes[0].hash='f'.repeat(64);revision++;events();});
+button('测试：断开连接',()=>{online=false;events();});
+button('测试：恢复连接',()=>{online=true;events();});
+const output=document.createElement('span');output.id='fixture-output';controls.append(output);document.body.append(controls);

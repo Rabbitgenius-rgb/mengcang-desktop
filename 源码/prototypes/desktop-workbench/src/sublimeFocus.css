@@ -1,0 +1,63 @@
+.discovery-library.is-focus-layout{display:block}
+.is-focus-layout .discovery-library-main{height:100%;padding:12px 24px 0;container-type:inline-size}
+.has-sublime-focus .discovery-filter-bar{border-top:0;margin-bottom:0}
+.sublime-focus{position:relative;min-height:735px;width:100%;max-width:1100px;margin:0 auto;padding-top:48px;font-family:var(--d-font);font-variation-settings:"CONT" 50,"OPEN" 50,"TRAK" -10,"wght" 400}
+.sublime-focus-card{position:relative;width:150px;flex:none}
+.sublime-focus-card-main{position:relative;display:block;width:100%;padding:0;border:0;background:none;color:inherit;text-align:left}
+.sublime-focus-card-main>img{display:block;width:100%;height:auto;max-height:230px;object-fit:contain}
+.sublime-focus-card.is-reference{margin-inline:auto}
+.sublime-focus-badge{position:absolute;left:50%;bottom:-12.5px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:85px;height:25px;border-radius:999px;color:#00aaff;background:#e5f6ff;font-size:12px;line-height:13.92px;letter-spacing:.1px;font-variation-settings:"CONT" 50,"OPEN" 50,"TRAK" 0,"wght" 400}
+.is-reference .sublime-focus-badge{color:#fff;background:#00aaff}
+.sublime-focus-text{background:#f7f7f7;padding:18px;min-height:180px;max-height:230px;overflow:hidden}
+.sublime-focus-text>span{display:block;font-size:11px;line-height:1.4;margin-bottom:17px}
+.sublime-focus-text>p{font-size:17px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;margin:0}
+.sublime-focus-copy{position:relative;z-index:1;text-align:center;width:250px;margin:60px auto 0}
+.sublime-focus-copy h2{font-size:28px;font-weight:400;line-height:28px;letter-spacing:0;color:#908f8e;margin:0;font-variation-settings:"CONT" 50,"OPEN" 50,"TRAK" -35,"wght" 400}
+.sublime-focus-copy>p{font-size:16px;line-height:18px;color:#a29e9c;margin:22px 0 20px;font-variation-settings:"CONT" 50,"OPEN" 50,"TRAK" -30,"wght" 400}
+.sublime-focus-cta{border:0;border-radius:5px;padding:7px 14px;background:#efefef;color:#908f8e;font-size:14px;line-height:16px;cursor:pointer}
+.sublime-focus-cta:hover{background:#e5f6ff;color:#00aaff}
+.sublime-focus-orbit{display:flex;align-items:flex-start;justify-content:center;gap:clamp(18px,3cqw,35px);margin-top:65px}
+.sublime-focus-orbit .sublime-focus-card{width:clamp(100px,13.5cqw,150px)}
+.sublime-focus-orbit .orbit-0{translate:0 -90%}
+.sublime-focus-orbit .orbit-1,.sublime-focus-orbit .orbit-3{translate:0 -40%}
+.sublime-focus-orbit .orbit-2{width:clamp(125px,18cqw,200px)}
+.sublime-focus-orbit .orbit-4{translate:0 -115%}
+.sublime-focus-card .discovery-card-check{opacity:0;transition:opacity .2s}
+.sublime-focus-card:hover .discovery-card-check,.sublime-focus-card:focus-within .discovery-card-check,.sublime-focus-card .discovery-card-check:has(input:checked){opacity:1}
+.sublime-focus-footer{position:relative;margin:40px 0 24px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.sublime-focus-footer p{font-size:10px;line-height:1.5;color:#a29e9c;margin:0}
+.discovery-source-meta,.discovery-card-source,.discovery-score,.discovery-related-list small,.discovery-import-list small,.discovery-import-list em{font-size:11px}
+.discovery-workspace-status{font-size:10px}
+@container(max-width:750px){
+ .sublime-focus{min-height:700px;padding-top:35px}
+ .sublime-focus-card{width:130px}
+ .sublime-focus-orbit{gap:20px;flex-wrap:wrap;max-width:500px;margin:45px auto 0}
+ .sublime-focus-orbit .sublime-focus-card{width:110px;translate:none}
+ .sublime-focus-orbit .orbit-2{width:140px}
+ .sublime-focus-footer{position:static;margin:36px 0 24px}
+}
+@media(max-width:630px){
+ .discovery-subnav nav{gap:4px;min-width:0;overflow:auto}
+ .discovery-subnav nav>button{padding:7px 8px;gap:4px;flex-shrink:0}
+ .is-focus-layout .discovery-library-main{padding:8px 14px 0}
+ .has-sublime-focus .discovery-filter-bar{gap:5px}
+ .has-sublime-focus .discovery-analysis-status{display:none}
+ .sublime-focus{min-height:0;padding-top:32px}
+ .sublime-focus-card{width:100px}
+ .sublime-focus-card-main>img{max-height:190px}
+ .sublime-focus-copy{margin-top:40px;width:250px}
+ .sublime-focus-copy>p{font-size:18px;line-height:20px}
+ .sublime-focus-orbit{gap:35px 24px;margin-top:45px;max-width:360px}
+ .sublime-focus-orbit .sublime-focus-card{width:100px}
+ .sublime-focus-orbit .orbit-2{width:125px}
+ .sublime-focus-card .discovery-card-check{opacity:1}
+ .sublime-focus-text{padding:12px;min-height:125px}
+ .sublime-focus-text>p{font-size:13px}
+ .sublime-focus-footer p{max-width:280px}
+ .discovery-workspace-status{flex-wrap:wrap;font-size:10px}
+}
+
+.sublime-focus-card.is-record .sublime-focus-card-main>img{border-radius:50%;animation:sublime-record-spin 12s linear infinite}
+@keyframes sublime-record-spin{to{rotate:360deg}}
+.discovery-view.is-hidden .sublime-focus-card-main>img,.window-hidden .sublime-focus-card-main>img{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.sublime-focus-card.is-record .sublime-focus-card-main>img{animation:none}}

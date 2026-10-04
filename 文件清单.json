@@ -1,0 +1,3819 @@
+{
+  "version": "0.8.6",
+  "createdForDate": "2026-10-05",
+  "installedAsarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+  "sourceFilesCompared": 244,
+  "personalLibraryIncluded": false,
+  "applicationProfileIncluded": false,
+  "bundledModelCopies": 1,
+  "entries": [
+    {
+      "path": "使用说明.md",
+      "kind": "file",
+      "bytes": 2999,
+      "sha256": "dbb4809de854d1c87e6f4c7c7d488dbb4532ff892010134d74e407db9a2ae485",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Info.plist",
+      "kind": "file",
+      "bytes": 2698,
+      "sha256": "96e23abc15041173b75657f982635e90e9ed1289f5aa4777d72c0eb001952104",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/PkgInfo",
+      "kind": "file",
+      "bytes": 8,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Helpers",
+      "kind": "symlink",
+      "target": "Versions/Current/Helpers",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Libraries",
+      "kind": "symlink",
+      "target": "Versions/Current/Libraries",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Resources",
+      "kind": "symlink",
+      "target": "Versions/Current/Resources",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Electron Framework",
+      "kind": "symlink",
+      "target": "Versions/Current/Electron Framework",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/Current",
+      "kind": "symlink",
+      "target": "A",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework",
+      "kind": "file",
+      "bytes": 201667808,
+      "sha256": "f51fb9ce10e49eaba79691fab3f901920713696a6071aae1582d140d39136afc",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Helpers/chrome_crashpad_handler",
+      "kind": "file",
+      "bytes": 1220640,
+      "sha256": "0a9e98ba83b6d535acc7dd88d696c683c81147d985303e9a49947f4c8faa77e0",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib",
+      "kind": "file",
+      "bytes": 2317968,
+      "sha256": "209efad4c2a3f3dfde55d863812708fc15cdb31c3c28d7fd2e303496b6a012ee",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libvk_swiftshader.dylib",
+      "kind": "file",
+      "bytes": 16607280,
+      "sha256": "bb5c39f2aaeb6396c5fb1b81643f3aab9d9f82f56f1509540b42e79c4c636054",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/vk_swiftshader_icd.json",
+      "kind": "file",
+      "bytes": 110,
+      "sha256": "d717d915e31e7c27948b80b36ab34e2d897888114c5c7d0af835f93eb53e58f5",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/Info.plist",
+      "kind": "file",
+      "bytes": 920,
+      "sha256": "ef23270b1051036ae95e24b755bd1c5214011ab1687635ab0a06ce5612aa4c74",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/MainMenu.nib",
+      "kind": "file",
+      "bytes": 2005,
+      "sha256": "4b2168de2d6d9a09b20faaa23139d5f25f73b2595671de25872d191b6939d819",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/chrome_100_percent.pak",
+      "kind": "file",
+      "bytes": 662674,
+      "sha256": "f50e6f15a39f086092c26abdb922b298780b63decc316b798b5f0ad7a5468a2e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/chrome_200_percent.pak",
+      "kind": "file",
+      "bytes": 1337098,
+      "sha256": "d923367c81374695f88d6176aa6fe8d0c41b1a43f5188ef43c3f0a53dd06f96d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/icudtl.dat",
+      "kind": "file",
+      "bytes": 10876560,
+      "sha256": "9f48c7f9c7c94d516a14870707e910ab94d75ae640ff6842c4af53276cd26ebe",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/resources.pak",
+      "kind": "file",
+      "bytes": 12397732,
+      "sha256": "518b66a3f5b1357a15f417b5f61040723b5cdd7b4e12b6630f3a054035d02c14",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/v8_context_snapshot.arm64.bin",
+      "kind": "file",
+      "bytes": 742200,
+      "sha256": "9576d3c78034e615f23894bac552af24a718354a3755342ff30905407528fcc2",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 632257,
+      "sha256": "1e3c85f3d53ac661e035e01166a2faafba821a60780fdf8f88dc497658d787a0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/af_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1025252,
+      "sha256": "db080ebc3e8242316ad60ee8b655e9a773046cd9b0143512841a497bea3066e3",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/am_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1125946,
+      "sha256": "545922448c8f77abfce3681476b7d328d670204e1953b04b6a40d93f1b202221",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ar_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1171480,
+      "sha256": "d9d984338d9b4ae822a06dc06fe6b09affa7c2e263a76a04e2d06fa6c948d37d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bg_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1504862,
+      "sha256": "5f6c3672c073968a3cc68f51f1433b7cc3c4bf1888f55169121292809ced66dd",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/bn_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 712710,
+      "sha256": "a2f0b2ee162ae98d08613307e6ccae6777cd7722ed47c241bfd7de16e1a21466",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ca_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 739491,
+      "sha256": "596bdb8f1051fcf37a5a2499f01ab16e833cf70b0f55f4ce6f4cda5b49b86a4b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/cs_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 662378,
+      "sha256": "433e45f504ad6b8f748c8968b6846146819affd495030a220b691fe7a5d4cb7d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/da_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 713211,
+      "sha256": "5a71df9eb3c04c6993346b94399b767afdca3894f166ded9b13d7873961c02dc",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/de_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1287465,
+      "sha256": "d6ca1cd3ee52c19be6e32514f4b2f18e3a6fb2653b60227e1541c39630acef41",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/el_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 584413,
+      "sha256": "e647fca0c580bd485a4e40705ed4ad87f0a72bc7e03c4858720c30d2e4f1269d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 576999,
+      "sha256": "a7d9ca00ff30fd58fbc4d4d65bc2bd0ee926a2cc569dc20ecbab38308c4f1682",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_GB_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/en_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 699815,
+      "sha256": "e1be080b42cf05cb872e232eac6f664bf7f8a507a91976ab15722ecaea5effde",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 703610,
+      "sha256": "574adf3d381a6ac2484728e87f72e12e631917f956ec18334533c1d541415414",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_419_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/es_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 638956,
+      "sha256": "7fb797d3d74c9dfa4e669f55e3af4674f78d376cc0af45768f441a2d583d935a",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/et_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1057358,
+      "sha256": "6f7c6ee43199e1d2e59298bff731afe36c897101b9745420ef6c734c22f768cd",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fa_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 651794,
+      "sha256": "a1b18b17cc1106244f1dace48c3ba1a92c62490e4bce195fa208aecb0c8f71a4",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fi_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 738500,
+      "sha256": "ec90ae9b3e5e460ae1687db6ee5caa6e139183a657080b624b22fea6efe9ba3f",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fil_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 758955,
+      "sha256": "c908a3940cc231ce78499451cda31139ff270f35afd08d6e5836639428a8dfc6",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/fr_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1485480,
+      "sha256": "643d347eb6425b369f203ed707749c497dfac8d250e78ffbaca4a45b46247ed1",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/gu_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 923406,
+      "sha256": "9d661c15c1103238ce353794b137424c99784e696227445eec4c7e44b2724199",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/he_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1575308,
+      "sha256": "9f7bcdbe323c711f7d2dcf3a1fea9bfd17cffe7f30ecb66aeca25aa0b93780d7",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hi_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 711220,
+      "sha256": "4ba4b2c8a7841d5a3ed8e92674cae53c3df7b2af2bb3dd449f0fdf898956ed82",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hr_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 761163,
+      "sha256": "b4effdb0df85b386ba6f2be6b52aabcb45447dcdf826276c6950e7dde325d553",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/hu_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 633143,
+      "sha256": "96f11211f98e45d1f3feeea04950ffbfc6f53056b10c489af1565949782ac82f",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/id_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 689588,
+      "sha256": "52138aa3881cf53e4e9129cb06fe4833dce9a5ed646cb18a2ada56c14c615678",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/it_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 835813,
+      "sha256": "53de5c86cba01afb24b9f6363f943c49d5156cea6e186d39882c643f5457483e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ja_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1710175,
+      "sha256": "5275729cc054eb62f8377b69b45e84239a7e08a2230825496b2f1f6d4c367769",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/kn_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 713268,
+      "sha256": "691dd18925d119fc74d4b7dc96b282bfb26f425e5f01fdf42ab3a4edc71c15dc",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ko_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 773841,
+      "sha256": "402fa83fb09dbb6d095fc08a0602b77e224d892345fb9b106ba194d5d03f67a3",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lt_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 771026,
+      "sha256": "92b9acba38310821e9060cb554f6523a454cc70998e6baadd328d3a6a3ceb7d4",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/lv_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1759838,
+      "sha256": "46e532cbb9584d279a201a4b9f19c198c7bc80b82aa3d39d4af109f77019b72e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ml_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1457577,
+      "sha256": "fe094e0d6d11111f949d78ee614f530567e6f583fa0cf2936e507906e6b6e41b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/mr_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 665961,
+      "sha256": "fb281323ea5bb88b353ea20472733563cb45d86e44af3b20657a9875b16fb240",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ms_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 633754,
+      "sha256": "29661ccfbb38a5cca1b226a1e9ff6e3aa3e2e88b2dc87922139412245ddd6ad5",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nb_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 660755,
+      "sha256": "c326cfa4ac58b5facb6e88489d9d8dc8e44975d35e45d6cc235c7b0435db7027",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/nl_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 738298,
+      "sha256": "5c8155ba0156efdf02ee2f47608f8f50df45fa271f12e8ac37a4ced965daeafc",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pl_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 693315,
+      "sha256": "d98c5cc2cace7d53a33bbc29767a1c39dfec20f10b59c6a878f6d53776709280",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_BR_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 697151,
+      "sha256": "60c975b06a1528777db8a45aa216724c57302d9a38f4ff316cb8ed2c1427165e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/pt_PT_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 724159,
+      "sha256": "6d0a723bd507172da42ca40088443be5dd1abc727ab04aafcf27812d5c401c83",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ro_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1194697,
+      "sha256": "075fdc5e44ad5e1d0d055f1019fd73eec4d59419a7c9d8e285a53d26fbf70243",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ru_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 751682,
+      "sha256": "388a168632701225cc5e3e4b52d000d5357976f8852191795189f0730226d8e4",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sk_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 718890,
+      "sha256": "18aa47b536e52cf3e60b0f4e3976c96fa2da26a03267b7163d10021231c3a5c0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sl_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1106461,
+      "sha256": "d5396bfe9e86b70a0292f20754796fffbaa278457bf33965d752e00dcd04e953",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sr_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 642502,
+      "sha256": "df2d102b8ce63b0612584c5a4da045c923ac4eb89491660324350abaec3d74b4",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sv_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 683595,
+      "sha256": "5074e8a81531152d346170094148eae526601c8d233c661deb1e7c748dc970a4",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/sw_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1750171,
+      "sha256": "839e9a1d2e45821f44fb3b864a715bde0d35bc7dbda1742c20483dcebdbf9ea1",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ta_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1620586,
+      "sha256": "4791af54ba16497bf01286b44d17ff7f2a53f4edf77f1b8c53024ef48e69ac71",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/te_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/th.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1359671,
+      "sha256": "3789f3781d8da535db2533f04eed93dafe0555fb64418c3d34e68791754a6a9e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/th_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/th_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/th_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/tr.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 694621,
+      "sha256": "da0cbf90df68318964a10dcedb3203a6a82359484466ffd05bde2802c68ea965",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/tr_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/tr_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/tr_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/uk.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1205887,
+      "sha256": "18fd06c3a2aa9a96d16469c2b2f823f40a656639d218cf4e8f38dee0cf0e5ec9",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/uk_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/uk_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/uk_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ur.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 1040891,
+      "sha256": "89e190404b9d2083a5dce37fa594c437f6000d2df6fb7ed76d417a8e2f8f1281",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ur_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ur_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/ur_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/vi.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 825402,
+      "sha256": "e1b618048a67f32d05f8b0aba42a3a99d45ef40ce3edb3c62995b805c5419458",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/vi_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/vi_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/vi_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_CN.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 589096,
+      "sha256": "e025b44f7fbc4365b59fc1fab9efad8741125c3dca258c9f1a14b5af81178694",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_CN_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_CN_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_CN_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_TW.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 580726,
+      "sha256": "0e5eb9547047610c93350ad72c055f3ec970e6cbf7b6adb11ed39f51c2ad53b1",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_TW_FEMININE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_TW_MASCULINE.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Resources/zh_TW_NEUTER.lproj/locale.pak",
+      "kind": "file",
+      "bytes": 18,
+      "sha256": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Electron Framework.framework/Versions/A/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 85266,
+      "sha256": "91f57fe092fe23eb1239c66b695fe799db78185d0161fc579dc026a3148c2842",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Resources",
+      "kind": "symlink",
+      "target": "Versions/Current/Resources",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Mantle",
+      "kind": "symlink",
+      "target": "Versions/Current/Mantle",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Versions/Current",
+      "kind": "symlink",
+      "target": "A",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Versions/A/Mantle",
+      "kind": "file",
+      "bytes": 126064,
+      "sha256": "52aab9e7a86f876153b22942a393c66dbd0c8157973dfaf787b83cdc3fa67c8a",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Versions/A/Resources/Info.plist",
+      "kind": "file",
+      "bytes": 1020,
+      "sha256": "e93f0b4aaebea9bc158392ffa0c1150c16a0f30aecf11501b7871ce485f1a823",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Mantle.framework/Versions/A/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2442,
+      "sha256": "41b27daab76e01def237a2fb452d86d6442b461fa28013fc3abfd1a86d89c743",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/Resources",
+      "kind": "symlink",
+      "target": "Versions/Current/Resources",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/ReactiveObjC",
+      "kind": "symlink",
+      "target": "Versions/Current/ReactiveObjC",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current",
+      "kind": "symlink",
+      "target": "A",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/Versions/A/ReactiveObjC",
+      "kind": "file",
+      "bytes": 350832,
+      "sha256": "1213ee51ba5fc0167afa1c12a071e9861efda1e57fe6b69e9fbbb89b2bcd50d6",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/Versions/A/Resources/Info.plist",
+      "kind": "file",
+      "bytes": 1138,
+      "sha256": "4ded0fe1f4647f5b1862a2a98998aa7c3ade9bd925d097258e24667c446e7496",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/ReactiveObjC.framework/Versions/A/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2442,
+      "sha256": "95920ec9421fbb6d2efe69b0b33724d9e685b6c563f467ec8baa8c0a8df5444a",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Resources",
+      "kind": "symlink",
+      "target": "Versions/Current/Resources",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Squirrel",
+      "kind": "symlink",
+      "target": "Versions/Current/Squirrel",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Versions/Current",
+      "kind": "symlink",
+      "target": "A",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Versions/A/Squirrel",
+      "kind": "file",
+      "bytes": 127872,
+      "sha256": "2ce3014beae5fba18ca633a296ff75dff5648532ff623e420c69273c103abb37",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/Info.plist",
+      "kind": "file",
+      "bytes": 1175,
+      "sha256": "f61ab349887360a2d84603ecff17ab6633cb7fe2e8e72861f4e38e9120f472bf",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/ShipIt",
+      "kind": "file",
+      "bytes": 125744,
+      "sha256": "57733c39eefab05c4188a206fa5c59d4139299235eac43cbb6f690322d97aafa",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/Squirrel.framework/Versions/A/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2660,
+      "sha256": "a4d5c01c45a29cae0b3b62d19b87b80aa938eb3bb678936f64b0f4c8a7b043f0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (GPU).app/Contents/Info.plist",
+      "kind": "file",
+      "bytes": 1188,
+      "sha256": "fe09e4a6a9d8a8bdcdb8975164ffa3ec9f45cc68997dbfcf1e39537fa875c7d0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (GPU).app/Contents/PkgInfo",
+      "kind": "file",
+      "bytes": 8,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (GPU).app/Contents/MacOS/梦藏 Helper (GPU)",
+      "kind": "file",
+      "bytes": 202560,
+      "sha256": "bb901c3855ffdb75c8f66fb7e3ff5eef93f05434d98725057069aea0ea09aa62",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (GPU).app/Contents/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2200,
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Plugin).app/Contents/Info.plist",
+      "kind": "file",
+      "bytes": 1197,
+      "sha256": "1481b7a45628ad008a742b9df60a7841e4c1229c9a08e6a29af4b6aa4533e4f7",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Plugin).app/Contents/PkgInfo",
+      "kind": "file",
+      "bytes": 8,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Plugin).app/Contents/MacOS/梦藏 Helper (Plugin)",
+      "kind": "file",
+      "bytes": 202560,
+      "sha256": "b339b691dd7894d6bf51255c9d8ad7ba4517f18100d18bae9ddaf40aeb106ca9",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Plugin).app/Contents/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2200,
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Renderer).app/Contents/Info.plist",
+      "kind": "file",
+      "bytes": 1203,
+      "sha256": "bf3c033dbc5ff1cb6378e40fa9f1de0a6104b495fedd21157454984250351ed8",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Renderer).app/Contents/PkgInfo",
+      "kind": "file",
+      "bytes": 8,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Renderer).app/Contents/MacOS/梦藏 Helper (Renderer)",
+      "kind": "file",
+      "bytes": 202560,
+      "sha256": "510cbee03c61c61f7b27967d6f724f5787493a198bda1f4982b321bef8799349",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper (Renderer).app/Contents/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2200,
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper.app/Contents/Info.plist",
+      "kind": "file",
+      "bytes": 1163,
+      "sha256": "c747d5a6d5e7ec8387598306b337734a86f7aafa326eb1ee2204bef6112bf583",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper.app/Contents/PkgInfo",
+      "kind": "file",
+      "bytes": 8,
+      "sha256": "82502191c9484b04d685374f9879a0066069c49b8acae7a04b01d38d07e8eca0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper.app/Contents/MacOS/梦藏 Helper",
+      "kind": "file",
+      "bytes": 202560,
+      "sha256": "a5a296b8cfe9b566110b7cdf376a3bc863e59d7ddd29bc1217f334917fb67808",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Frameworks/梦藏 Helper.app/Contents/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 2200,
+      "sha256": "6686de10a28a2fe11b36cbb86dcbacc827cfc4ea116b4dabf1845e5aee629e9b",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/MacOS/梦藏",
+      "kind": "file",
+      "bytes": 33920,
+      "sha256": "7ef3931f75a68cb3a0e51a6ecf62c2a3379a46561f1cbd726ae3c43adb2cb163",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/app.asar",
+      "kind": "file",
+      "bytes": 7533596,
+      "sha256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/electron.icns",
+      "kind": "file",
+      "bytes": 272259,
+      "sha256": "5a9a78d54c157f55672afea37037464858a87fd5f276fc8206787f366ed684cf",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/app.asar.unpacked/discovery-helper",
+      "kind": "file",
+      "bytes": 99344,
+      "sha256": "3a489114f27699d7315836a6a0bf6dad8804804bd8346cd54d05f522e4367716",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/app.asar.unpacked/mengcang-mcp.cjs",
+      "kind": "file",
+      "bytes": 11281,
+      "sha256": "1eba25e4c55357076d0dad9e5caa3ff384bdff0b42e37c8a96dcc511e1bed9d7",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/FFmpeg-9.0.2-source.tar.xz",
+      "kind": "file",
+      "bytes": 12040788,
+      "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/FFmpeg-LICENSE.txt",
+      "kind": "file",
+      "bytes": 26517,
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/README.txt",
+      "kind": "file",
+      "bytes": 2996,
+      "sha256": "af3ecb5703f48bd04138f606b38956fbad13304773c8f54f70e95b6ef4fd4dbe",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/Whisper-model-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1063,
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/ffmpeg",
+      "kind": "file",
+      "bytes": 2483024,
+      "sha256": "f8a7c73a98a7d3423ff953a9982b3690c789ec4cd193d989e647b743c0c43cad",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/model.bin",
+      "kind": "file",
+      "bytes": 574041195,
+      "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/runtime-manifest.json",
+      "kind": "file",
+      "bytes": 2710,
+      "sha256": "b83f5b3fc7853b9cc04bd28a3cf0dd4154a7e97099126e2e6d32d4d1f54ef3bd",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/whisper-cli",
+      "kind": "file",
+      "bytes": 4592288,
+      "sha256": "914bce056358fee20c17836f65c1ad96be3a3475fc6f944bc6f5fc55dd21f93b",
+      "mode": "0o755"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/Resources/local-transcription/whisper.cpp-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1078,
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "mode": "0o644"
+    },
+    {
+      "path": "应用/梦藏.app/Contents/_CodeSignature/CodeResources",
+      "kind": "file",
+      "bytes": 7628,
+      "sha256": "dd6aae1cfef73610322f88b9a87a29fbe264cdd82a3530010c58681cc156f5ba",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/README.md",
+      "kind": "file",
+      "bytes": 525,
+      "sha256": "144282906307507b1558e6b815ce980d4715f7e913f880071c82e01acdc95790",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/package-lock.json",
+      "kind": "file",
+      "bytes": 41664,
+      "sha256": "7a91db78e20abf5a9a5cbd0d9aa0dd4a09465fced6e01078939fbc1b5a98f1c1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/package.json",
+      "kind": "file",
+      "bytes": 1387,
+      "sha256": "371eda1aa7235467d2dcd247a6bffa0cec61463f01dd6188933fce33fb937351",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/styles.css",
+      "kind": "file",
+      "bytes": 109442,
+      "sha256": "63a6e6f639c8c7226645e7027eb0f739d58bf7a4347341c75858ed66ea6364ca",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/book-curation/core.js",
+      "kind": "file",
+      "bytes": 31815,
+      "sha256": "63a443a4dfe7e9e83e3313b2525984504cd2d28745934aaf0aa1b42929ee05b1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/book-curation/generators.js",
+      "kind": "file",
+      "bytes": 24759,
+      "sha256": "1a407400c0439bacdf8598b7b5d5033a37c09fc2f0d9b54ccfda7a7dc67c61b2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/book-curation/service.js",
+      "kind": "file",
+      "bytes": 31265,
+      "sha256": "531f43a5749ac9f3245d9d9207dff0533041cd2211716f3e8e8b0a22357a916b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/book-curation/settings.js",
+      "kind": "file",
+      "bytes": 4519,
+      "sha256": "c2cee49c2524a45321cdb7f800917e8bdb5b72d1ab19ba998d138f850853e739",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/book-curation/view.js",
+      "kind": "file",
+      "bytes": 13186,
+      "sha256": "48f6cb07dbbc41ce87ee690737cfae33a64bd4ad28185c774c5d02b07ba60cfa",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/.gitignore",
+      "kind": "file",
+      "bytes": 41,
+      "sha256": "37cb5d32e4ee8bb02cad96ae0d3addad3711acd2497054a084f7b83698ad96c3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/DiscoveryHelper.swift",
+      "kind": "file",
+      "bytes": 5418,
+      "sha256": "68fc038826881e60f1c6d2f5c7d74b5113a21ae9a90627c6b0dc82c05c6deb59",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/ai-policy.cjs",
+      "kind": "file",
+      "bytes": 337,
+      "sha256": "2439b4ed4a0af51d66e1f049f5b39271467c0e9507a2636847cf2f3927a3a4ad",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/attachment-validation.cjs",
+      "kind": "file",
+      "bytes": 10037,
+      "sha256": "5ae793656ead651e12c2df4218350ce32aa2c4c3ba917daa15d830490e58eea8",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/discovery-helper",
+      "kind": "file",
+      "bytes": 99384,
+      "sha256": "c2f052d97bf8b4fdd08125577b7298d7f1a4dd5a89dce2694abb659bc35bf167",
+      "mode": "0o755"
+    },
+    {
+      "path": "源码/desktop/discovery.cjs",
+      "kind": "file",
+      "bytes": 2766,
+      "sha256": "c7991c29bad4128ca55bf71df4e9d118e2f7d9d0577d32af7c16f2aa6855479d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/download-lifecycle.cjs",
+      "kind": "file",
+      "bytes": 720,
+      "sha256": "6a4c4d30ef6f2aa02847ee2c5622d3efdaba018cd44578d512dab79efcfbe86e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/feed-capture.cjs",
+      "kind": "file",
+      "bytes": 13664,
+      "sha256": "849b445d3546f1a5d69d4297be0ae7afa1175739894b9e440c5ff749c37f2224",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/gateway.cjs",
+      "kind": "file",
+      "bytes": 26878,
+      "sha256": "e62d6e094997a560aac29a5aa64c6b3d2050151c7fb3228a5f90a51000ecc1b4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/html-parser-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1109,
+      "sha256": "8c535800331e1e4439835555b3f9edc7fe9dee2fab0d8bbbd5a982e8b8343d4d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/html-parser-entities-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1260,
+      "sha256": "cb992345949ccd6e8394b2cd6c465f7b897c864f845937dbf64e8997f389e164",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/html-parser.cjs",
+      "kind": "file",
+      "bytes": 300516,
+      "sha256": "6d6d88a8b86ce364c0b8ff538b08642ccbdf655b97ba79c7597be3dac647d8b6",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/intelligence-bridge.cjs",
+      "kind": "file",
+      "bytes": 4736,
+      "sha256": "dfbe05e4e915aaa59facbbd6aa317b7cd1207d5b106d25e09630913ca17aaf9a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/intelligence.cjs",
+      "kind": "file",
+      "bytes": 38126,
+      "sha256": "14a637ea8e4e8750d81995396b09ec3608961bb6ab7e2da7db0e547dffc0be4f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-gateway.cjs",
+      "kind": "file",
+      "bytes": 10961,
+      "sha256": "a41235ee570a3ca91954006fa1ad17d9aa8452ed1440b7c6346128131ea376fe",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription.cjs",
+      "kind": "file",
+      "bytes": 10525,
+      "sha256": "d0a54c52eb0615e809c9b90c172cfd15763f1450e54cf5b18b4a02b44bff3675",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/main.cjs",
+      "kind": "file",
+      "bytes": 11414,
+      "sha256": "1d2ce2aa66a1c731af0cfc5a5c84b1c598c335c86fc2440ba6ea89a13e21568e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/native-file-preview.cjs",
+      "kind": "file",
+      "bytes": 5223,
+      "sha256": "3bb6362d1d0d03c66aa9736048c1554db5cb515c88d1bfb74084dcf4cf42150a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/preload.cjs",
+      "kind": "file",
+      "bytes": 998,
+      "sha256": "bab668194434b14e6b1cd953c874a0007cd73f46f069430cb2a51bd2b1e11ede",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/public-dns.cjs",
+      "kind": "file",
+      "bytes": 4065,
+      "sha256": "45f3db97f7de3f845e49818d05b0474765b76e8185f1286a63803dbe2bf7099e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/renderer-quit.cjs",
+      "kind": "file",
+      "bytes": 1550,
+      "sha256": "17bd653ec69346773c8009c57e03d1764c9dfa452d880073525a15657b081403",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/security.cjs",
+      "kind": "file",
+      "bytes": 5212,
+      "sha256": "a2397953e60b59195ffddb0487cd622b7d9280696bd256143305402f680099f7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/web-capture-NOTICE.md",
+      "kind": "file",
+      "bytes": 3326,
+      "sha256": "81a4c50b89a6517989a2ef46625c20a592ac9274f78d76af8490c293973fbe48",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/web-capture.cjs",
+      "kind": "file",
+      "bytes": 13686,
+      "sha256": "ff8f9357371f4a2b674f2345abca433b8e600bbc77c973a4a9be136f19d4401a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription/FFmpeg-LICENSE.txt",
+      "kind": "file",
+      "bytes": 26517,
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription/README.txt",
+      "kind": "file",
+      "bytes": 2996,
+      "sha256": "af3ecb5703f48bd04138f606b38956fbad13304773c8f54f70e95b6ef4fd4dbe",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription/Whisper-model-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1063,
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription/runtime-manifest.json",
+      "kind": "file",
+      "bytes": 2710,
+      "sha256": "b83f5b3fc7853b9cc04bd28a3cf0dd4154a7e97099126e2e6d32d4d1f54ef3bd",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/desktop/local-transcription/whisper.cpp-LICENSE.txt",
+      "kind": "file",
+      "bytes": 1078,
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/docs/DeepSeek接入.md",
+      "kind": "file",
+      "bytes": 5126,
+      "sha256": "cefdfda6c4f693e9e06471b218a527d0808912a9d921aa361ff393f896345bc2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/docs/sublime-discovery-20261002.md",
+      "kind": "file",
+      "bytes": 6406,
+      "sha256": "5abc3da42286869c1c835eda9fa0cdc70b8d6de9f0ee787c8bfdbeb60a997630",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/docs/外部AI资料包与播客片段.md",
+      "kind": "file",
+      "bytes": 4822,
+      "sha256": "53440ca64793d1d769ed10e999b966766789fbdbd74eec87084a327880a2add4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/.gitignore",
+      "kind": "file",
+      "bytes": 30,
+      "sha256": "3a3bcf768c25d0483b1e4b81f5a2879def4f8160c994929ae3a997511dbd84ae",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/.npmrc",
+      "kind": "file",
+      "bytes": 23,
+      "sha256": "f7dbda001b627b3a792fb6929303b517f047f03916f2c55227e81216d38a2008",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/AGENTS.md",
+      "kind": "file",
+      "bytes": 13272,
+      "sha256": "223dea41240c99726b155171c162b2959537a2fe20113ce1973708fc3b619954",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/ANIMATION_TUNING.md",
+      "kind": "file",
+      "bytes": 7435,
+      "sha256": "8a3bbcb422e4ad1a7de7a953a9cd817c0ed214ec76eb577199859179e1f55a72",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/README.md",
+      "kind": "file",
+      "bytes": 4327,
+      "sha256": "8ad7a14cb0721766d31557f3979fa65d9731597da44bfd35577faaa560505730",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/VERIFICATION.md",
+      "kind": "file",
+      "bytes": 6216,
+      "sha256": "175a88f3a284fb31e9ad71bb741cfd1d3d4bba3f03df44804762d9115c894bc4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/design-qa.md",
+      "kind": "file",
+      "bytes": 16691,
+      "sha256": "7bb0a5c8ecc2225c5bb623fc1c22affcb144450448d9056fd3c7d2b533f49e79",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/discovery-vite.mjs",
+      "kind": "file",
+      "bytes": 543,
+      "sha256": "a74f18c87fce85c4cd7c3abb24f5c49be624e500f75da1db339147fe4b0fff72",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/index.html",
+      "kind": "file",
+      "bytes": 365,
+      "sha256": "49bd09a23be967d723ca941022d345d6b3bd5dbbdf1b4dbdbd68aee0d2638993",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/package-lock.json",
+      "kind": "file",
+      "bytes": 77464,
+      "sha256": "9a12d203d991863186541fb8c2d69c7825507c005ff219b87e00c66fbd5b9571",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/package.json",
+      "kind": "file",
+      "bytes": 613,
+      "sha256": "9b142dc98f6ff9a8d099c7a4a6dc4d22afd16260ec1f1ce3156b0766babdea96",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/pdf-assets.mjs",
+      "kind": "file",
+      "bytes": 1274,
+      "sha256": "5511b3b50f85c5fc1f6c3f6fa50ebbe0d8b36f880a39407cae8139356c621517",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/vite.config.mjs",
+      "kind": "file",
+      "bytes": 590,
+      "sha256": "19452dfe0f530dff977d11717de35020ad8932e0456eb5a7aeca0901949a55d2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/web-capture-vite.mjs",
+      "kind": "file",
+      "bytes": 2408,
+      "sha256": "e94efb02fdbe60d662016f81e45a00969ca14f29573b5c89041309d3d344b1d4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/.openai/hosting.json",
+      "kind": "file",
+      "bytes": 31,
+      "sha256": "d532abb65cf9ae20634b464d954cb4a08a0de9f3cd3cdf7f9c3ec8948826d947",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-article-DNTtDhJZ.avif",
+      "kind": "file",
+      "bytes": 24463,
+      "sha256": "a94c3639d4fa7c5feda51dd294ab5174e364d96e8ad5934ef476acbf2ceb4444",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-audio-BQ4iBmk-.avif",
+      "kind": "file",
+      "bytes": 22295,
+      "sha256": "50e64a34fa5ab8194ef24d9b337e7c060dacec2f76bb0a90226c265c6e29cd32",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-highlight-CJ83Yr0g.avif",
+      "kind": "file",
+      "bytes": 28472,
+      "sha256": "0234c59bad4df81ef994cb62183bdf51a17412e08ef2a2803386d75d6eee1990",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-image-DJx0yAgh.avif",
+      "kind": "file",
+      "bytes": 40104,
+      "sha256": "aec6f43cc23dfc8322f60d00d84a0f56d42c09412b21b8572d7ebba26392837a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-text-BCUMTc7F.avif",
+      "kind": "file",
+      "bytes": 13925,
+      "sha256": "bc95f1fe6d85f4b015a90c7c9b8b2472c24aa66422e69068b88f3701f66c45aa",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/inspiration-website-DQCABkUC.avif",
+      "kind": "file",
+      "bytes": 24049,
+      "sha256": "371914ea82dd8a1eb9b32cbc0d86bbf5d04f7a9b9d94ee258cb4d4f79279f41f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/assets/sublime-mark.svg",
+      "kind": "file",
+      "bytes": 1506,
+      "sha256": "627aecc66f16e109a7c40d00a7e5fbadef1db778e7cbe563bea780a4e569aaa8",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/fonts/control-upright.woff2",
+      "kind": "file",
+      "bytes": 104541,
+      "sha256": "c29e41ec4a83c78205104f3271d0c819e0aa5e2b3f45898be61c9f9185ac2523",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/references/board-one.png",
+      "kind": "file",
+      "bytes": 1916111,
+      "sha256": "d361b11bbdc6ea4fd0982febad4b0c75eed2b0330b022f2745275fbf81e8ede9",
+      "mode": "0o600"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/references/board-three.png",
+      "kind": "file",
+      "bytes": 1812141,
+      "sha256": "d594989547a6e75b3d64c3e4cc9d5afdd6fe5a18097f9518b70b732f9b7542a9",
+      "mode": "0o600"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/public/references/board-two.png",
+      "kind": "file",
+      "bytes": 1947680,
+      "sha256": "dfc2efce2f05edcbdf89f23ce43d0d353800f57f76680b58b4e7013c68169453",
+      "mode": "0o600"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/scripts/prepare-sites-build.mjs",
+      "kind": "file",
+      "bytes": 910,
+      "sha256": "b6a6adaa4fab3234676116dd1c9cb6611275ab9d92dd26f5bf402393e3744bf6",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/App.jsx",
+      "kind": "file",
+      "bytes": 12297,
+      "sha256": "0a04def215a592eae577c347495d58791b60fe33137f7613cd94c94fef52af85",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/Collections.css",
+      "kind": "file",
+      "bytes": 33383,
+      "sha256": "185ad0fd99a8a8db3a56da0714f3b18b62487a012f5154e7cbe87ce9a1817f05",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/Collections.jsx",
+      "kind": "file",
+      "bytes": 28351,
+      "sha256": "8af4ff39a1cb1af816c7e0aba49412c461435d9fc05127c2e1df3bb47fbed29e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/DesktopApp.jsx",
+      "kind": "file",
+      "bytes": 22605,
+      "sha256": "c96a08a8f23d008a6ac8134306d0e7bd2fe2d164657351a4d79e8ddf533537e5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/DesktopNote.jsx",
+      "kind": "file",
+      "bytes": 23134,
+      "sha256": "7f39bbcce95a7f5e0e022741219d20fd0fc638df747a0991e025f7578f338e1f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/DiscoveryView.jsx",
+      "kind": "file",
+      "bytes": 64270,
+      "sha256": "bb8de7059712c1a4823694780d009c89866380bf885ca832bc4dbb2d9a0166b1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/ErrorBoundary.jsx",
+      "kind": "file",
+      "bytes": 1523,
+      "sha256": "8ef87a57b14ca1ee1ea8cef71c15a7898d0c4ed4a404b12995c40a31591b268a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/Inspiration.jsx",
+      "kind": "file",
+      "bytes": 15599,
+      "sha256": "6e4b39304f571c6e22fcbaa7eeaf4bb4cc4a90c180ad64e9dae72eb30ef41ebe",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/MarkdownContent.jsx",
+      "kind": "file",
+      "bytes": 2495,
+      "sha256": "8682af6767c0d278a7c98944ffbd9e89cac9b01f9f1338a9ee2b421e9b1c60e2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/QuickOpen.jsx",
+      "kind": "file",
+      "bytes": 2699,
+      "sha256": "f9b01aa3a41371dea2a28774d11f94e98e1123832df6e33c00cf8dbb42d333c7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/Reader.css",
+      "kind": "file",
+      "bytes": 14202,
+      "sha256": "8e02e13eb72b1160b6503457a65a53bfd3023c0519c6a3eea97d1a1106164bdb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/Reader.jsx",
+      "kind": "file",
+      "bytes": 21682,
+      "sha256": "674eb792f3c77d135f2e854e958f9c54f72704337d1ae694d7d29a008d60a305",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/RelatedPreview.jsx",
+      "kind": "file",
+      "bytes": 3464,
+      "sha256": "748a57d6a5e33ac82a4e822eac105f76070c236272ee2dedfe0dfa21e67f066c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/ScheduleView.css",
+      "kind": "file",
+      "bytes": 22607,
+      "sha256": "cc57968fc318e8c7128d245c20a7f12fc3cc5f0225c45ace5b58f4be9c8cf921",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/ScheduleView.jsx",
+      "kind": "file",
+      "bytes": 41985,
+      "sha256": "7891838dd5826ffa3676cdf1b951b201d857a15c8106d21e98588f5c356438f5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/StandaloneApp.jsx",
+      "kind": "file",
+      "bytes": 2502,
+      "sha256": "9f7ff4909c410a10a48fa1e82fa48dc1fb1cd4aa9d04f67b6549d373dcccb2b2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/WorkOverview.css",
+      "kind": "file",
+      "bytes": 4338,
+      "sha256": "10f4f5f081d7c55f3227b13bab6a2253944fe7772d0322ac28a81c79e6950b1d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/WorkOverview.jsx",
+      "kind": "file",
+      "bytes": 4114,
+      "sha256": "3cc06fd0ca87c5dda9208e41dfa655d824650c5cd19f33073f90efe69a196109",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/WorkspaceSearch.css",
+      "kind": "file",
+      "bytes": 1626,
+      "sha256": "b5768aac8b786d189805a8aa9a548ea0d49d698f91f920f38e83930a78550517",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/WorkspaceSearch.jsx",
+      "kind": "file",
+      "bytes": 533,
+      "sha256": "a812bde07c4a6f158385621424618153e5dfb11697bf2ac759b605c96e05e43a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/base-reset.css",
+      "kind": "file",
+      "bytes": 2356,
+      "sha256": "7e4c252a74d2de99bc33ed7d3f9ec22700c27b127df821dca4afe34f8226883a",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/common.jsx",
+      "kind": "file",
+      "bytes": 3042,
+      "sha256": "e3817e0e82760a3d106aa9f0e31e5eea955b1ec9e37504df4e6c96ecb4c35fe5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/components.css",
+      "kind": "file",
+      "bytes": 17297,
+      "sha256": "bb8f171fd498dc92d42bdfaa49c074d3a6a8490e167ed00e5477ebed0bd2d948",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/data.js",
+      "kind": "file",
+      "bytes": 7499,
+      "sha256": "7327d312449dfb5f8620ce96731c179aad4d9599a93091e1bd287d00f2b7234b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/design-tokens.css",
+      "kind": "file",
+      "bytes": 6063,
+      "sha256": "0c167455be3cfec606b9b32cde2aba541892b6d9419b790671a023dc97a8efcb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/desktop.css",
+      "kind": "file",
+      "bytes": 13173,
+      "sha256": "9d27161cb5604782d527c15df0cf8f7929bac22420d708527af8f676a6b3b145",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/desktopModel.js",
+      "kind": "file",
+      "bytes": 7764,
+      "sha256": "5b955f6fea08df39d64bf0776c60a592c215fffd3e54a3220810f46c68ea51a2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/discovery.css",
+      "kind": "file",
+      "bytes": 36584,
+      "sha256": "3b8ac88be82d1a1573d0c3d56d983edf1cc4b4165d3565651846e9c41509f314",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/discoveryModel.js",
+      "kind": "file",
+      "bytes": 32288,
+      "sha256": "24506c41574d8938c3d59586c19d8bc90f4e80adb3efd6a1e25e1d98f2ebe98e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/discoveryPreview.js",
+      "kind": "file",
+      "bytes": 4854,
+      "sha256": "b3714f4327e9422a739a458b36d5edd65ce85f040e612ee3e87068d63f66c74b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/draftStatus.js",
+      "kind": "file",
+      "bytes": 2441,
+      "sha256": "bbdf75e4e2a112af727a71a31cee9ce9a2505480a5ff0e7c385482afa5160390",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/inspiration.css",
+      "kind": "file",
+      "bytes": 16346,
+      "sha256": "a2b57b36d0b4d4f625ac77d03a90e83ae487fb4d10b07ad5aa242b047646b910",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/main.jsx",
+      "kind": "file",
+      "bytes": 1031,
+      "sha256": "ba5d5c2cef8b5318f76b83d2a60d751cb15d410e25ac2ab772394d7b799798c3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/notePresentation.js",
+      "kind": "file",
+      "bytes": 4155,
+      "sha256": "7389a5c4e114939a845b4a994300f78dd69a7c6390bfd467542f957e2f777aa3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/scheduleDraftRecovery.js",
+      "kind": "file",
+      "bytes": 1544,
+      "sha256": "49c95201aec372c4062c2b6e78590d4cd774c25c1aed1a37f080d2d2b8e32013",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/scheduleModel.js",
+      "kind": "file",
+      "bytes": 11452,
+      "sha256": "8f44689a6832e3d95e22ce7b78c15d47488fe2513e39ae5e4aac79fc0a32eee1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/schedulePreview.js",
+      "kind": "file",
+      "bytes": 2931,
+      "sha256": "3f9207f32f7c8fb23eeb6b09c70e1a4725c5c2b060fbee3c31f461cf5067093b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/standalone.css",
+      "kind": "file",
+      "bytes": 605,
+      "sha256": "c71cb555fcee177c73f7d9de448d6ac88b85df450daa4055b4f92799bd241acd",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/styles.css",
+      "kind": "file",
+      "bytes": 15645,
+      "sha256": "ff4fcb26733cf73baa1ea81e6f0c48461aa1d2b56e080f500c12be5f684d4353",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublimeFocus.css",
+      "kind": "file",
+      "bytes": 5083,
+      "sha256": "0b5cc780259edc4041406702733f6b41835d81bb4085ba9b80f5cd0e85c920d4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/useScheduleMotion.js",
+      "kind": "file",
+      "bytes": 4424,
+      "sha256": "9328856568cc725c1beb16ed4fd24205149117bc19f83bc7ce8c739487017bc5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/useWorkspaceNavigation.js",
+      "kind": "file",
+      "bytes": 754,
+      "sha256": "f113710fe8ee04d9131a2f8f2bf136dffbee8aad2651c7c0b76e86bbb907daaa",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/workOverviewModel.js",
+      "kind": "file",
+      "bytes": 2699,
+      "sha256": "a6e977eee888d96b33748965502153aa7779c39ac95ffba76068e450b1628bad",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/workspaceHistory.js",
+      "kind": "file",
+      "bytes": 1960,
+      "sha256": "269d5d4e1fff267a7c746546ee0cf89284391db4352c5a34b3df87c7bdb58350",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/AttachmentPreview.jsx",
+      "kind": "file",
+      "bytes": 8903,
+      "sha256": "14941e64609b11d2d0774fa4825fbba8f582e6eff57a95a5a0ea554c1149a85e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/IntelligencePanel.jsx",
+      "kind": "file",
+      "bytes": 25028,
+      "sha256": "8efd7ed8acb200f8e593b6395bdee6d55d167f239f85106b6b3a7d8365e7157d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/PdfAttachmentPreview.jsx",
+      "kind": "file",
+      "bytes": 11821,
+      "sha256": "2085007e8b014b641ee126190d5851fefc60b9a902a74e94d5ff192b6f55818e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/PodcastClips.jsx",
+      "kind": "file",
+      "bytes": 19400,
+      "sha256": "6a8585cc2567a607ccdee0b36b4c3ed70d641bd5de3d6277d6391220566f9cc3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/SourceFeeds.jsx",
+      "kind": "file",
+      "bytes": 8756,
+      "sha256": "6d5c5b89dcdd1f26ee809c69607da4c88cc555141462e2ee4bebece17f7d2c7f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/SublimeEditors.jsx",
+      "kind": "file",
+      "bytes": 45193,
+      "sha256": "fd7a1fc0a462138b0ae0a61212c86f80b9d9d4df5cb9da593fc796f74e132aa5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/SublimeWorkspace.jsx",
+      "kind": "file",
+      "bytes": 78037,
+      "sha256": "d6a61e1393bb16295f87a41ac329dfd45bf9d91de421151b9396fdc29977a2bc",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/VaultAttachmentPreview.jsx",
+      "kind": "file",
+      "bytes": 826,
+      "sha256": "c221ce2cd4a62a396e112318691a8b180764d66c841535411d16adf15ce812f3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/attachmentPreview.js",
+      "kind": "file",
+      "bytes": 4349,
+      "sha256": "de162365aab340448483d6dbfb7dd720582daeb381e22fac777a6b706c9ab9d0",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/attachmentWord.worker.js",
+      "kind": "file",
+      "bytes": 681,
+      "sha256": "f09593b0ca5fc9fec7c3f6bb12b17318f5a3ee09e4d08ac9f2df773c25fd1fb5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/deepseekSettings.js",
+      "kind": "file",
+      "bytes": 453,
+      "sha256": "88efdb838c1c8543dff1a4fe37d6bf6147552645b2366b14c8a25ad858d81d0e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/documentText.js",
+      "kind": "file",
+      "bytes": 3596,
+      "sha256": "d23ecd71762f891ffd9215894ead0b0836a927a33d976432abd823424117ff5f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/externalContext.js",
+      "kind": "file",
+      "bytes": 2324,
+      "sha256": "87473ba62d7a1cf1888502719a932daa54195ed0e322b91f1b8e638c76f9a1c5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/intelligenceDrafts.js",
+      "kind": "file",
+      "bytes": 12083,
+      "sha256": "39ad1ade31aa74b90b56641e9e0d0ee021c0a0ee70e42afad6ce660de28e581c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/intelligenceHelpers.js",
+      "kind": "file",
+      "bytes": 4645,
+      "sha256": "baea62761d3398eb990e024a90bfebc7f2291fd0ccad3533b8955fa4ad5de062",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/intelligencePanel.css",
+      "kind": "file",
+      "bytes": 1867,
+      "sha256": "6ce79fe1b9ac73c961f5c5534b3545325fea1c2e9200a7de4d2d516911790434",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/nativeFilePreview.js",
+      "kind": "file",
+      "bytes": 1364,
+      "sha256": "ecc709fce0c593db9ec3d43f52af8022d44063e2513d17c69717d8ec677af0cc",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/pdfPreview.js",
+      "kind": "file",
+      "bytes": 1081,
+      "sha256": "e1633e1dbc8e4a1ed602b50fc3bf5d560f3254ca97ec6a66fc09563a33a301c0",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/podcastClips.css",
+      "kind": "file",
+      "bytes": 2364,
+      "sha256": "7e9ac51b00a2f385135eee1f1d1cc99438ebe0eae96445b7329288f722f45ce3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/podcastClips.js",
+      "kind": "file",
+      "bytes": 5206,
+      "sha256": "a9ea0b5bb96a3162b2c9ebc937a28bfd4f60659788de3ed99e03b94dea5e8867",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/podcastTranscription.js",
+      "kind": "file",
+      "bytes": 5176,
+      "sha256": "228565ba4943f9cec7ca3d44587523758058f8821f7cb460301cf3b0b9f8997f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/publishableCollection.js",
+      "kind": "file",
+      "bytes": 4531,
+      "sha256": "4eaa1acf8b21c7da09704c7bac0f69772e08165890596c8a9bd4fcb43e7428ea",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/referenceCards.js",
+      "kind": "file",
+      "bytes": 575,
+      "sha256": "5aa5c1e639bbb71a6fceaa5b35e64133475a8dd52cc39866e501a4a9987eb9b3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/sourceFeeds.css",
+      "kind": "file",
+      "bytes": 2272,
+      "sha256": "0ab8ef76253e49ffd34d6845542f396ddf9a11512391799826af78c8bb006bd2",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/sourceFeeds.js",
+      "kind": "file",
+      "bytes": 8605,
+      "sha256": "cb62af2da1e053170123e1a8cded055947a19b88972139261c8e98d875166a7f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/sublimeEditors.css",
+      "kind": "file",
+      "bytes": 24909,
+      "sha256": "79acf884a1f3d3dd93b044f182516a02854f5aab79966dbab6f4ffe009953fcd",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/sublimeWorkspace.css",
+      "kind": "file",
+      "bytes": 38172,
+      "sha256": "5ec49cf048bd5d99abfbb3d8b46713fdb06f3b651bfe4f88738beb071cc52785",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/webCapture.js",
+      "kind": "file",
+      "bytes": 1748,
+      "sha256": "75a86ea3e623c7f76e5338f616c423ba61c287ebdff5915d738483f0b2a0d922",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspaceDownload.js",
+      "kind": "file",
+      "bytes": 795,
+      "sha256": "c046c748b2f8d4a70e4d2527df4f57fd9ea2bf018fa15e706010abc9cc8551c6",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspaceModel.js",
+      "kind": "file",
+      "bytes": 46853,
+      "sha256": "1e6995cd5c84de744e2430e482753af13d0b09ef3e534ae855cf9b9e67e11aa3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspaceNavigation.js",
+      "kind": "file",
+      "bytes": 2044,
+      "sha256": "0226345f21cedc4f597051d6a58d0b99d29d75ec8e6cad2c9d39e6d749cfec57",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspacePersistence.js",
+      "kind": "file",
+      "bytes": 13092,
+      "sha256": "b4cdc8037140c85e4a4db3c7f77a65c063c77f14e6ba9d3251886bde1f379148",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspaceStore.js",
+      "kind": "file",
+      "bytes": 5976,
+      "sha256": "e4a0531256dcb518e93a46c32e6a1e9b09e9d05370b68a42f3fcee0d1ba19f09",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/src/sublime/workspaceView.js",
+      "kind": "file",
+      "bytes": 5291,
+      "sha256": "f46016c6ef458fdda54dc3264bed862df76810aea2aa22fcf11a7e3c28c36c1f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/desktop-fixture.html",
+      "kind": "file",
+      "bytes": 284,
+      "sha256": "d925d6f5fd48188f65ba81903949dd84a75862b19f3a2f7daf1e81f75a0a8aeb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/desktop-fixture.mjs",
+      "kind": "file",
+      "bytes": 5951,
+      "sha256": "59f234bb944c4a45e335e7736ded69b31ec60f70b97a6a5ebf3e97232576e7a5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/desktop-model.test.mjs",
+      "kind": "file",
+      "bytes": 9709,
+      "sha256": "412a2d3b0b869bfa632b5765cec2fe05cf32f95ef7ca9405c98306ec3893bf95",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/discovery-import-formats.test.mjs",
+      "kind": "file",
+      "bytes": 6637,
+      "sha256": "a64f5d5c553afe96c83b53bc089dcb4215c0e4732d1b66ade3d49c1d5146bd87",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/discovery-model.test.mjs",
+      "kind": "file",
+      "bytes": 12560,
+      "sha256": "b7debabebefd46777f07085bc399401a9b58997d174a8bae2115442af535f0ac",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/draft-status.test.mjs",
+      "kind": "file",
+      "bytes": 4443,
+      "sha256": "2dc8d4a6c982b3dbdc3155153711ea0156edcb08a362a2fc3a00da19edca716f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/note-presentation.test.mjs",
+      "kind": "file",
+      "bytes": 3807,
+      "sha256": "93287e641fcbd5c41228e0a017231583a747249020ffce351cac5bc45331d23c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/schedule-draft-recovery.test.mjs",
+      "kind": "file",
+      "bytes": 1713,
+      "sha256": "4f7808d11e8d45e630631176adbb3c244b70776e52d05f3872554b01a77eac74",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/schedule-model.test.mjs",
+      "kind": "file",
+      "bytes": 9852,
+      "sha256": "5904dbe476f65fcddea3d840229163f7ea899c0437a1d07fee5348f062f2b3fe",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sites-worker.test.mjs",
+      "kind": "file",
+      "bytes": 2219,
+      "sha256": "96af7b48906c6460c793356d7b6952f7d5026dbf5a502bec0d9297ff04201c26",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-ai-policy.test.mjs",
+      "kind": "file",
+      "bytes": 3839,
+      "sha256": "f49f5bcfbf0fa870ded91e6d32b6b3b21e602c150bc267ccc4af014dec5b3beb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-archive.test.mjs",
+      "kind": "file",
+      "bytes": 1602,
+      "sha256": "f14740ed72d35b4ad3273430e352b62c38263bb918f88f236882b3d7eb25e9e5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-attachment-preview.test.mjs",
+      "kind": "file",
+      "bytes": 3867,
+      "sha256": "50fe783e7e8911624a817268a3558ef08be0b2d1b212b98305fa44bd95792ccc",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-backup-merge.test.mjs",
+      "kind": "file",
+      "bytes": 17850,
+      "sha256": "5b9912ef1da7397a882e33040a75a970c9e246fd98cb4d3a6dcf9c231885f67e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-context-podcast.test.mjs",
+      "kind": "file",
+      "bytes": 24707,
+      "sha256": "3b69a6916af19c87837745986bb240d7e105ea95eaf295c94160354a32236af5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-document-text.test.mjs",
+      "kind": "file",
+      "bytes": 6848,
+      "sha256": "20497e6183da5bda5d8cf042877bda1c7b577bf37832223df1b6debf0a9ecffa",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-download.test.mjs",
+      "kind": "file",
+      "bytes": 3262,
+      "sha256": "45e4e0b27d59cfbbc52fce75913019ee1b4db929456544f8bdb1873972e6e4fb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-draft-recovery.test.mjs",
+      "kind": "file",
+      "bytes": 9129,
+      "sha256": "d5d423b72687f9e4edc8037d19e5d6adfb8e593673d68027f558b08157cf3747",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-editors-regression.test.mjs",
+      "kind": "file",
+      "bytes": 9271,
+      "sha256": "4473b069030dc7bca4bc6ed6369d8f0a35fb1eb3cbfacb04cd30133643010e19",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-ingest-fixture.html",
+      "kind": "file",
+      "bytes": 298,
+      "sha256": "fb986c5f572bd8b17584b222f96600e49bb8b9ca25bd9086ee1414f5ed185b19",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-ingest-fixture.jsx",
+      "kind": "file",
+      "bytes": 2110,
+      "sha256": "9adace5a21d11eb55e8576edc2e50477df5ef1772b6cc0fb781225be6851ef09",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-intelligence-drafts.test.mjs",
+      "kind": "file",
+      "bytes": 14245,
+      "sha256": "a7c1779a193c1922548aa674d293de9ad20d558304d9071929f0beb90ad84c42",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-intelligence-helpers.test.mjs",
+      "kind": "file",
+      "bytes": 3432,
+      "sha256": "83f702e4e487fb58fa57ac4871d02f2c32571baade1c486ad34c443a451d380c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-intelligence-persistence.test.mjs",
+      "kind": "file",
+      "bytes": 23538,
+      "sha256": "160ebdda44aa9eef8fed50089a0622847ef20b9762d6dba19e90758c60ecc8b7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-intelligence-review.test.mjs",
+      "kind": "file",
+      "bytes": 29246,
+      "sha256": "23fe8c650a46fe34925b27ec92c6c0bb3a202bcc51c161d9aabc2f04c3570ac0",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-navigation.test.mjs",
+      "kind": "file",
+      "bytes": 3585,
+      "sha256": "08eecb5e61d3002ebdab3a92b0c6d4db898a3a90124fbbe457682466d28f22ce",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-pdf-preview.test.mjs",
+      "kind": "file",
+      "bytes": 3294,
+      "sha256": "55d35e549c3ed9ce9a354586b9503fb15fe712f3033c2beca692f057f29acbc7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-persistence.test.mjs",
+      "kind": "file",
+      "bytes": 3750,
+      "sha256": "3d61134118a3b8f02471daa33e573aae47720fb2e0ea57ec883a30edde58fd64",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-session-build.test.mjs",
+      "kind": "file",
+      "bytes": 2884,
+      "sha256": "365ba27b0d22844e46fd492503d53aece7bed120876c316a036db16b226b2b9b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-single-user.test.mjs",
+      "kind": "file",
+      "bytes": 2518,
+      "sha256": "d5a0ff8097dd716652d8e11d7b4641e104c1aff636dbc21ea64b8669c9ae1c2c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-source-feeds.test.mjs",
+      "kind": "file",
+      "bytes": 8931,
+      "sha256": "970594c09a038e04f443308ed1b3d693fa66475e4a1c175a6ac2272f92153d0e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-store.test.mjs",
+      "kind": "file",
+      "bytes": 15417,
+      "sha256": "ee93d1373f2a88d67a74e46abf1d9a348ec71a21e9104d64e6a1e01feb985e38",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-vault-modal.test.mjs",
+      "kind": "file",
+      "bytes": 13678,
+      "sha256": "3b8e260c0fe1ab88872e667d3b50bb3682bdfaa7c494ad6f54e44a5d09984005",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/sublime-workspace.test.mjs",
+      "kind": "file",
+      "bytes": 31396,
+      "sha256": "e622341b48d8866a03db2a16b5d9f1be551fad8bb3015999eef4c39cedc1fbd7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/web-capture-adapter.test.mjs",
+      "kind": "file",
+      "bytes": 2589,
+      "sha256": "314e5d24b4fdb94292e5a07d9f930f7a6ed5bc7b5e4b32db1bcf43d0cf6aa8e8",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/work-overview-model.test.mjs",
+      "kind": "file",
+      "bytes": 5687,
+      "sha256": "1169dc0e6508de9f5b50808613d7b634aa28a371e2b87fb196f1831cc40d76f5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/workspace-history.test.mjs",
+      "kind": "file",
+      "bytes": 2375,
+      "sha256": "552662f2bd0984f30ba86fc76400fb601af8f6dacbe0634d2c136da6998e7c98",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-interactions-QA.md",
+      "kind": "file",
+      "bytes": 3673,
+      "sha256": "27a5f3ca9f6390d5b41f5ff3d574c348f239cb24c8ab757e3c500bdc634c9187",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-interactions.css",
+      "kind": "file",
+      "bytes": 2237,
+      "sha256": "84d28673bfd66e11bb7d32ddfd51a8208ee50688ae266b97d902727186f35d06",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-interactions.html",
+      "kind": "file",
+      "bytes": 383,
+      "sha256": "3469c397b1f8fbc4cd33ac3dd6cbb8ae84839a9db53a8abf217bfa0d1953a53b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-interactions.jsx",
+      "kind": "file",
+      "bytes": 20914,
+      "sha256": "c115631f305412db522570ddfb51fd2cae0395c47a9ec49ced9e23c3b069e130",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-schedule-QA.md",
+      "kind": "file",
+      "bytes": 4480,
+      "sha256": "8672d6d0f68deb7df304f8b698e4984a6be0f481d1be0ef65b3ca340028b4f9f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-schedule.css",
+      "kind": "file",
+      "bytes": 2248,
+      "sha256": "6497f18106a0ad7a999552a39f130437f48651aa8537636a5e69be9581185ede",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-schedule.html",
+      "kind": "file",
+      "bytes": 391,
+      "sha256": "8bd83197975bf7da8d7f0b9179c97fd71f132cbcb6db901cab7241467fdcb7b4",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/desktop-schedule.jsx",
+      "kind": "file",
+      "bytes": 20274,
+      "sha256": "4829e24e248ceac9c21d8aef2c32723a2584ed9f8c7350c5b0b67f836e388bbb",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/work-overview.html",
+      "kind": "file",
+      "bytes": 394,
+      "sha256": "fd13b06520ae7012559b0fa55628ac0ffb69d01b48fa6f1cd5696264466af2f7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/tests/fixtures/work-overview.jsx",
+      "kind": "file",
+      "bytes": 22172,
+      "sha256": "e6644a1a866f14389f38766c882a3f7a750f51a4af12cbd753086ca9f6c32419",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/prototypes/desktop-workbench/worker/index.js",
+      "kind": "file",
+      "bytes": 483,
+      "sha256": "2dd0615a445143933d88d4271f54f5d63ee951421fcd08c5a7617bb09c564389",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/build-attachment-validation.mjs",
+      "kind": "file",
+      "bytes": 606,
+      "sha256": "6a714affcfcf66014999e2de7a125a273deaea85ff7e3063aa7ead7e092fad35",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/build-desktop.mjs",
+      "kind": "file",
+      "bytes": 2464,
+      "sha256": "fd14149981c2a66d02ed07b28800d7882773091f011e07b0c96a97d68908c551",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/build-discovery-helper.mjs",
+      "kind": "file",
+      "bytes": 4090,
+      "sha256": "315ac481b1753ccdbe60e0046e8acb6e2a564fb19ad42e5be4054fcd5cfd5d39",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/build-fusion-style.mjs",
+      "kind": "file",
+      "bytes": 513,
+      "sha256": "bcbf8d4ccf25bbfbbb65b6c6fd34b443be51f3fbeace554f81e39d0efada12d5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/create-discovery-fixtures.cjs",
+      "kind": "file",
+      "bytes": 1907,
+      "sha256": "1c4a43cb1a90117a711eb4c3103a03a8df4e7e8963c891d6442d7ee7c6b0897f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/electron-cache.mjs",
+      "kind": "file",
+      "bytes": 532,
+      "sha256": "8c56025ca77db7766511eac32c59961b1119f5030fdad740587f119f79802fca",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/mengcang-mcp.cjs",
+      "kind": "file",
+      "bytes": 11281,
+      "sha256": "1eba25e4c55357076d0dad9e5caa3ff384bdff0b42e37c8a96dcc511e1bed9d7",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/package-desktop.mjs",
+      "kind": "file",
+      "bytes": 1580,
+      "sha256": "03c601b09f54d130616683de4172d9b06fb99961f947341dac80d0b829eae1db",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/scripts/prepare-bundled-runtime.mjs",
+      "kind": "file",
+      "bytes": 633,
+      "sha256": "7da68fbe6dcd4fe92ff74a868bb15b53572b4bf8cafd2a45f78386702d151fa3",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/book-intro.js",
+      "kind": "file",
+      "bytes": 4351,
+      "sha256": "698fbcaa2e1bf2a83d3315307a170cbcc2c9ba8700cb7b0423217072945c764d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/book-journal.js",
+      "kind": "file",
+      "bytes": 7232,
+      "sha256": "e9dc351607f04fac34fd48ad51aed412833795c8ab365179182783f9a150609c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/book-local-graph.js",
+      "kind": "file",
+      "bytes": 7635,
+      "sha256": "7968904a44fa8a7150d91891571350b22b3864f64eb60ed5eb0234a5c7ae863e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/book-motion-shelf.js",
+      "kind": "file",
+      "bytes": 32619,
+      "sha256": "e31884f27e8973867125ded39a77d93e118aae94832855928b6ca9294ad0809d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/main.js",
+      "kind": "file",
+      "bytes": 149460,
+      "sha256": "ccb3e6d0c0665a51a91aaea0ccd0c4b6556cd90c980950b108457b0c7d70d750",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/native-book-graph.js",
+      "kind": "file",
+      "bytes": 429,
+      "sha256": "34874372d7f29dbdaa528bd643558d541314c769c850a12efc0a47bbd61d5e5f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/desktop-connector/capture.js",
+      "kind": "file",
+      "bytes": 10280,
+      "sha256": "4b93d3d13d04cd9058b52c9aee7397e15c5c01e59b77b95cafaa8591988c4242",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/desktop-connector/index.js",
+      "kind": "file",
+      "bytes": 35075,
+      "sha256": "1edc14e4490ca86023efe9a6d51a72b134f1539cf110f469423fc98809d017a1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/desktop-connector/note-dto.js",
+      "kind": "file",
+      "bytes": 3131,
+      "sha256": "ecb55cd8418b4228a9b4b7a2b845b2377b1c0ae0888697c3fde89770277fc00f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/desktop-connector/notes.js",
+      "kind": "file",
+      "bytes": 5993,
+      "sha256": "7050f1fedbe6bc1a6e8298a26a5b23bb2203e35c55f4ca3cff74f43f46e57690",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/desktop-connector/schedule.js",
+      "kind": "file",
+      "bytes": 13010,
+      "sha256": "5a2b97d3196ec27c56c13084c8a8109e5f5f81a9f21b927bc1b95cfef9e91e22",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/inspiration/fusion.css",
+      "kind": "file",
+      "bytes": 11970,
+      "sha256": "03bb1dae3a19d523fe6f9e07f3682c2b14a115b4aaadccb26e9c65ab467aa75e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/inspiration/schema.js",
+      "kind": "file",
+      "bytes": 308,
+      "sha256": "746bf98592c0e43d971be7fd38a1f55cdf3a0db271ec9998e349c01a7c5a3ea5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/inspiration/snapshot.js",
+      "kind": "file",
+      "bytes": 6034,
+      "sha256": "e00fde306287812c1c1e482408f0ccdc0fc2cb1831e3b0b653234307ceb4d5ec",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/inspiration/store.js",
+      "kind": "file",
+      "bytes": 10900,
+      "sha256": "930c1c80b36d5949baa4273102df8ef3f139c98216ca54d33af0ae1bcbe7ef87",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/src/inspiration/view.jsx",
+      "kind": "file",
+      "bytes": 16425,
+      "sha256": "37d53a5789e3d70e9e1357a0b29d705a753fe741c52a8b67cc194f7145abe238",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/star-sea/core.js",
+      "kind": "file",
+      "bytes": 31587,
+      "sha256": "de65cdfb789d0d63750382639675a8200bc1e2e59bfb1dd34741b4a596529406",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/star-sea/service.js",
+      "kind": "file",
+      "bytes": 36628,
+      "sha256": "4db98e2277786040a3d89d3fb8a6d934909a03a092e3c9a54dc456b17f7527d1",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/star-sea/view.js",
+      "kind": "file",
+      "bytes": 27518,
+      "sha256": "276dddddb829080712887d545888cf0b62fef2158cdcd4ca513d83dafd33123f",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-attachment-policy.test.js",
+      "kind": "file",
+      "bytes": 2675,
+      "sha256": "c997574a4a56189120f0a23abd48550ac3bc89b0e603f052a887f4b2b42a5778",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-capture.test.js",
+      "kind": "file",
+      "bytes": 21494,
+      "sha256": "dc352ed7c9d7ba82992475e70d4ecbc7bc7d2d2807f1718463c8df2cb1ad5acd",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-connector.test.js",
+      "kind": "file",
+      "bytes": 18491,
+      "sha256": "25d5775758bbc8d5716f308077d1a908b2b831a97ed0d3fdb51cb40280a3e9e5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-download.test.js",
+      "kind": "file",
+      "bytes": 2955,
+      "sha256": "8b981f5689b9c18f848cb39d8863527ec2a065c133fd32bb290d17dae4086484",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-gateway.test.js",
+      "kind": "file",
+      "bytes": 23709,
+      "sha256": "fce63d0a6e7559bbf6e828848d70ebae2c3ed85ffa7bf2374198febf5fddec2e",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-schedule-bridge.test.js",
+      "kind": "file",
+      "bytes": 9514,
+      "sha256": "3de72d0797a65a0051a302911003e89bd8fab82c44edaf7fd892a863d75ba1ad",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-schedule.test.js",
+      "kind": "file",
+      "bytes": 26308,
+      "sha256": "4ef7e09832eacf9e9b3633e6971f86260363dfc31c50c8f435a17057da9dd427",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-security.test.js",
+      "kind": "file",
+      "bytes": 6246,
+      "sha256": "a518411a5f8c1f69ce3eb81dce45817f12bef9d446c589a2aa378f9e0088e75d",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-source-actions.test.js",
+      "kind": "file",
+      "bytes": 1912,
+      "sha256": "f13d114e3728a573ea7edcb358151750feb790b826d1fd04554be0c85e0f50be",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/desktop-window-lifecycle.test.js",
+      "kind": "file",
+      "bytes": 9407,
+      "sha256": "9fe04c99905f6b99a477c3168c151b0907c9a89fc1c71b3d54be44ffd4c3494b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/discovery-ipc.test.js",
+      "kind": "file",
+      "bytes": 5364,
+      "sha256": "c3ab55ac331b1b340a91e5ae51d119045741b44164780f9473597dfdb10a0f76",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/discovery-native.test.js",
+      "kind": "file",
+      "bytes": 2655,
+      "sha256": "9578730fd9f0bbe947e32f861e33ee330165662df74eec061948355426d6567c",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/feed-capture.test.js",
+      "kind": "file",
+      "bytes": 8537,
+      "sha256": "6305bc1c77279600c9836063bbe8ea1df2137e780f19b08e5506f985e9369cb8",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/intelligence-bridge-review.test.js",
+      "kind": "file",
+      "bytes": 1726,
+      "sha256": "e9d70cff55d04653cfe4b6586d2999afd659675c0eccd6a964f4a77995df00db",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/intelligence-bridge.test.js",
+      "kind": "file",
+      "bytes": 5119,
+      "sha256": "da3c07910c252546f0aec3c069d79020dcecb9749bc1f2793ad0187ab38c4798",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/intelligence-images.test.js",
+      "kind": "file",
+      "bytes": 10395,
+      "sha256": "379b03e0de451d6ff35d0220f3ea190626050a9cf4e79cbb131aebb3922e9a4b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/intelligence.test.js",
+      "kind": "file",
+      "bytes": 23775,
+      "sha256": "38774f1b05f80969caf1be38f0cb4908db942b741e8605da54fcd6d1c8349771",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/local-gateway.test.js",
+      "kind": "file",
+      "bytes": 7503,
+      "sha256": "ba65d5d15a0ef33045a7b5b5444e41418997231cef1f084435b58ac7a66b1301",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/local-transcription.test.js",
+      "kind": "file",
+      "bytes": 12369,
+      "sha256": "2fe5cb4d8d1f3805794693899aff93fe092df5c0f159fa8fe260a3249b44a1b5",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/native-file-preview.test.js",
+      "kind": "file",
+      "bytes": 7151,
+      "sha256": "29a0e20926818c140d4ed768923f86751bacbf58ec9626d0d75d35f67dab7642",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/public-dns.test.js",
+      "kind": "file",
+      "bytes": 5278,
+      "sha256": "579f415768d42e8b4ccb8c322ac396180efabc0f3eb59528ad06310af6123178",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/renderer-quit.test.js",
+      "kind": "file",
+      "bytes": 1845,
+      "sha256": "316b58a73364d223c1b6efa8fb083041050b2f6ef9f4dd8fd1ea2ddf11b35a7b",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/web-capture.test.js",
+      "kind": "file",
+      "bytes": 7535,
+      "sha256": "9872ff2942c1e54abe9164fb1f44ec0f77e677d873049359c8b1bd1a3ab85141",
+      "mode": "0o644"
+    },
+    {
+      "path": "源码/tests/fixtures/discovery-excerpt.pdf",
+      "kind": "file",
+      "bytes": 931,
+      "sha256": "86ff326b0c7e8edc3a210b2f4c929be02435e6fcf32921ec77d38aba9ddd29a7",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/build.log",
+      "kind": "file",
+      "bytes": 17926,
+      "sha256": "e4687aa7806e9227c623482ac0e199f43443298b78c52232bc41c64cda701c61",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/desktop-tests.log",
+      "kind": "file",
+      "bytes": 4473,
+      "sha256": "abef92515ab1f2533b79d8f9fac9685253a7cffb3355f6e61cfe17e6393c4e53",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/formal-native-postcheck.json",
+      "kind": "file",
+      "bytes": 383,
+      "sha256": "faaad2f9aea21caa47d9d23023e67b3bcd5c8a2641cb103c67e97d5edadaa11c",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/installed-independent-review.json",
+      "kind": "file",
+      "bytes": 3663,
+      "sha256": "bf9c4e458a391ffbab2bead982b37227cef13729691b3af6119eeee30500f0ba",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/native-acceptance.json",
+      "kind": "file",
+      "bytes": 945,
+      "sha256": "1ee9203822ee5e41e5a26dfeb5abd359c5290024188e785f55356b558035604d",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/package-review.json",
+      "kind": "file",
+      "bytes": 5412,
+      "sha256": "16fb257a3c3efe7ddd237833dd1361bb6c053326d6bdea2ea16c4fc407848abf",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/review-results.json",
+      "kind": "file",
+      "bytes": 712,
+      "sha256": "2b782b7259886f9d7e489bd7aa56533c01fbb310d56c5ba4bf1e18e99486ba72",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/source-sync-plan.json",
+      "kind": "file",
+      "bytes": 1593,
+      "sha256": "0d8bacb00fb4fdba2bf50e788b2af030812fbb8a2cbc190a62e45ec6aa28f914",
+      "mode": "0o644"
+    },
+    {
+      "path": "验收记录/ui-tests.log",
+      "kind": "file",
+      "bytes": 20264,
+      "sha256": "eeece0ef48d5189345a3593c82e6f4524ea6ff29f51f8bd07a288c0e5dfc7c60",
+      "mode": "0o644"
+    }
+  ]
+}

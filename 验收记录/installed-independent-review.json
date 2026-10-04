@@ -1,0 +1,77 @@
+{
+  "checkedAt": "2026-10-04T17:03:54.428355+00:00",
+  "installedApp": "/Users/rabbit/Applications/梦藏.app",
+  "version": "0.8.6",
+  "expectedVersion": "0.8.6",
+  "asarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+  "packagedAsarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+  "expectedAsarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+  "asarMatches": true,
+  "canonicalSources": [
+    {
+      "path": "package.json",
+      "canonicalSHA256": "371eda1aa7235467d2dcd247a6bffa0cec61463f01dd6188933fce33fb937351",
+      "workspaceSHA256": "371eda1aa7235467d2dcd247a6bffa0cec61463f01dd6188933fce33fb937351",
+      "expectedSHA256": "371eda1aa7235467d2dcd247a6bffa0cec61463f01dd6188933fce33fb937351",
+      "match": true
+    },
+    {
+      "path": "package-lock.json",
+      "canonicalSHA256": "7a91db78e20abf5a9a5cbd0d9aa0dd4a09465fced6e01078939fbc1b5a98f1c1",
+      "workspaceSHA256": "7a91db78e20abf5a9a5cbd0d9aa0dd4a09465fced6e01078939fbc1b5a98f1c1",
+      "expectedSHA256": "7a91db78e20abf5a9a5cbd0d9aa0dd4a09465fced6e01078939fbc1b5a98f1c1",
+      "match": true
+    },
+    {
+      "path": "prototypes/desktop-workbench/src/sublime/podcastClips.js",
+      "canonicalSHA256": "a9ea0b5bb96a3162b2c9ebc937a28bfd4f60659788de3ed99e03b94dea5e8867",
+      "workspaceSHA256": "a9ea0b5bb96a3162b2c9ebc937a28bfd4f60659788de3ed99e03b94dea5e8867",
+      "expectedSHA256": "a9ea0b5bb96a3162b2c9ebc937a28bfd4f60659788de3ed99e03b94dea5e8867",
+      "match": true
+    },
+    {
+      "path": "prototypes/desktop-workbench/src/sublime/workspacePersistence.js",
+      "canonicalSHA256": "b4cdc8037140c85e4a4db3c7f77a65c063c77f14e6ba9d3251886bde1f379148",
+      "workspaceSHA256": "b4cdc8037140c85e4a4db3c7f77a65c063c77f14e6ba9d3251886bde1f379148",
+      "expectedSHA256": "b4cdc8037140c85e4a4db3c7f77a65c063c77f14e6ba9d3251886bde1f379148",
+      "match": true
+    },
+    {
+      "path": "prototypes/desktop-workbench/src/sublime/SublimeWorkspace.jsx",
+      "canonicalSHA256": "d6a61e1393bb16295f87a41ac329dfd45bf9d91de421151b9396fdc29977a2bc",
+      "workspaceSHA256": "d6a61e1393bb16295f87a41ac329dfd45bf9d91de421151b9396fdc29977a2bc",
+      "expectedSHA256": "d6a61e1393bb16295f87a41ac329dfd45bf9d91de421151b9396fdc29977a2bc",
+      "match": true
+    },
+    {
+      "path": "prototypes/desktop-workbench/tests/sublime-context-podcast.test.mjs",
+      "canonicalSHA256": "3b69a6916af19c87837745986bb240d7e105ea95eaf295c94160354a32236af5",
+      "workspaceSHA256": "3b69a6916af19c87837745986bb240d7e105ea95eaf295c94160354a32236af5",
+      "expectedSHA256": "3b69a6916af19c87837745986bb240d7e105ea95eaf295c94160354a32236af5",
+      "match": true
+    },
+    {
+      "path": "prototypes/desktop-workbench/tests/sublime-draft-recovery.test.mjs",
+      "canonicalSHA256": "d5d423b72687f9e4edc8037d19e5d6adfb8e593673d68027f558b08157cf3747",
+      "workspaceSHA256": "d5d423b72687f9e4edc8037d19e5d6adfb8e593673d68027f558b08157cf3747",
+      "expectedSHA256": "d5d423b72687f9e4edc8037d19e5d6adfb8e593673d68027f558b08157cf3747",
+      "match": true
+    }
+  ],
+  "canonicalFilesMatched": 7,
+  "codesign": {
+    "exitCode": 0,
+    "passed": true,
+    "diagnostic": ""
+  },
+  "backup": {
+    "path": "/Users/rabbit/Documents/ChatGPT/素材积累/梦藏-Sublime功能-20261002/verification/fresh-review-20261005/installed-before-0.8.6.app",
+    "exists": true,
+    "version": "0.8.5",
+    "asarSHA256": "fd67311ae0839a81f19529be3f40b86eb99aa4d56123364e9c46fcff3e13242f",
+    "matchesPreviousAcceptedAsar": true
+  },
+  "userProfileOrLibraryRead": false,
+  "cloudOrModelCalls": 0,
+  "passed": true
+}

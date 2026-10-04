@@ -1,0 +1,27 @@
+/* QA controls and viewport framing only; production component styles stay intact. */
+body { --qa-toolbar-height: 144px; overflow: hidden; }
+body[data-qa-expanded="false"] { --qa-toolbar-height: 42px; }
+#root { padding-top: var(--qa-toolbar-height); }
+#root > .desktop-app { height: calc(100dvh - var(--qa-toolbar-height)); }
+body[data-qa-compact="true"] #root > .desktop-app { height: 540px; }
+.qa-toolbar { position: fixed; inset: 0 0 auto; z-index: 150; min-height: 42px; padding: 7px 14px; background: #243c32; color: #f5f8f2; border-bottom: 1px solid #698172; font-size: 11px; line-height: 1.5; box-shadow: 0 2px 8px #20322722; }
+.qa-summary, .qa-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qa-summary { min-height: 27px; }
+.qa-summary > strong { font-size: 12px; margin-right: 3px; }
+.qa-summary > button { margin-left: auto; }
+.qa-summary output { font-variant-numeric: tabular-nums; color: #fce4b4; }
+.qa-summary > span:last-of-type { color: #c5d2c7; }
+.qa-online, .qa-offline { padding: 2px 7px; border-radius: 10px; background: #486551; }
+.qa-offline { background: #805e36; }
+.qa-expanded { padding-top: 7px; }
+.qa-toolbar button { border: 1px solid #8ca594; border-radius: 4px; padding: 4px 8px; color: #f5f8f2; background: #355243; font-size: 11px; white-space: nowrap; }
+.qa-toolbar button:hover { background: #4a6855; }
+.qa-toolbar button:disabled { opacity: .7; }
+.qa-toolbar label { display: flex; align-items: center; gap: 5px; }
+.qa-toolbar select { background: #f7faf5; color: #294533; font-size: 11px; padding: 4px 18px 4px 7px; max-width: 165px; border-radius: 4px; }
+.qa-toolbar input[type="checkbox"] { width: 13px; height: 13px; margin: 0; }
+.qa-toolbar .qa-reset { border-color: #b99f7d; background: #685438; }
+.qa-stats { color: #d3decf; padding-top: 6px; font-variant-numeric: tabular-nums; }
+.qa-message { color: #d5e4d9; margin-top: 5px; overflow-wrap: anywhere; }
+@media(max-width: 1000px) { body { --qa-toolbar-height: 176px; } }
+@media(max-width: 700px) { body { --qa-toolbar-height: 224px; } body[data-qa-expanded="false"] { --qa-toolbar-height: 70px; } .qa-toolbar { padding: 6px 8px; } .qa-summary { gap: 4px 8px; } .qa-summary > span:last-of-type { display: none; } }

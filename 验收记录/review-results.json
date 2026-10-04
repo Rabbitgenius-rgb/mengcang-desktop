@@ -1,0 +1,21 @@
+{
+  "version": "0.8.6",
+  "complete": true,
+  "fixed": [
+    "History recovery and save-copy preserve existing editor drafts, occupied destinations, and failed-save input.",
+    "Imported subtitle entities render as original text without interpreting escaped markup.",
+    "Recovery errors reset the saving indicator."
+  ],
+  "uiTests": 179,
+  "desktopTests": 46,
+  "relatedChecks": 225,
+  "independentReviewPassed": true,
+  "isolatedNativeRecoverySaveRestartPassed": true,
+  "preservedDifferentDraftAfterRestart": true,
+  "realLibraryTestWrites": 0,
+  "cloudCalls": 0,
+  "localModelCalls": 0,
+  "installedVersion": "0.8.6",
+  "formalPostcheckPassed": true,
+  "completedAt": "2026-10-04T17:04:33.930583+00:00"
+}

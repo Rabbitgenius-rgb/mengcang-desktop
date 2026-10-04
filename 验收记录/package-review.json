@@ -1,0 +1,142 @@
+{
+  "checkedAt": "2026-10-04T16:53:34.820Z",
+  "runtimeFilesComparedPerPackage": 240,
+  "packages": {
+    "formal": {
+      "version": "0.8.6",
+      "asarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+      "runtimeFilesMatchBuild": true,
+      "exactPackagedFileSet": true,
+      "containsCandidateConfig": false,
+      "packageMetadataDifferenceAllowed": [
+        "private:true removed by Electron packager"
+      ],
+      "unpacked": {
+        "discovery-helper": {
+          "sha256": "3a489114f27699d7315836a6a0bf6dad8804804bd8346cd54d05f522e4367716",
+          "matchesBuild": true
+        },
+        "mengcang-mcp.cjs": {
+          "sha256": "1eba25e4c55357076d0dad9e5caa3ff384bdff0b42e37c8a96dcc511e1bed9d7",
+          "matchesBuild": true
+        }
+      },
+      "localRuntime": {
+        "FFmpeg-9.0.2-source.tar.xz": {
+          "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "FFmpeg-LICENSE.txt": {
+          "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "README.txt": {
+          "sha256": "af3ecb5703f48bd04138f606b38956fbad13304773c8f54f70e95b6ef4fd4dbe",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "Whisper-model-LICENSE.txt": {
+          "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "ffmpeg": {
+          "sha256": "f8a7c73a98a7d3423ff953a9982b3690c789ec4cd193d989e647b743c0c43cad",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "model.bin": {
+          "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "runtime-manifest.json": {
+          "sha256": "b83f5b3fc7853b9cc04bd28a3cf0dd4154a7e97099126e2e6d32d4d1f54ef3bd",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "whisper-cli": {
+          "sha256": "914bce056358fee20c17836f65c1ad96be3a3475fc6f944bc6f5fc55dd21f93b",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "whisper.cpp-LICENSE.txt": {
+          "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        }
+      },
+      "codesignDeepStrictPassed": true
+    },
+    "isolated": {
+      "version": "0.8.6",
+      "asarSHA256": "942e18aa1ce42835ae2e3725219d8b9a5e61e4d7dd7d500a8a0f9002b04cfe53",
+      "runtimeFilesMatchBuild": true,
+      "exactPackagedFileSet": true,
+      "containsCandidateConfig": true,
+      "packageMetadataDifferenceAllowed": [
+        "private:true removed by Electron packager"
+      ],
+      "unpacked": {
+        "discovery-helper": {
+          "sha256": "3a489114f27699d7315836a6a0bf6dad8804804bd8346cd54d05f522e4367716",
+          "matchesBuild": true
+        },
+        "mengcang-mcp.cjs": {
+          "sha256": "1eba25e4c55357076d0dad9e5caa3ff384bdff0b42e37c8a96dcc511e1bed9d7",
+          "matchesBuild": true
+        }
+      },
+      "localRuntime": {
+        "FFmpeg-9.0.2-source.tar.xz": {
+          "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "FFmpeg-LICENSE.txt": {
+          "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "README.txt": {
+          "sha256": "af3ecb5703f48bd04138f606b38956fbad13304773c8f54f70e95b6ef4fd4dbe",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "Whisper-model-LICENSE.txt": {
+          "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "ffmpeg": {
+          "sha256": "f8a7c73a98a7d3423ff953a9982b3690c789ec4cd193d989e647b743c0c43cad",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "model.bin": {
+          "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "runtime-manifest.json": {
+          "sha256": "b83f5b3fc7853b9cc04bd28a3cf0dd4154a7e97099126e2e6d32d4d1f54ef3bd",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "whisper-cli": {
+          "sha256": "914bce056358fee20c17836f65c1ad96be3a3475fc6f944bc6f5fc55dd21f93b",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        },
+        "whisper.cpp-LICENSE.txt": {
+          "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+          "matchesSource": true,
+          "matchesInstalled085Baseline": true
+        }
+      },
+      "codesignDeepStrictPassed": true
+    }
+  }
+}

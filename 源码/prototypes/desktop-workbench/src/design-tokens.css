@@ -1,0 +1,125 @@
+/* ============================================================
+   梦藏设计令牌系统 v1.0
+   Design Tokens for Mengcang Desktop
+   ============================================================ */
+
+:root {
+  /* ──────────────────────────────────────────────────────────
+     色彩系统 / Color System
+     统一后共 18 种颜色（含语义色），全局温暖米色基调
+     ────────────────────────────────────────────────────────── */
+
+  /* 背景层次 / Backgrounds - 温暖米色系 */
+  --bg-canvas: #f7f8f6;        /* 画布背景 */
+  --bg-surface: #fcfcfa;       /* 卡片/面板表面 */
+  --bg-surface-2: #fafbf8;     /* 二级表面（输入框、下拉） */
+  --bg-overlay: #fbfcf8;       /* 悬浮层背景 */
+
+  /* 边框与分隔 / Borders */
+  --border-subtle: #e4e8e3;    /* 细边框（默认） */
+  --border-medium: #dce2db;    /* 中等边框（按钮） */
+  --border-focus: #8da499;     /* 聚焦边框 */
+
+  /* 文本层次 / Text Hierarchy */
+  --text-primary: #262d28;     /* 主要文本 */
+  --text-secondary: #626d63;   /* 次要文本 */
+  --text-tertiary: #889087;    /* 辅助文本 */
+  --text-disabled: #959b95;    /* 禁用文本 */
+
+  /* 品牌色 / Brand - 深绿主题 */
+  --color-primary: #426353;    /* 主色（品牌绿） */
+  --color-primary-dark: #334f42;  /* 深色状态 */
+  --color-primary-light: #e7eee9; /* 浅色背景 */
+
+  /* 语义色 / Semantic Colors */
+  --color-accent: #ab785b;     /* 强调色（褐红） */
+  --color-warning: #bd9960;    /* 警告（金棕） */
+  --color-success: #60896a;    /* 成功（森绿） */
+  --color-info: #8a9d8a;       /* 信息（灰绿） */
+
+  /* 投影 / Shadows */
+  --shadow-sm: 0 1px 2px rgba(53, 69, 45, 0.03);
+  --shadow-md: 0 3px 10px rgba(53, 69, 45, 0.11);
+  --shadow-lg: 0 6px 25px rgba(19, 36, 22, 0.20);
+  --shadow-xl: 0 20px 80px rgba(29, 53, 36, 0.17);
+
+  /* ──────────────────────────────────────────────────────────
+     字号阶梯 / Typography Scale (6 级)
+     基准 14px，比例 1.2
+     ────────────────────────────────────────────────────────── */
+  --text-xs: 10px;    /* 眉标、辅助标签 */
+  --text-sm: 12px;    /* 正文小、元数据 */
+  --text-base: 14px;  /* 正文基准 */
+  --text-md: 17px;    /* 小标题 */
+  --text-lg: 22px;    /* 二级标题 */
+  --text-xl: 29px;    /* 页面主标题 */
+
+  /* 字重 / Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* 字体家族 / Font Families */
+  --font-sans: "PingFang SC", "Hiragino Sans GB", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", monospace;
+
+  /* 行高 / Line Heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.45;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.9;
+
+  /* ──────────────────────────────────────────────────────────
+     圆角 / Border Radius (4 级)
+     ────────────────────────────────────────────────────────── */
+  --radius-sm: 4px;    /* 小元素（tag、badge） */
+  --radius-md: 5px;    /* 标准（按钮、输入框） */
+  --radius-lg: 7px;    /* 卡片 */
+  --radius-xl: 12px;   /* 模态框 */
+  --radius-full: 999px; /* 圆形/胶囊 */
+
+  /* ──────────────────────────────────────────────────────────
+     间距阶梯 / Spacing Scale (8px 基数)
+     ────────────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* ──────────────────────────────────────────────────────────
+     动画 / Animation (克制优雅风格)
+     ────────────────────────────────────────────────────────── */
+  --duration-instant: 120ms;   /* 即时反馈 */
+  --duration-fast: 180ms;      /* 悬停、聚焦 */
+  --duration-base: 250ms;      /* 标准过渡 */
+  --duration-slow: 350ms;      /* 页面切换 */
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);     /* 入场 */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);   /* 双向 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* 微弹性（谨慎使用） */
+}
+
+/* ──────────────────────────────────────────────────────────
+   减少动效模式 / Reduced Motion
+   ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+}

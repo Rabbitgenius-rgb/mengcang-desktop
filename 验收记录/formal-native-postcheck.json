@@ -1,0 +1,13 @@
+{
+  "version": "0.8.6",
+  "formalLibraryLoaded": true,
+  "deepseekEndpoint": "https://api.deepseek.com/v1",
+  "model": "deepseek-flash",
+  "savedKeyControlPresent": true,
+  "localTranscriptionEnabled": true,
+  "localModelReady": true,
+  "observedCloudCalls": 0,
+  "observedLocalTranscriptionCalls": 0,
+  "settingsModified": false,
+  "checkedAt": "2026-10-04T17:04:33.930583+00:00"
+}

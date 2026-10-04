@@ -1,0 +1,25 @@
+{
+  "name": "mengcang-obsidian",
+  "private": true,
+  "version": "0.8.6",
+  "description": "Local-first Obsidian material archive and human-confirmed relation explorer.",
+  "scripts": {
+    "build": "node scripts/build-attachment-validation.mjs && node scripts/build-fusion-style.mjs && esbuild src/main.js --bundle --external:obsidian --external:playwright --platform=node --format=cjs --outfile=main.js",
+    "check": "node --check src/main.js && node --check src/book-motion-shelf.js && node --check src/book-intro.js && node --check src/book-journal.js && node --check main.js && node --check star-sea/core.js && node --check star-sea/service.js && node --check star-sea/view.js && node --check book-curation/core.js && node --check book-curation/generators.js && node --check book-curation/service.js && node --check book-curation/settings.js && node --check book-curation/view.js",
+    "test": "node --test tests/*.test.js",
+    "desktop:build": "node scripts/build-attachment-validation.mjs && node scripts/build-desktop.mjs",
+    "desktop:package": "node scripts/package-desktop.mjs",
+    "desktop:start": "electron desktop/build/app"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "44.4.5",
+    "esbuild": "0.25.12"
+  },
+  "dependencies": {
+    "playwright": "1.62.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "yaml": "2.9.1"
+  }
+}

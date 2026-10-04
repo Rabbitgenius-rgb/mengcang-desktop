@@ -1,0 +1,37 @@
+[
+  {
+    "path": "package.json",
+    "before": "8a805663d874e7990c6e99db7893e0f67b155b3815723eea037fc9b08b060ccc",
+    "after": "371eda1aa7235467d2dcd247a6bffa0cec61463f01dd6188933fce33fb937351"
+  },
+  {
+    "path": "package-lock.json",
+    "before": "2967e72490cae42c4458bc83ca46cd82ef14bca1370d4d201588bebf8eea1b5d",
+    "after": "7a91db78e20abf5a9a5cbd0d9aa0dd4a09465fced6e01078939fbc1b5a98f1c1"
+  },
+  {
+    "path": "prototypes/desktop-workbench/src/sublime/podcastClips.js",
+    "before": "86be3ec0681e04bfc75542cf0630fc2fad92086bf177a346ac04cd4e2c31b7d9",
+    "after": "a9ea0b5bb96a3162b2c9ebc937a28bfd4f60659788de3ed99e03b94dea5e8867"
+  },
+  {
+    "path": "prototypes/desktop-workbench/src/sublime/workspacePersistence.js",
+    "before": "6cd4f9254253eeb8c25b8b650960208a995403110e09fdb4724b744f2c31f67e",
+    "after": "b4cdc8037140c85e4a4db3c7f77a65c063c77f14e6ba9d3251886bde1f379148"
+  },
+  {
+    "path": "prototypes/desktop-workbench/src/sublime/SublimeWorkspace.jsx",
+    "before": "e6c319292e0d428b484f193f57d0a82e328669510e46b88fb9e2ea8d6acf1de1",
+    "after": "d6a61e1393bb16295f87a41ac329dfd45bf9d91de421151b9396fdc29977a2bc"
+  },
+  {
+    "path": "prototypes/desktop-workbench/tests/sublime-context-podcast.test.mjs",
+    "before": "4db6e2913437d75605e165c097872e09a3502683e3d3d893e472e8f96b456b1d",
+    "after": "3b69a6916af19c87837745986bb240d7e105ea95eaf295c94160354a32236af5"
+  },
+  {
+    "path": "prototypes/desktop-workbench/tests/sublime-draft-recovery.test.mjs",
+    "before": null,
+    "after": "d5d423b72687f9e4edc8037d19e5d6adfb8e593673d68027f558b08157cf3747"
+  }
+]

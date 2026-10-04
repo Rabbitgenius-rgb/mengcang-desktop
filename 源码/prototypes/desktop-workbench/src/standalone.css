@@ -1,0 +1,4 @@
+.standalone-loading{position:fixed;inset:0;display:grid;place-content:center;background:#111;color:#b1bac4;font:18px system-ui,sans-serif}
+.standalone-drag{position:fixed;inset:0 0 auto 86px;height:27px;-webkit-app-region:drag;z-index:200;pointer-events:auto}
+.standalone-status{position:fixed;left:50%;top:30px;transform:translateX(-50%);z-index:201;max-width:calc(100vw - 180px);padding:9px 14px;border:1px solid #424a55;border-radius:10px;background:#21262d;color:#b1bac4;font:13px system-ui,sans-serif}
+.standalone-status button{margin-left:12px;background:none;border:0;color:#00aaff;cursor:pointer}

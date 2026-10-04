@@ -1,0 +1,2 @@
+// Short public reference inspected on 2026-10-02. No source account/session is copied.
+export const listeningCard={id:'reference-listening',path:'reference-listening',title:'i love listening.',body:'i love listening. it is one of the only spaces where you can be still and moved at the same time.',caption:'',sourceUrl:'https://sublime.app/card/i-love-listening-it-is-one-of-the-only-spaces-whe',sourceTitle:'Sublime · public reference',type:'notes',createdAt:'2026-10-02T00:00:00Z',updatedAt:'2026-10-02T00:00:00Z',origin:'reference',tags:['listening'],referenceCount:8};

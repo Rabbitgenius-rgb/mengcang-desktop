@@ -1,0 +1,727 @@
+/* ============================================================
+   梦藏全局样式 / Global Styles
+   导入顺序：令牌 → 重置 → 组件 → 视图
+   ============================================================ */
+
+@import './design-tokens.css';
+@import './base-reset.css';
+@import './components.css';
+
+/* ──────────────────────────────────────────────────────────
+   应用架构 / Application Layout
+   ────────────────────────────────────────────────────────── */
+
+.desktop-app {
+  display: flex;
+  height: 100dvh;
+  min-height: 540px;
+  width: 100%;
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.app-nav {
+  position: relative;
+  width: 106px;
+  flex: 0 0 106px;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(100deg, #f4f6f1, #fafbf8);
+  padding: 12px 10px 18px;
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+  padding-left: 7px;
+  height: 24px;
+}
+
+.window-dots i {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #df918a;
+}
+
+.window-dots i:nth-child(2) {
+  background: #dfc18b;
+}
+
+.window-dots i:nth-child(3) {
+  background: #9abd93;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0 32px;
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.brand svg {
+  color: #587b5d;
+  fill: #a9bca0;
+  fill-opacity: 0.3;
+}
+
+/* ──────────────────────────────────────────────────────────
+   导航 / Navigation
+   ────────────────────────────────────────────────────────── */
+
+.app-nav nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  text-align: left;
+  color: var(--text-secondary);
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.nav-link:hover {
+  background: #eff2ec;
+}
+
+.nav-link.active {
+  color: var(--color-primary-dark);
+  background: #dfe8e0;
+  font-weight: var(--font-semibold);
+}
+
+.nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 11px;
+  bottom: 11px;
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+
+.nav-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.preview-indicator {
+  color: #90998d;
+  font-size: var(--text-xs);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.04em;
+}
+
+.preview-indicator i {
+  background: #9cac99;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+/* ──────────────────────────────────────────────────────────
+   视图容器 / View Container
+   ────────────────────────────────────────────────────────── */
+
+.view-content {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  animation: view-enter var(--duration-slow) var(--ease-out);
+}
+
+.view-panel {
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  animation: view-enter var(--duration-slow) var(--ease-out);
+}
+
+.view-panel[hidden] {
+  display: none;
+}
+
+/* ──────────────────────────────────────────────────────────
+   图片容器 / Image Container
+   ────────────────────────────────────────────────────────── */
+
+.art {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: #edf0eb;
+}
+
+.art img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ──────────────────────────────────────────────────────────
+   表单行 / Form Row
+   ────────────────────────────────────────────────────────── */
+
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.form-row > label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ──────────────────────────────────────────────────────────
+   设置面板 / Settings Panel
+   ────────────────────────────────────────────────────────── */
+
+.settings-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-section h3,
+.setting-toggle h3 {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-section p,
+.setting-toggle p {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-tertiary);
+  margin: 12px 0;
+}
+
+.settings-section:first-of-type {
+  padding-top: 0;
+}
+
+.settings-section:last-of-type {
+  border: 0;
+  line-height: var(--leading-relaxed);
+  padding-bottom: 0;
+}
+
+.setting-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+}
+
+.toggle {
+  width: 37px;
+  height: 22px;
+  border-radius: 13px;
+  background: #d6ddd1;
+  padding: 3px;
+  transition: background var(--duration-fast) var(--ease-in-out);
+}
+
+.toggle span {
+  width: 16px;
+  height: 16px;
+  display: block;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);
+  transition: transform var(--duration-fast) var(--ease-in-out);
+}
+
+.toggle.on {
+  background: var(--color-primary);
+}
+
+.toggle.on span {
+  transform: translateX(15px);
+}
+
+/* ──────────────────────────────────────────────────────────
+   保存错误提示 / Save Error Banner
+   ────────────────────────────────────────────────────────── */
+
+.save-error {
+  position: fixed;
+  bottom: 0;
+  left: 106px;
+  right: 0;
+  padding: 12px;
+  background: #fff0d2;
+  color: #7b542d;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 60;
+  animation: fade-in var(--duration-base) var(--ease-out);
+}
+
+.save-error button {
+  text-decoration: underline;
+}
+
+/* ──────────────────────────────────────────────────────────
+   项目视图 / Projects View
+   ────────────────────────────────────────────────────────── */
+
+.projects-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-main {
+  overflow: auto;
+  padding: 22px 34px;
+  flex: 1;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  padding: 27px;
+  background: #f5f7f1;
+  border: 1px solid #e3e8dd;
+  border-radius: var(--radius-lg);
+  min-height: 260px;
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.project-card > svg {
+  color: #7a9874;
+}
+
+.project-card h2 {
+  font-family: var(--font-serif);
+  margin: 16px 0;
+  font-size: var(--text-lg);
+}
+
+.project-card p {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  line-height: var(--leading-relaxed);
+  white-space: pre-line;
+}
+
+.project-card .text-btn {
+  display: flex;
+  margin-top: 26px;
+}
+
+.project-source {
+  display: block;
+  font-size: 11px;
+  color: #96a08f;
+  margin-top: 20px;
+}
+
+.project-empty {
+  height: 80%;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: var(--text-tertiary);
+  gap: 20px;
+  animation: fade-in var(--duration-base) var(--ease-out);
+}
+
+.project-empty h2 {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
+.project-empty p {
+  text-align: center;
+  line-height: var(--leading-normal);
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.mobile-back {
+  display: none;
+}
+
+/* ──────────────────────────────────────────────────────────
+   视图特定调整 / View-Specific Overrides
+   ────────────────────────────────────────────────────────── */
+
+/* 灵感视图文本可读性调整 */
+.inspiration-card-copy > strong {
+  font-size: 18px;
+}
+
+.inspiration-card-summary {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--text-tertiary);
+}
+
+.inspiration-card-date,
+.inspiration-card-date > span,
+.inspiration-document-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.inspiration-body-copy {
+  color: var(--text-secondary);
+}
+
+.inspiration-related-item strong {
+  font-size: var(--text-sm);
+  color: #52674b;
+}
+
+.inspiration-related-item small {
+  font-size: var(--text-xs);
+  color: #78866d;
+}
+
+.inspiration-candidate-title strong {
+  font-size: var(--text-sm);
+  color: #536c49;
+}
+
+.inspiration-candidate-title small {
+  font-size: var(--text-xs);
+  color: #7b876f;
+}
+
+.inspiration-candidate > p,
+.inspiration-candidate-intro {
+  font-size: var(--text-sm);
+  color: #66765d;
+  line-height: var(--leading-snug);
+}
+
+.inspiration-candidate-actions .text-btn,
+.inspiration-candidate-actions > span {
+  font-size: var(--text-sm);
+  color: #526e45;
+}
+
+.inspiration-candidate-actions .text-btn {
+  padding: 5px 0;
+}
+
+.inspiration-candidate-create {
+  font-size: var(--text-sm) !important;
+  color: #526e45 !important;
+}
+
+/* 素材与藏书视图 */
+.collections-page-header h1,
+.inspiration-page-header h1 {
+  font-size: 30px;
+}
+
+.collections-page-header p,
+.inspiration-page-header p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.materials-card-title {
+  font-size: var(--text-base);
+}
+
+.materials-card-meta,
+.collections-metadata,
+.books-card-author {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.collections-tags .chip,
+.materials-type-filter button {
+  font-size: var(--text-sm);
+}
+
+.materials-caption,
+.books-description {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
+.materials-source,
+.materials-share {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.collections-detail-section h3,
+.materials-caption-section h3 {
+  font-size: 13px;
+}
+
+.books-info {
+  font-size: var(--text-sm);
+}
+
+.books-info dd {
+  color: var(--text-secondary);
+}
+
+.books-info dt {
+  color: var(--text-secondary);
+}
+
+.books-status {
+  font-size: var(--text-sm);
+}
+
+.books-card-title {
+  font-size: 15px;
+}
+
+.materials-open-actions .btn {
+  font-size: 11px;
+}
+
+.materials-inspector-image {
+  flex-shrink: 0;
+}
+
+/* 阅读器视图 */
+.reader-note-editor textarea {
+  font-size: var(--text-base);
+}
+
+.reader-panel-heading h2 {
+  font-size: var(--text-md);
+}
+
+.reader-tabs button {
+  font-size: var(--text-base);
+}
+
+.reader-related-note span > span {
+  font-size: var(--text-sm);
+}
+
+.reader-local-hint {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.reader-view .btn {
+  font-size: var(--text-sm);
+}
+
+.reader-panel-content .reader-panel-intro {
+  font-size: var(--text-sm);
+}
+
+/* ──────────────────────────────────────────────────────────
+   响应式布局 / Responsive Layout
+   ────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .app-nav {
+    width: 88px;
+    flex-basis: 88px;
+    padding: 12px 8px;
+  }
+
+  .brand {
+    font-size: 17px;
+    gap: 2px;
+  }
+
+  .brand svg {
+    width: 20px;
+  }
+
+  .nav-link {
+    gap: 7px;
+    padding: 11px 8px;
+    font-size: var(--text-sm);
+  }
+
+  .page-heading {
+    padding: 25px;
+  }
+
+  .page-heading h1 {
+    font-size: 27px;
+  }
+}
+
+@media (max-width: 700px) {
+  .desktop-app {
+    min-height: 450px;
+    padding-bottom: 64px;
+  }
+
+  .app-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
+    z-index: 30;
+    border-top: 1px solid var(--border-subtle);
+    padding: 0 7px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #f7f9f4;
+  }
+
+  .window-dots,
+  .brand,
+  .preview-indicator {
+    display: none;
+  }
+
+  .app-nav nav {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .nav-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 7px 12px;
+    font-size: var(--text-xs);
+    min-width: 58px;
+  }
+
+  .nav-link.active::before {
+    top: 0;
+    bottom: auto;
+    width: 20px;
+    height: 2px;
+    left: calc(50% - 10px);
+  }
+
+  .nav-bottom {
+    margin: 0;
+  }
+
+  .app-nav nav > .nav-link {
+    width: auto;
+    flex: 1;
+  }
+
+  .page-heading {
+    padding: 22px 20px 18px;
+  }
+
+  .page-heading h1 {
+    font-size: 26px;
+  }
+
+  .page-heading p {
+    font-size: 11px;
+  }
+
+  .btn {
+    font-size: var(--text-sm);
+    padding: 9px 12px;
+  }
+
+  .toast {
+    bottom: 80px;
+    width: max-content;
+    max-width: 90%;
+    font-size: var(--text-sm);
+  }
+
+  .save-error {
+    left: 0;
+    bottom: 64px;
+  }
+
+  .modal-backdrop {
+    padding: 16px;
+  }
+
+  .modal {
+    padding: 22px;
+  }
+
+  .projects-main {
+    padding: 15px 20px;
+  }
+
+  .project-empty {
+    min-height: 350px;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   Dialog 根元素覆盖 / Root Dialog Override
+   ────────────────────────────────────────────────────────── */
+
+.root-dialog {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xl);
+  width: min(540px, calc(100vw - 32px));
+  max-width: none;
+  max-height: 90dvh;
+  background: transparent;
+  box-shadow: var(--shadow-xl);
+}
+
+.root-dialog[open] {
+  animation: modal-enter var(--duration-base) var(--ease-out);
+}
+
+.root-dialog::backdrop {
+  background: rgba(23, 40, 30, 0.21);
+  backdrop-filter: blur(4px);
+  animation: fade-in var(--duration-base) var(--ease-out);
+}
+
+.root-dialog .modal {
+  border: 0;
+  box-shadow: none;
+}

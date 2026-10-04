@@ -1,0 +1,20 @@
+{
+  "version": "0.8.6",
+  "passed": true,
+  "isolatedVault": "/private/tmp/mengcang-review086-20261005-vault",
+  "formalAsarSHA256": "caa79a5998dabb7437a9f656fb57532765d1a560983d87944108c3e35625f4c0",
+  "isolatedAsarSHA256": "942e18aa1ce42835ae2e3725219d8b9a5e61e4d7dd7d500a8a0f9002b04cfe53",
+  "cloudRequests": 0,
+  "localTranscriptionRequests": 0,
+  "realLibraryWrites": 0,
+  "draftRestoreObserved": true,
+  "saveSuccessObserved": true,
+  "normalQuitObserved": true,
+  "relaunchSameCardIdObserved": true,
+  "preservedDraftBAfterRestart": true,
+  "cardId": "b9bf44eb-0ecb-4b49-80e5-1f83660a7e23",
+  "body": "Review086 draft A",
+  "preservedDraft": "Review086 draft B current input",
+  "checkedAt": "2026-10-04T17:01:54.743278+00:00",
+  "method": "Native CUA: typed A; normal quit/relaunch; typed B; restored A as copy; saved A; verified B in recovery; normal quit/relaunch; reopened same A card ID and read B recovery entry. No model calls."
+}

@@ -1,0 +1,805 @@
+/* Logged-in Sublime reference: isolated from the existing 梦藏 workspace. */
+.sublime-workspace {
+  --sw-bg: #111;
+  --sw-card: #21262d;
+  --sw-panel: #30363d;
+  --sw-active: #282e36;
+  --sw-text: #b1bac4;
+  --sw-muted: #8b949e;
+  --sw-icon: #6e7681;
+  --sw-white: #e6edf3;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--sw-bg);
+  color: var(--sw-text);
+  font: 18px/1.5 ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-feature-settings: "ss12" on;
+  letter-spacing: -.3375px;
+  text-align: left;
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: #30363d transparent;
+  -webkit-app-region: no-drag;
+}
+
+.sublime-workspace *,
+.sublime-workspace *::before,
+.sublime-workspace *::after { box-sizing: border-box; }
+.sublime-workspace button,
+.sublime-workspace input,
+.sublime-workspace textarea,
+.sublime-workspace select { font-family: inherit; letter-spacing: inherit; }
+.sublime-workspace button { cursor: pointer; }
+.sublime-workspace button:disabled { cursor: default; opacity: .45; }
+.sublime-workspace :focus-visible { outline: 2px solid #00aaff; outline-offset: 3px; }
+.sublime-workspace h1,
+.sublime-workspace h2,
+.sublime-workspace h3 { font-family: inherit; font-weight: 400; letter-spacing: -.3375px; }
+.sublime-workspace a { color: inherit; }
+.sublime-workspace svg { display: block; flex-shrink: 0; }
+.sublime-workspace [hidden] { display: none !important; }
+
+.sublime-workspace .sw-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 100px;
+  padding: 34px 30px 21px;
+  background: var(--sw-bg);
+}
+.sublime-workspace .sw-back,
+.sublime-workspace .sw-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  padding: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sw-icon);
+  line-height: 1;
+}
+.sublime-workspace .sw-back { background: var(--sw-card); }
+.sublime-workspace .sw-back svg,
+.sublime-workspace .sw-icon-button svg { width: 30px; height: 30px; }
+.sublime-workspace .sw-back:hover,
+.sublime-workspace .sw-icon-button:hover { background: var(--sw-active); color: var(--sw-text); }
+.sublime-workspace .sw-actions { display: flex; align-items: center; gap: 0; position: relative; }
+.sublime-workspace .sw-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  flex-shrink: 0;
+  width: 200px;
+  height: 45px;
+  margin-left: 10px;
+  padding: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+}
+.sublime-workspace .sw-save svg { width: 30px; height: 30px; }
+.sublime-workspace .sw-save:hover { background: #e6edf3; }
+.sublime-workspace .sw-save.is-saved { background: var(--sw-card); color: var(--sw-text); }
+
+.sublime-workspace .sw-detail-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100svh - 150px);
+  padding: 40px 30px;
+}
+.sublime-workspace .sw-detail-cluster {
+  position: relative;
+  width: 600px;
+  max-width: 100%;
+  transform: translateY(-32.5px);
+}
+.sublime-workspace .sw-detail-stage > .sw-detail-card {
+  width: 600px;
+  max-width: 100%;
+  transform: translateY(-32.5px);
+}
+.sublime-workspace .sw-detail-card {
+  position: relative;
+  width: 100%;
+  min-height: 125px;
+  padding: 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--sw-card);
+  color: var(--sw-text);
+  box-shadow: none;
+}
+.sublime-workspace .sw-addedby {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  height: 35px;
+  padding: 5px 10px 5px 5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sw-panel);
+  color: var(--sw-text);
+  font-size: 12.5px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+.sublime-workspace .sw-addedby img,
+.sublime-workspace .sw-addedby .sw-avatar { width: 25px; height: 25px; border-radius: 50%; font-size: 9px; }
+.sublime-workspace .sw-addedby img { object-fit: cover; }
+.sublime-workspace .sw-addedby img + img { margin-left: -10px; }
+.sublime-workspace .sw-mini-avatar { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; border-radius: 50%; background: #d6d9dd; color: #575e68; font-size: 13px; line-height: 1; }
+.sublime-workspace .sw-card-body {
+  margin: 0;
+  color: var(--sw-text);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  letter-spacing: -.3375px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-card-body p { margin: 0 0 12px; }
+.sublime-workspace .sw-card-body p:last-child { margin-bottom: 0; }
+.sublime-workspace .sw-card-body img,
+.sublime-workspace .sw-card-body video { display: block; max-width: 100%; height: auto; max-height: 65svh; object-fit: contain; margin: 0 auto; }
+.sublime-workspace .sw-card-body a { text-decoration: underline; text-underline-offset: 3px; }
+.sublime-workspace .sw-detail-card > img { display: block; width: 100%; max-height: 65svh; object-fit: contain; border-radius: 5px; }
+.sublime-workspace .sw-rich-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sublime-workspace .sw-rich-body p { margin: 0; min-height: 1em; }
+.sublime-workspace .sw-rich-body strong { font-weight: 600; }
+.sublime-workspace .sw-rich-body a { text-decoration: underline; text-underline-offset: 3px; }
+.sublime-workspace .sw-attachment { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; margin-top: 15px; color: var(--sw-text); font-size: 15px; line-height: 22px; overflow-wrap: anywhere; }
+.sublime-workspace .sw-personal-note { margin-top: 20px; padding: 15px 10px; color: var(--sw-text); font-size: 18px; line-height: 27px; }
+.sublime-workspace .sw-personal-note > small { display: block; margin-bottom: 10px; color: var(--sw-icon); font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-card-source {
+  display: block;
+  margin: 15px -10px -10px;
+  padding: 10px;
+  border: 0;
+  background: var(--sw-panel);
+  color: var(--sw-muted);
+  font-size: 15px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-card-source small { display: block; font-size: 12.5px; line-height: 17px; margin-top: 3px; color: var(--sw-icon); }
+.sublime-workspace .sw-card-source a { display: inline-flex; align-items: center; gap: 5px; }
+.sublime-workspace .sw-related {
+  max-width: 1050px;
+  margin: -40px auto 130px;
+  padding: 50px 40px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--sw-panel);
+}
+.sublime-workspace .sw-related-header { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.sublime-workspace .sw-related-header > button:not(.sw-icon-button) { padding: 7px 10px; border: 0; border-radius: 5px; background: var(--sw-active); color: var(--sw-text); box-shadow: 0 1px 4px #0000004d; font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-related-header h2 { margin: 0; color: var(--sw-text); font-size: 25px; line-height: 30px; }
+.sublime-workspace .sw-related-header p { margin: 0; font-size: 15px; line-height: 22px; color: var(--sw-muted); }
+.sublime-workspace .sw-related .sw-masonry { width: 100%; margin: 55px 0 0; column-gap: 35px; }
+.sublime-workspace .sw-related .sw-tile { margin-bottom: 50px; }
+
+.sublime-workspace .sw-library-header {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 110px;
+  padding: 30px;
+  background: var(--sw-bg);
+}
+.sublime-workspace .sw-tabs { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sublime-workspace .sw-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sw-card);
+  color: var(--sw-muted);
+  font-size: 15px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+.sublime-workspace .sw-tab:hover { background: var(--sw-active); color: var(--sw-text); }
+.sublime-workspace .sw-tab.is-active,
+.sublime-workspace .sw-tab.active,
+.sublime-workspace .sw-tab[aria-selected="true"] { background: #fff; color: #111; }
+.sublime-workspace .sw-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 400px;
+  height: 55px;
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sw-active);
+  color: var(--sw-icon);
+}
+.sublime-workspace .sw-search > svg { width: 30px; height: 30px; }
+.sublime-workspace .sw-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--sw-text);
+  font-size: 15px;
+  line-height: 22px;
+}
+.sublime-workspace .sw-search input::placeholder { color: var(--sw-icon); }
+.sublime-workspace .sw-search:focus-within { box-shadow: 0 0 0 1px #6e7681; }
+.sublime-workspace .sw-search .sw-icon-button { width: 30px; height: 30px; padding: 4px; }
+.sublime-workspace .sw-search .sw-icon-button svg { width: 22px; height: 22px; }
+.sublime-workspace .sw-library-content { width: 100%; min-width: 0; min-height: calc(100svh - 110px); padding-bottom: 1px; }
+.sublime-workspace .sw-masonry {
+  width: min(890px, calc(100% - 60px));
+  margin: 35px auto 130px;
+  columns: 2;
+  column-gap: 90px;
+}
+.sublime-workspace .sw-tile {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 100px;
+  padding: 0;
+  break-inside: avoid;
+  vertical-align: top;
+  border: 0;
+  border-radius: 15px;
+  background: var(--sw-card);
+  color: var(--sw-text);
+  text-align: left;
+  box-shadow: 0 1px 5px #0000004d;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-tile:hover { box-shadow: 0 3px 15px #0006; }
+.sublime-workspace .sw-tile-body {
+  display: block;
+  min-height: 125px;
+  padding: 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  color: var(--sw-text);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  letter-spacing: -.3375px;
+  white-space: pre-wrap;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-tile-body p { margin: 0; }
+.sublime-workspace .sw-tile-body img,
+.sublime-workspace .sw-tile-body video { display: block; width: 100%; height: auto; object-fit: contain; }
+.sublime-workspace .sw-tile-body:has(> img),
+.sublime-workspace .sw-tile-body:has(> video) { padding: 0; }
+.sublime-workspace .sw-tile-source {
+  display: block;
+  padding: 10px;
+  border-radius: 0 0 15px 15px;
+  background: var(--sw-panel);
+  color: var(--sw-muted);
+  font-size: 15px;
+  line-height: 22px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-tile-source small { display: block; color: var(--sw-icon); font-size: 12.5px; line-height: 17px; margin-top: 3px; }
+.sublime-workspace .sw-tile-actions {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  height: 40px;
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+.sublime-workspace .sw-tile:hover .sw-tile-actions,
+.sublime-workspace .sw-tile:focus-within .sw-tile-actions { opacity: 1; }
+.sublime-workspace .sw-tile-actions .sw-icon-button { width: 35px; height: 35px; padding: 6px; }
+.sublime-workspace .sw-tile-actions .sw-icon-button svg { width: 24px; height: 24px; }
+.sublime-workspace .sw-tile-actions .sw-save { justify-content: center; width: auto; min-width: 85px; height: 35px; padding: 5px 12px; margin-left: 5px; }
+.sublime-workspace .sw-tile-actions .sw-save svg { width: 22px; height: 22px; }
+.sublime-workspace .sw-tile-select { position: absolute; top: 10px; left: 10px; z-index: 3; display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; background: var(--sw-panel); }
+.sublime-workspace .sw-tile-select input { width: 20px; height: 20px; margin: 0; accent-color: var(--sw-text); }
+.sublime-workspace .sw-favorite-mark { position: absolute; right: 10px; bottom: 10px; color: #d6d9dd; }
+
+.sublime-workspace .sw-dock {
+  position: fixed;
+  z-index: 20;
+  bottom: 30px;
+  left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 400px;
+  max-width: calc(100vw - 60px);
+  height: 75px;
+  padding: 10px;
+  border: 0;
+  border-radius: 25px;
+  background: var(--sw-card);
+  color: var(--sw-muted);
+  box-shadow: 0 10px 50px #0006;
+}
+.sublime-workspace .sw-dock-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-shrink: 0;
+  min-width: 70px;
+  height: 55px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  color: var(--sw-icon);
+  font-size: 12.5px;
+  line-height: 15px;
+}
+.sublime-workspace .sw-dock-item svg { width: 30px; height: 30px; }
+.sublime-workspace .sw-dock-item img { display: block; width: 30px; height: 30px; object-fit: contain; }
+.sublime-workspace .sw-dock-spacer { flex: 1; }
+.sublime-workspace .sw-dock-item:nth-child(2) { margin-right: auto; }
+.sublime-workspace .sw-dock-item:hover { background: var(--sw-active); color: var(--sw-text); }
+.sublime-workspace .sw-dock-item.is-active,
+.sublime-workspace .sw-dock-item.active,
+.sublime-workspace .sw-dock-item[aria-current="page"] { background: #fff; color: #111; }
+.sublime-workspace .sw-dock-item.active img { filter: brightness(0); }
+.sublime-workspace .sw-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 15px;
+  background: #d2296e;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+}
+.sublime-workspace .sw-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sublime-workspace .sw-add {
+  position: fixed;
+  right: 30px;
+  bottom: 35px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 65px;
+  padding: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #6e7681;
+  box-shadow: 0 10px 50px #0006;
+}
+.sublime-workspace .sw-add svg { width: 45px; height: 45px; }
+.sublime-workspace .sw-add:hover { background: #e6edf3; color: #111; }
+
+.sublime-workspace .sw-empty-library {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100svh - 110px);
+  padding: 30px 30px 150px;
+  text-align: center;
+}
+.sublime-workspace .sw-empty-library h1 { margin: 0 0 30px; color: var(--sw-muted); font-size: 30px; line-height: 36px; }
+.sublime-workspace .sw-empty-library > p { margin: 0 0 25px; color: var(--sw-muted); font-size: 18px; line-height: 27px; }
+.sublime-workspace .sw-start-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 25px 40px;
+  width: min(840px, 100%);
+  padding: 70px 80px 40px;
+  border: 0;
+  border-radius: 40px;
+  background: var(--sw-panel);
+  text-align: left;
+}
+.sublime-workspace .sw-start-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+.sublime-workspace .sw-start-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  min-width: 0;
+  min-height: 200px;
+  padding: 10px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--sw-card);
+  color: var(--sw-muted);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  text-align: left;
+}
+.sublime-workspace .sw-start-tile:hover { background: var(--sw-active); color: var(--sw-text); }
+.sublime-workspace .sw-start-tile > svg { width: 50px; height: 50px; padding: 12px; border-radius: 50%; background: var(--sw-active); }
+.sublime-workspace .sw-start-tile > small { margin-bottom: -15px; color: var(--sw-muted); font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-start-more { grid-column: 1 / -1; justify-self: center; padding: 5px; border: 0; background: transparent; color: var(--sw-muted); font-size: 15px; line-height: 22px; text-decoration: underline; text-underline-offset: 3px; }
+.sublime-workspace .sw-more-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 15px; }
+.sublime-workspace .sw-more-options button { padding: 10px; border: 0; border-radius: 10px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; text-align: left; }
+
+.sublime-workspace .sw-popover,
+.sublime-workspace .sw-menu {
+  position: fixed;
+  z-index: 35;
+  min-width: 220px;
+  max-width: calc(100vw - 30px);
+  max-height: 70svh;
+  padding: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 15px;
+  background: var(--sw-card);
+  color: var(--sw-text);
+  box-shadow: 0 18px 45px #0000008c, 0 8px 18px #00000059, 0 1px 4px #00000040;
+  font-size: 15px;
+  line-height: 22px;
+  text-align: left;
+}
+.sublime-workspace .sw-popover-dismiss { position: fixed; inset: 0; z-index: 30; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.sublime-workspace .sw-popover-more { top: 90px; right: 325px; }
+.sublime-workspace .sw-popover-insights { top: 90px; right: 230px; }
+.sublime-workspace .sw-popover-saved { top: 90px; right: 30px; }
+.sublime-workspace .sw-popover-library { top: 105px; right: 30px; }
+.sublime-workspace .sw-popover-account { bottom: 115px; left: 170px; }
+.sublime-workspace .sw-popover-add { bottom: 115px; right: 30px; }
+.sublime-workspace .sw-actions > .sw-popover,
+.sublime-workspace .sw-actions > .sw-menu { top: 55px; right: 0; }
+.sublime-workspace .sw-dock > .sw-popover,
+.sublime-workspace .sw-dock > .sw-menu { bottom: 85px; left: 0; }
+.sublime-workspace .sw-menu-row,
+.sublime-workspace .sw-menu > button[role="menuitem"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 35px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--sw-text);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  text-decoration: none;
+}
+.sublime-workspace .sw-menu-row svg,
+.sublime-workspace .sw-menu > button[role="menuitem"] svg { width: 22px; height: 22px; color: var(--sw-icon); }
+.sublime-workspace .sw-menu-row:hover,
+.sublime-workspace .sw-menu > button[role="menuitem"]:hover,
+.sublime-workspace .sw-menu-row.is-active,
+.sublime-workspace .sw-menu-row[aria-selected="true"] { background: var(--sw-active); }
+.sublime-workspace .sw-menu-row small { margin-left: auto; color: var(--sw-icon); font-size: 12.5px; }
+.sublime-workspace .sw-menu-label { display: flex; align-items: center; gap: 10px; margin: 5px 10px 10px; color: var(--sw-text); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-menu > label { display: flex; align-items: center; gap: 10px; min-height: 35px; padding: 7px 10px; color: var(--sw-text); font-size: 15px; line-height: 22px; cursor: pointer; }
+.sublime-workspace .sw-menu > label input,
+.sublime-workspace .sw-menu-row > input { width: 18px; height: 18px; margin: 0; accent-color: var(--sw-text); }
+.sublime-workspace .sw-menu > small { display: block; margin: 5px 10px 10px; font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-ai-badge { display: inline-block; padding: 5px 8px; border: 1px solid #575e68; border-radius: 6px; color: var(--sw-muted); font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-menu hr,
+.sublime-workspace .sw-popover hr { height: 1px; margin: 8px 0; border: 0; background: var(--sw-panel); }
+.sublime-workspace .sw-filter-grid { display: grid; gap: 10px; margin: 15px 0; }
+.sublime-workspace .sw-filter-grid label { display: flex; align-items: center; gap: 10px; min-height: 35px; font-size: 15px; line-height: 22px; cursor: pointer; }
+.sublime-workspace .sw-filter-grid input { width: 18px; height: 18px; margin: 0; accent-color: #b1bac4; }
+.sublime-workspace .sw-filter-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.sublime-workspace .sw-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  overflow-y: auto;
+  background: #111111a6;
+  backdrop-filter: blur(2px);
+}
+.sublime-workspace .sw-modal {
+  position: fixed;
+  inset: 0;
+  width: min(365px, 100%);
+  max-width: calc(100vw - 60px);
+  height: fit-content;
+  max-height: calc(100svh - 60px);
+  margin: auto;
+  padding: 20px;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sw-panel);
+  color: var(--sw-text);
+  box-shadow: 0 16px 32px #0000004d, 0 6px 16px #00000026, 0 1px 4px #0000001a;
+  font-size: 15px;
+  line-height: 22px;
+}
+.sublime-workspace .sw-modal::backdrop { background: #111111a6; backdrop-filter: blur(2px); }
+.sublime-workspace .sw-modal > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
+.sublime-workspace .sw-modal > header h2 { margin: 0; }
+.sublime-workspace .sw-modal > header .sw-icon-button { width: 25px; height: 25px; padding: 3px; }
+.sublime-workspace .sw-modal p { margin: 0 0 15px; font-size: 15px; line-height: 22px; overflow-wrap: anywhere; }
+.sublime-workspace .sw-modal footer { display: flex; align-items: center; justify-content: flex-end; gap: 15px; margin-top: 20px; }
+.sublime-workspace .sw-modal button:not(.sw-icon-button):not(.sw-primary):not(.sw-menu-row) { padding: 7px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--sw-text); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-modal button:not(.sw-icon-button):not(.sw-primary):hover { background: var(--sw-active); }
+.sublime-workspace .sw-modal textarea,
+.sublime-workspace .sw-modal input.sw-field { display: block; width: 100%; min-width: 0; padding: 10px; border: 0; border-radius: 10px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; resize: vertical; }
+.sublime-workspace .sw-modal h2 { margin: 0 35px 20px 0; color: var(--sw-text); font-size: 18px; line-height: 27px; }
+.sublime-workspace .sw-modal > .sw-icon-button { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; }
+.sublime-workspace .sw-modal .sw-icon-button svg { width: 22px; height: 22px; }
+.sublime-workspace .sw-field { display: block; margin: 20px 0; color: var(--sw-muted); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-field input,
+.sublime-workspace .sw-field textarea,
+.sublime-workspace .sw-field select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sw-card);
+  color: var(--sw-text);
+  font-size: 15px;
+  line-height: 22px;
+}
+.sublime-workspace .sw-field textarea { min-height: 112px; resize: vertical; }
+.sublime-workspace .sw-field input::placeholder,
+.sublime-workspace .sw-field textarea::placeholder { color: var(--sw-icon); }
+.sublime-workspace .sw-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 37px;
+  padding: 7px 15px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+}
+.sublime-workspace .sw-primary:hover { background: #e6edf3; }
+.sublime-workspace .sw-muted { color: var(--sw-muted); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-status { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; min-height: 250px; margin: 35px auto 130px; padding: 30px; color: var(--sw-muted); font-size: 15px; line-height: 22px; text-align: center; overflow-wrap: anywhere; }
+.sublime-workspace .sw-status h1,
+.sublime-workspace .sw-status h2,
+.sublime-workspace .sw-status h3 { margin: 0; color: var(--sw-text); font-size: 25px; line-height: 30px; }
+.sublime-workspace .sw-status p { margin: 0; }
+.sublime-workspace .sw-status > button:not(.sw-primary) { padding: 10px 15px; border: 0; border-radius: 8px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-modal .sw-status { min-height: 170px; margin: 10px 0; padding: 10px; }
+.sublime-workspace .sw-status.is-error { color: #f49b9b; }
+.sublime-workspace .sw-toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  z-index: 60;
+  width: max-content;
+  max-width: calc(100vw - 40px);
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--sw-panel);
+  color: var(--sw-text);
+  box-shadow: 0 8px 18px #00000059;
+  font-size: 15px;
+  line-height: 22px;
+  transform: translateX(-50%);
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .sw-toast { display: flex; align-items: center; gap: 10px; }
+.sublime-workspace .sw-media-tabs { display: flex; justify-content: center; gap: 15px; max-width: 1050px; margin: 15px auto 60px; padding: 0 30px; overflow-x: auto; scrollbar-width: none; }
+.sublime-workspace .sw-media-tabs::-webkit-scrollbar { display: none; }
+.sublime-workspace .sw-media-tabs button { flex-shrink: 0; padding: 7px 5px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--sw-icon); font-size: 15px; line-height: 22px; white-space: nowrap; }
+.sublime-workspace .sw-media-tabs button.active { border-bottom-color: var(--sw-text); color: var(--sw-text); }
+.sublime-workspace .sw-selection { position: fixed; z-index: 21; bottom: 30px; left: 50%; display: flex; align-items: center; justify-content: center; gap: 10px; width: max-content; max-width: calc(100vw - 60px); padding: 10px; border-radius: 15px; background: var(--sw-panel); color: var(--sw-text); font-size: 15px; line-height: 22px; transform: translateX(-50%); box-shadow: 0 10px 50px #0006; }
+.sublime-workspace .sw-selection button { padding: 7px 10px; border: 0; border-radius: 7px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; white-space: nowrap; }
+.sublime-workspace .sw-reference-caption { margin: 5px 30px 20px; color: var(--sw-icon); font-size: 12.5px; line-height: 17px; text-align: center; }
+.sublime-workspace .sw-error { position: fixed; top: 100px; left: 50%; z-index: 65; display: flex; align-items: center; justify-content: space-between; gap: 15px; width: min(650px, calc(100vw - 40px)); padding: 15px; border: 1px solid #663536; border-radius: 10px; background: #251718; color: #f49b9b; font-size: 15px; line-height: 22px; transform: translateX(-50%); overflow-wrap: anywhere; }
+.sublime-workspace .sw-error button { flex-shrink: 0; padding: 7px 10px; border: 0; border-radius: 5px; background: #663536; color: #f49b9b; font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-saving { position: fixed; top: 100px; left: 50%; z-index: 64; padding: 5px 15px; border-radius: 999px; background: var(--sw-card); color: var(--sw-muted); font-size: 12.5px; line-height: 17px; transform: translateX(-50%); }
+.sublime-workspace .sw-center { text-align: center; }
+.sublime-workspace .sw-ai-reserved { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 500px; margin: 35px auto; padding: 20px; color: var(--sw-muted); text-align: center; }
+.sublime-workspace .sw-ai-reserved p { margin: 0; font-size: 18px; line-height: 27px; }
+.sublime-workspace .sw-ai-reserved small { color: var(--sw-icon); font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-ai-reserved button { margin-top: 5px; padding: 7px 10px; border: 0; border-radius: 7px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-ai-message { text-align: center; }
+.sublime-workspace .sw-ai-message > svg { margin: 15px auto; color: var(--sw-icon); }
+.sublime-workspace .sw-ai-message h3 { font-size: 18px; line-height: 27px; color: var(--sw-text); }
+
+.sublime-workspace .sw-collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 35px; width: min(1050px, calc(100% - 60px)); margin: 35px auto 130px; }
+.sublime-workspace .sw-collection-card { display: flex; flex-direction: column; justify-content: space-between; gap: 20px; min-width: 0; min-height: 180px; padding: 20px; border: 0; border-radius: 15px; background: var(--sw-card); color: var(--sw-text); text-align: left; font-size: 18px; line-height: 27px; }
+.sublime-workspace .sw-collection-card:hover { background: var(--sw-active); }
+.sublime-workspace .sw-collection-card h2,
+.sublime-workspace .sw-collection-card h3 { margin: 0; font-size: 18px; line-height: 27px; overflow-wrap: anywhere; }
+.sublime-workspace .sw-collection-card small { color: var(--sw-muted); font-size: 12.5px; line-height: 17px; }
+.sublime-workspace .sw-collection-card > button:not(.sw-icon-button) { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--sw-text); text-align: left; }
+.sublime-workspace .sw-collection-card > div { display: flex; justify-content: flex-end; gap: 5px; }
+.sublime-workspace .sw-collection-card p { margin: 0; font-size: 15px; line-height: 22px; color: var(--sw-muted); }
+.sublime-workspace .sw-collection-title { margin: 25px auto 40px; padding: 0 30px; max-width: 1050px; text-align: center; }
+.sublime-workspace .sw-collection-title h1 { margin: 0 0 15px; font-size: 30px; line-height: 36px; }
+.sublime-workspace .sw-collection-title p { margin: 0 0 15px; font-size: 15px; line-height: 22px; color: var(--sw-muted); }
+.sublime-workspace .sw-collection-title > button { padding: 7px 10px; border: 0; border-radius: 7px; background: var(--sw-card); color: var(--sw-text); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-recovery-draft { margin: 16px 0; padding: 16px; border: 1px solid var(--sw-icon); border-radius: 12px; }
+.sublime-workspace .sw-recovery-draft > small { display: block; margin-top: 6px; color: var(--sw-muted); }
+.sublime-workspace .sw-recovery-draft > p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sublime-workspace .sw-onboarding {
+  position: fixed;
+  z-index: 19;
+  left: 30px;
+  bottom: 130px;
+  width: 360px;
+  max-width: calc(100vw - 60px);
+  padding: 15px;
+  border: 0;
+  border-radius: 15px;
+  background: var(--sw-panel);
+  color: var(--sw-text);
+  box-shadow: 0 18px 45px #0000008c, 0 8px 18px #00000059;
+  font-size: 15px;
+  line-height: 22px;
+}
+.sublime-workspace .sw-onboarding-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; color: var(--sw-text); }
+.sublime-workspace .sw-onboarding-header h2 { margin: 0; font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-onboarding-header .sw-icon-button { width: 22px; height: 22px; padding: 3px; }
+.sublime-workspace .sw-onboarding-header .sw-icon-button svg { width: 16px; height: 16px; }
+.sublime-workspace .sw-onboarding-row { display: flex; align-items: center; gap: 10px; min-height: 30px; color: var(--sw-muted); font-size: 15px; line-height: 22px; }
+.sublime-workspace .sw-onboarding-row svg { width: 15px; height: 15px; }
+.sublime-workspace .sw-onboarding-row.is-complete { color: var(--sw-text); }
+
+@media (max-width: 900px) {
+  .sublime-workspace .sw-library-header { flex-wrap: wrap; }
+  .sublime-workspace .sw-search { flex: 1; min-width: 220px; }
+  .sublime-workspace .sw-masonry { column-gap: 40px; }
+  .sublime-workspace .sw-related { margin-left: 30px; margin-right: 30px; }
+  .sublime-workspace .sw-start-panel { gap: 25px; padding: 50px 40px 30px; }
+  .sublime-workspace .sw-start-tiles { gap: 25px; }
+}
+
+@media (max-width: 600px) {
+  .sublime-workspace .sw-topbar { min-height: 85px; padding: 20px 15px; gap: 10px; }
+  .sublime-workspace .sw-back { width: 40px; height: 40px; padding: 5px; }
+  .sublime-workspace .sw-actions > .sw-icon-button { width: 40px; height: 45px; padding: 7px; }
+  .sublime-workspace .sw-actions > .sw-icon-button svg { width: 26px; height: 26px; }
+  .sublime-workspace .sw-save { width: 82px; height: 45px; margin-left: 10px; padding: 8px; gap: 1px; }
+  .sublime-workspace .sw-save svg { width: 25px; height: 25px; }
+  .sublime-workspace .sw-detail-stage { min-height: calc(56svh - 10px); padding: 40px 15px; }
+  .sublime-workspace .sw-detail-cluster,
+  .sublime-workspace .sw-detail-stage > .sw-detail-card { width: 100%; transform: none; }
+  .sublime-workspace .sw-detail-card { border-radius: 15px; }
+  .sublime-workspace .sw-related { margin: 45px 15px 120px; padding: 25px 20px; border-radius: 30px; }
+  .sublime-workspace .sw-related-header { gap: 10px; }
+  .sublime-workspace .sw-related-header h2 { font-size: 22px; line-height: 27px; }
+  .sublime-workspace .sw-related .sw-masonry { margin-top: 50px; }
+  .sublime-workspace .sw-library-header { gap: 15px; padding: 20px 15px; min-height: 85px; }
+  .sublime-workspace .sw-tabs { width: 100%; overflow-x: auto; padding: 3px; margin: -3px; scrollbar-width: none; }
+  .sublime-workspace .sw-tabs::-webkit-scrollbar { display: none; }
+  .sublime-workspace .sw-tab { flex-shrink: 0; padding: 10px 17px; }
+  .sublime-workspace .sw-search { flex-basis: 100%; min-width: 0; width: 100%; }
+  .sublime-workspace .sw-masonry { width: calc(100% - 30px); margin: 35px auto 120px; columns: 1; }
+  .sublime-workspace .sw-tile { margin-bottom: 65px; }
+  .sublime-workspace .sw-tile-actions { opacity: 1; }
+  .sublime-workspace .sw-dock { bottom: max(15px, env(safe-area-inset-bottom)); left: 15px; right: 15px; width: auto; max-width: none; gap: 5px; }
+  .sublime-workspace .sw-dock-item { min-width: 65px; padding: 5px 8px; }
+  .sublime-workspace .sw-dock .sw-avatar { width: 45px; height: 45px; }
+  .sublime-workspace .sw-add { right: 20px; bottom: calc(110px + env(safe-area-inset-bottom)); width: 55px; height: 55px; padding: 8px; }
+  .sublime-workspace .sw-add svg { width: 39px; height: 39px; }
+  .sublime-workspace .sw-empty-library { min-height: calc(100svh - 150px); padding: 25px 15px 125px; }
+  .sublime-workspace .sw-empty-library h1 { font-size: 25px; line-height: 30px; margin-bottom: 25px; }
+  .sublime-workspace .sw-empty-library > p { font-size: 15px; line-height: 22px; }
+  .sublime-workspace .sw-start-panel { gap: 20px 10px; padding: 25px 15px 20px; border-radius: 30px; }
+  .sublime-workspace .sw-start-tiles { gap: 10px; }
+  .sublime-workspace .sw-start-tile { min-height: 145px; padding: 10px; gap: 15px; border-radius: 15px; font-size: 15px; line-height: 22px; }
+  .sublime-workspace .sw-start-tile > svg { width: 40px; height: 40px; padding: 9px; }
+  .sublime-workspace .sw-popover,
+  .sublime-workspace .sw-menu { max-width: calc(100vw - 30px); }
+  .sublime-workspace .sw-popover-more,
+  .sublime-workspace .sw-popover-insights { top: 75px; right: 105px; }
+  .sublime-workspace .sw-popover-saved { top: 75px; right: 15px; }
+  .sublime-workspace .sw-popover-library { top: 155px; right: 15px; }
+  .sublime-workspace .sw-popover-account { bottom: calc(100px + env(safe-area-inset-bottom)); left: auto; right: 15px; }
+  .sublime-workspace .sw-popover-add { bottom: calc(175px + env(safe-area-inset-bottom)); right: 20px; }
+  .sublime-workspace .sw-modal-backdrop { padding: 15px; }
+  .sublime-workspace .sw-modal { max-width: calc(100vw - 30px); max-height: calc(100svh - 30px); }
+  .sublime-workspace .sw-toast { bottom: calc(105px + env(safe-area-inset-bottom)); max-width: calc(100vw - 30px); }
+  .sublime-workspace .sw-collection-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; width: calc(100% - 30px); margin: 20px auto 120px; }
+  .sublime-workspace .sw-onboarding { left: 20px; bottom: calc(120px + env(safe-area-inset-bottom)); width: calc(100vw - 40px); max-width: none; }
+  .sublime-workspace .sw-media-tabs { justify-content: flex-start; margin: 10px 0 60px; padding: 0 15px; gap: 15px; }
+  .sublime-workspace .sw-selection { bottom: calc(100px + env(safe-area-inset-bottom)); max-width: calc(100vw - 30px); flex-wrap: wrap; width: calc(100vw - 30px); }
+  .sublime-workspace .sw-more-options { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 350px) {
+  .sublime-workspace .sw-actions > .sw-icon-button { width: 35px; padding: 5px; }
+  .sublime-workspace .sw-save { margin-left: 5px; width: 75px; }
+  .sublime-workspace .sw-dock { gap: 2px; padding: 10px 8px; }
+  .sublime-workspace .sw-dock-item { min-width: 55px; padding: 5px 4px; }
+  .sublime-workspace .sw-start-panel { padding: 20px; }
+  .sublime-workspace .sw-start-tiles { grid-template-columns: minmax(0, 1fr); }
+  .sublime-workspace .sw-popover-more,
+  .sublime-workspace .sw-popover-insights { right: 15px; }
+  .sublime-workspace .sw-start-tile { min-height: 115px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sublime-workspace .sw-tile-actions { transition: none; }
+}
+
+.sublime-workspace .sw-detail-card { border-radius:15px; }
+.sublime-workspace .sw-origin { display:inline-flex; align-items:center; gap:7px; width:max-content; padding:5px 10px; font-size:12px; color:var(--sw-muted); }
+.sublime-workspace .sw-popover-tools { bottom:110px; left:135px; }
+.sublime-workspace[data-theme="light"] { --sw-bg:#fff; --sw-card:#f1f2f3; --sw-panel:#e6e9ec; --sw-active:#e9edef; --sw-text:#414850; --sw-muted:#606971; --sw-icon:#69727c; --sw-white:#161b22; color-scheme:light; }
+.sublime-workspace[data-theme="light"] .sw-save,
+.sublime-workspace[data-theme="light"] .sw-primary,
+.sublime-workspace[data-theme="light"] .se-save { background:#21262d; color:#fff; }
+.sublime-workspace[data-theme="light"] .sw-detail-card,
+.sublime-workspace[data-theme="light"] .sw-tile,
+.sublime-workspace[data-theme="light"] .sw-collection-card { background:var(--sw-card); }
+.sublime-workspace .sw-modal blockquote { margin:18px 0; padding:14px; border-radius:8px; background:var(--sw-card); overflow-wrap:anywhere; }
+@media(max-width:600px) { .sublime-workspace .sw-popover-tools { bottom:calc(100px + env(safe-area-inset-bottom)); left:auto; right:15px; } }

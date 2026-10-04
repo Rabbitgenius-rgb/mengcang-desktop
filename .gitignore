@@ -1,0 +1,32 @@
+# Local dependencies and build output
+**/node_modules/
+**/dist/
+**/build/
+**/qa/
+**/verification/
+**/__pycache__/
+.DS_Store
+应用/
+交付/
+*.zip
+*.app/
+
+# Private settings and personal profiles
+.env
+.env.*
+*.pem
+*.p12
+*.key
+*.log
+intelligence-key.json
+intelligence-settings.json
+preferences.json
+vault-cache.json
+data.json
+candidate-config.json
+
+# Bundled speech runtime is distributed as a release asset
+源码/desktop/local-transcription/model.bin
+源码/desktop/local-transcription/ffmpeg
+源码/desktop/local-transcription/whisper-cli
+源码/desktop/local-transcription/FFmpeg-9.0.2-source.tar.xz

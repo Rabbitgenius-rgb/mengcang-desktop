@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-04T14:28:31.057441+00:00",
+  "architecture": "arm64",
+  "platform": "darwin",
+  "minimumMacOS": "13.0",
+  "onDemand": true,
+  "residentServer": false,
+  "cloudRequestsRequired": false,
+  "files": {
+    "FFmpeg-9.0.2-source.tar.xz": {
+      "bytes": 12040788,
+      "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
+    },
+    "FFmpeg-LICENSE.txt": {
+      "bytes": 26517,
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30"
+    },
+    "README.txt": {
+      "bytes": 2996,
+      "sha256": "af3ecb5703f48bd04138f606b38956fbad13304773c8f54f70e95b6ef4fd4dbe"
+    },
+    "Whisper-model-LICENSE.txt": {
+      "bytes": 1063,
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d"
+    },
+    "ffmpeg": {
+      "bytes": 2483024,
+      "sha256": "f8a7c73a98a7d3423ff953a9982b3690c789ec4cd193d989e647b743c0c43cad"
+    },
+    "model.bin": {
+      "bytes": 574041195,
+      "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2"
+    },
+    "whisper-cli": {
+      "bytes": 4592288,
+      "sha256": "914bce056358fee20c17836f65c1ad96be3a3475fc6f944bc6f5fc55dd21f93b"
+    },
+    "whisper.cpp-LICENSE.txt": {
+      "bytes": 1078,
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d"
+    }
+  },
+  "whisper": {
+    "version": "v1.9.4",
+    "reportedVersion": "1.9.4-dev",
+    "officialSource": "https://api.github.com/repos/ggml-org/whisper.cpp/tarball/v1.9.4",
+    "release": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.4",
+    "archiveSha256": "261de3e2edeb7b3fa8bd3b35d000848fb023933ca220bf4d15937e31f8992ec8",
+    "license": "MIT",
+    "licenseFile": "whisper.cpp-LICENSE.txt",
+    "metal": true,
+    "accelerate": true,
+    "embeddedMetalKernels": true,
+    "static": true,
+    "adHocSigned": true
+  },
+  "model": {
+    "name": "large-v3-turbo",
+    "variant": "q5_0",
+    "multilingual": true,
+    "file": "model.bin",
+    "bytes": 574041195,
+    "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+    "officialSource": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin",
+    "license": "MIT",
+    "licenseFile": "Whisper-model-LICENSE.txt",
+    "officialHashVerified": true
+  },
+  "ffmpeg": {
+    "version": "9.0.2",
+    "officialSource": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+    "archiveFile": "FFmpeg-9.0.2-source.tar.xz",
+    "license": "LGPL-2.1-or-later",
+    "licenseFile": "FFmpeg-LICENSE.txt",
+    "networkProtocols": false,
+    "allowedProtocols": [
+      "file",
+      "pipe"
+    ],
+    "static": true,
+    "adHocSigned": true
+  }
+}

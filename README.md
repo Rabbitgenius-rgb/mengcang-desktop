@@ -6,7 +6,7 @@
 
 [下载梦藏 0.8.6 项目包](https://github.com/Rabbitgenius-rgb/mengcang-desktop/releases/tag/v0.8.6)
 
-在 Releases 中下载 `梦藏-0.8.6-项目包-20261005.zip`（约 685 MB）和对应的 `.sha256` 文件。这个 ZIP 包含 macOS 应用、源码、完整本机音频转录运行时、使用说明与验收记录。
+在 Releases 中下载 `mengcang-0.8.6-project-20261005.zip`（约 685 MB）和对应的 `.sha256` 文件。这个 ZIP 包含 macOS 应用、源码、完整本机音频转录运行时、使用说明与验收记录。
 
 仓库中的源码可以直接浏览和克隆；完整应用、语音模型与其他较大的运行时文件放在版本附件中。
 

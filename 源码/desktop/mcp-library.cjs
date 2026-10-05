@@ -36,6 +36,11 @@ const statusExcluded = value => /^(?:archived|archive|trash|trashed|deleted|draf
 const excluded = value => value?.archived === true || value?.hidden === true || value?.deleted === true || value?.draft === true || statusExcluded(value?.status);
 const result = value => ({content:[{type:'text',text:JSON.stringify(value)}]});
 const errorResult = message => ({isError:true,content:[{type:'text',text:message}]});
+const workspaceReadable = value => object(value) && object(value.state) && value.state.schemaVersion === 1 &&
+  Array.isArray(value.state.cards) && Array.from(value.state.cards).every(card=>object(card)&&entityId(card.id)) &&
+  Array.isArray(value.state.savedIds) && Array.from(value.state.savedIds).every(entityId) &&
+  Array.isArray(value.state.hiddenIds) && Array.from(value.state.hiddenIds).every(entityId);
+const WORKSPACE_UNAVAILABLE = '软件资料库当前不可读取，无法确认隐藏或归档过滤；本次未提供卡片、原图、正文或关联。请等待梦藏资料库恢复后重试。';
 function validateArguments(name,args) {
   const definition=TOOLS.find(value=>value.name===name);
   if(!definition)throw Error('未知只读工具。');
@@ -97,10 +102,15 @@ function workspaceCard(card,state,previous) {
 function createLibraryReader({gateway,getWorkspace}) {
   if(!gateway||typeof gateway.snapshot!=='function'||typeof getWorkspace!=='function')throw Error('只读资料库适配器未配置。');
   async function load(includeAssets=false) {
-    const [vaultResult,workspaceResult]=await Promise.allSettled([gateway.snapshot(),getWorkspace({includeAssets})]);
-    const snapshot=vaultResult.status==='fulfilled'&&object(vaultResult.value)?vaultResult.value:null;
-    const workspace=workspaceResult.status==='fulfilled'&&object(workspaceResult.value)&&object(workspaceResult.value.state)?workspaceResult.value:null;
-    const state=workspace?.state||{},saved=new Set(array(state.savedIds)),hidden=new Set(array(state.hiddenIds)),cards=new Map();
+    let workspace=null,snapshot=null;
+    try { const value=await getWorkspace({includeAssets});if(workspaceReadable(value))workspace=value; } catch { /* Missing suppression data cannot authorize any content read. */ }
+    if(!workspace) {
+      let vault=false;try { vault=gateway.status?.()?.connected===true; } catch {}
+      return {cards:new Map(),collections:[],canvases:[],revision:null,contentAvailable:false,notice:WORKSPACE_UNAVAILABLE,
+        availability:{vault,workspace:false,vaultSkippedNotes:null,partial:true}};
+    }
+    try { const value=await gateway.snapshot();if(object(value))snapshot=value; } catch { /* A valid workspace may still provide its own saved data. */ }
+    const state=workspace.state,saved=new Set(state.savedIds),hidden=new Set(state.hiddenIds),cards=new Map();
     for(const note of [...array(snapshot?.entries),...array(snapshot?.materials),...array(snapshot?.books)]) {
       const id=text(note?.path)||text(note?.id);
       if(!object(note)||!entityId(id)||hidden.has(id)||hidden.has(note.id)||excluded(note)||excluded(note.fields))continue;
@@ -120,7 +130,7 @@ function createLibraryReader({gateway,getWorkspace}) {
       return {id:value.id,title:text(value.title),collectionId:text(value.collectionId),nodes,edges};
     });
     const availability={vault:snapshot!==null&&gateway.status?.().connected!==false,workspace:workspace!==null,vaultSkippedNotes:array(snapshot?.errors).length,partial:snapshot===null||workspace===null||gateway.status?.().connected===false||array(snapshot?.errors).length>0};
-    return {cards,collections,canvases,revision:workspace?.revision??null,availability};
+    return {cards,collections,canvases,revision:workspace.revision??null,availability,contentAvailable:true};
   }
   async function readImage(card) {
     let attachment;
@@ -152,7 +162,8 @@ function createLibraryReader({gateway,getWorkspace}) {
       validateArguments(name,args);
       const library=await load(name==='read_image'),values=[...library.cards.values()];
       const context={revision:library.revision,availability:library.availability,contentRole:'untrusted-source-material'};
-      if(name==='library_status')return result({...context,access:'read-only',live:true,cards:values.length,workspaceCards:values.filter(value=>value.sourceKind==='workspace').length,vaultCards:values.filter(value=>value.sourceKind==='vault').length,collections:library.collections.length,canvases:library.canvases.length,modelInvoked:false,networkAccess:false,readImageMimeTypes:[...IMAGE_MIMES],imageTransferLimitBytes:MAX_IMAGE_BYTES,limitScope:'one-image-response',documentReading:'saved-text-index-only',excluded:['drafts','hidden/archived cards','settings','credentials']});
+      if(name==='library_status')return result({...context,access:'read-only',live:true,contentAccess:library.contentAvailable?'available':'unavailable',...(library.notice?{notice:library.notice}:{}),cards:library.contentAvailable?values.length:null,workspaceCards:library.contentAvailable?values.filter(value=>value.sourceKind==='workspace').length:null,vaultCards:library.contentAvailable?values.filter(value=>value.sourceKind==='vault').length:null,collections:library.contentAvailable?library.collections.length:null,canvases:library.contentAvailable?library.canvases.length:null,modelInvoked:false,networkAccess:false,readImageMimeTypes:[...IMAGE_MIMES],imageTransferLimitBytes:MAX_IMAGE_BYTES,limitScope:'one-image-response',documentReading:'saved-text-index-only',excluded:['drafts','hidden/archived cards','settings','credentials']});
+      if(!library.contentAvailable)return errorResult(library.notice);
       if(name==='list_cards'||name==='search_cards') {
         const terms=name==='search_cards'?args.query.trim().toLocaleLowerCase().split(/\s+/):[];
         const matches=terms.length?values.filter(card=>{const haystack=[card.title,card.body,card.ocrText,card.note,indexText(card.documentIndex),...array(card.documentIndex?.pages).map(item=>item.text),card.sourceTitle,card.sourceUrl,card.author,...card.tags].join('\n').toLocaleLowerCase();return terms.every(term=>haystack.includes(term));}):values;

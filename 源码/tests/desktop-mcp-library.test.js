@@ -83,3 +83,57 @@ test('partial source availability is explicit and model/network/write paths are 
  for(const name of ['library_status','list_cards','search_cards','read_card','list_collections','list_canvases'])await h.reader.callTool(name,name==='search_cards'?{query:'静态'}:name==='read_card'?{id:'no-model'}:{});
  assert.equal(modelCalls,0);assert.equal(writeCalls,0);assert.equal(networkCalls,0);const reader=createLibraryReader({gateway:h.gateway,getWorkspace:async()=>null});const value=json(await reader.callTool('library_status'));assert.equal(value.availability.workspace,false);assert.equal(value.availability.partial,true);
 });
+
+const unavailableWorkspaces = [
+ ['absent workspace',()=>null],
+ ['undefined workspace',()=>undefined],
+ ['renderer failure',()=>{throw Error('Synthetic renderer failure with private details');}],
+ ['renderer timeout',async()=>{throw Error('软件资料读取超时，请等待当前保存完成后重试');}],
+ ['missing hidden filter',h=>{const copy=structuredClone(h.state);delete copy.hiddenIds;return {state:copy};}],
+ ['invalid hidden filter',h=>({state:{...h.state,hiddenIds:'not-an-array'}})],
+ ['invalid hidden identity',h=>({state:{...h.state,hiddenIds:[null]}})],
+ ['sparse hidden filter',h=>({state:{...h.state,hiddenIds:new Array(1)}})],
+ ['invalid saved filter',h=>({state:{...h.state,savedIds:[null]}})],
+ ['invalid card records',h=>({state:{...h.state,cards:[null]}})],
+ ['unsupported workspace schema',h=>({state:{...h.state,schemaVersion:2}})],
+];
+for(const [failure,getWorkspace] of unavailableWorkspaces)test(`MCP blocks all content and relations after ${failure}, without reading the Vault`,async t=>{
+ const h=harness(t),id='01_sources/cards/images/hidden-source.md';
+ h.write('01_sources/_originals/private.png',PNG);
+ h.write(id,'---\ntype: material\ntitle: PRIVATE_VAULT_TITLE\noriginal_file: 01_sources/_originals/private.png\n---\nPRIVATE_VAULT_BODY');
+ add(h,{id:'local-private',body:'PRIVATE_WORKSPACE_BODY',attachment});h.state.hiddenIds.push(id);
+ h.state.collections=[{id:'private-collection',title:'PRIVATE_COLLECTION_TITLE',cardIds:[id,'local-private']}];
+ h.state.boards=[{id:'private-canvas',title:'PRIVATE_CANVAS_TITLE',nodes:[{id:'private-node',itemPath:id,x:1,y:2}],edges:[]}];
+ let snapshots=0,originalReads=0;const snapshot=h.gateway.snapshot.bind(h.gateway),readAttachment=h.gateway.readAttachment.bind(h.gateway);
+ h.gateway.snapshot=()=>{snapshots++;return snapshot();};h.gateway.readAttachment=(...args)=>{originalReads++;return readAttachment(...args);};
+ const reader=createLibraryReader({gateway:h.gateway,getWorkspace:()=>getWorkspace(h)});
+ const status=json(await reader.callTool('library_status'));
+ assert.equal(status.contentAccess,'unavailable');assert.equal(status.availability.workspace,false);assert.equal(status.availability.partial,true);
+ for(const key of ['cards','workspaceCards','vaultCards','collections','canvases'])assert.equal(status[key],null);
+ assert.match(status.notice,/无法确认隐藏或归档过滤/);
+ const calls=[['list_cards',{}],['search_cards',{query:'PRIVATE'}],['read_card',{id}],['read_image',{id}],['read_document',{id,page:1}],['list_collections',{}],['list_collections',{id:'private-collection'}],['list_canvases',{}],['list_canvases',{id:'private-canvas'}]];
+ for(const [name,args] of calls){const value=await reader.callTool(name,args);assert.equal(value.isError,true,name);assert.match(value.content[0].text,/本次未提供卡片、原图、正文或关联/);assert.doesNotMatch(JSON.stringify(value),/PRIVATE_|private-collection|private-canvas|hidden-source|base64|private details/);}
+ assert.equal(snapshots,0);assert.equal(originalReads,0);
+});
+
+test('workspace recovery reads the latest hidden filter rather than reusing previous permissions',async t=>{
+ const h=harness(t),first='01_sources/cards/text/first.md',second='01_sources/cards/text/second.md';
+ h.write(first,'---\ntype: material\ntitle: First\n---\nfirst body');h.write(second,'---\ntype: material\ntitle: Second\n---\nsecond body');
+ h.state.hiddenIds=[first];h.state.collections=[{id:'collection',title:'Collection',cardIds:[first,second]}];
+ let available=true;const reader=createLibraryReader({gateway:h.gateway,getWorkspace:async()=>available?{state:structuredClone(h.state),revision:h.revision}:null});
+ assert.deepEqual(json(await reader.callTool('list_cards')).items.map(card=>card.id),[second]);
+ assert.equal((await reader.callTool('read_card',{id:first})).isError,true);
+ available=false;assert.equal((await reader.callTool('read_card',{id:second})).isError,true);
+ h.state.hiddenIds=[second];h.revision=2;available=true;
+ const recovered=json(await reader.callTool('list_cards'));assert.equal(recovered.revision,2);assert.deepEqual(recovered.items.map(card=>card.id),[first]);
+ assert.equal(json(await reader.callTool('read_card',{id:first})).content,'first body');assert.equal((await reader.callTool('read_card',{id:second})).isError,true);
+ assert.deepEqual(json(await reader.callTool('list_collections',{id:'collection'})).items.map(card=>card.id),[first]);
+});
+
+test('a valid workspace still exposes safe saved cards and relations when the Vault fails',async t=>{
+ const h=harness(t);add(h,{id:'local-visible',body:'Safe saved body'});add(h,{id:'local-hidden',body:'Private hidden body'});h.state.hiddenIds.push('local-hidden');
+ h.state.collections=[{id:'local-collection',title:'Collection',cardIds:['local-visible','local-hidden']}];h.gateway.snapshot=async()=>{throw Error('Synthetic Vault failure');};
+ const status=json(await h.reader.callTool('library_status'));assert.equal(status.contentAccess,'available');assert.equal(status.availability.workspace,true);assert.equal(status.availability.vault,false);assert.equal(status.availability.partial,true);assert.equal(status.cards,1);
+ assert.equal(json(await h.reader.callTool('read_card',{id:'local-visible'})).content,'Safe saved body');assert.equal((await h.reader.callTool('read_card',{id:'local-hidden'})).isError,true);
+ assert.equal(json(await h.reader.callTool('search_cards',{query:'Private'})).total,0);assert.deepEqual(json(await h.reader.callTool('list_collections',{id:'local-collection'})).items.map(card=>card.id),['local-visible']);
+});

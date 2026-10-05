@@ -137,6 +137,7 @@ function normalizeWorkspaceAttachment(value) {
   if (canonicalMime(type.trim().toLowerCase()) !== canonicalMime(inspected.mime) || !supportedMime.has(type.trim().toLowerCase()) || !Number.isSafeInteger(value.size) || value.size !== inspected.size) fail("\u9644\u4EF6\u7C7B\u578B\u6216\u5B57\u8282\u6570\u4E0E\u5185\u5BB9\u4E0D\u5339\u914D");
   return { name, type, size: value.size, dataUrl };
 }
+var typeAliases = Object.freeze(Object.assign(/* @__PURE__ */ Object.create(null), { images: "image", photos: "image", photo: "image", articles: "article", links: "link", websites: "link", web: "link", highlights: "highlight", quotes: "quote", texts: "text", notes: "text", note: "text", videos: "video", audios: "audio", books: "book", files: "file", pdf: "file", socials: "social", instagram: "social", twitter: "social", x: "social", "social media": "social" }));
 var AI_MODES = Object.freeze(["The Gist", "Explain Like I\u2019m 5", "Contrarian Take", "Analogy", "Hot Take"]);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

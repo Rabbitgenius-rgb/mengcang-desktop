@@ -103,10 +103,34 @@ test('pending, complete, failed and classification results roundtrip with exact 
   assert.equal(complete().result.text, result.text);
   assert.equal(complete({result:{...result, mode:'The Gist'}}).result.mode, 'The Gist');
   assert.throws(() => complete({result:{...result, mode:'Visual analysis'}}), /响应方式与请求不一致/);
-  for (const changes of [{apiKey:'secret'}, {result:{...result, key:'secret'}}, {result:{text:attachment.dataUrl}}, {result:{...result, text:'x'.repeat(100001)}}, {result:{...result, usage:{total_tokens:NaN}}}, {sourceSnapshot:{...source, body:new Date()}}, {updatedAt:'not a date'}, {mode:'Settings'}, {phase:'pending'}]) {
+  for (const changes of [{apiKey:'secret'}, {result:{...result, key:'secret'}}, {result:{...result, attachment}}, {result:{...result, text:'x'.repeat(100001)}}, {result:{...result, usage:{total_tokens:NaN}}}, {sourceSnapshot:{...source, body:new Date()}}, {updatedAt:'not a date'}, {mode:'Settings'}, {phase:'pending'}]) {
     assert.throws(() => complete(changes), /AI 结果草稿无效/);
   }
   assert.throws(() => normalizeAiRecord(Object.assign(Object.create({}), complete())), /JSON/);
+});
+
+test('quoted data URLs remain ordinary text while raw attachment fields stay excluded', () => {
+  const prose = 'HTML 示例：data:image/png;base64,iVBORw0KGgo=；这里只是在说明编码格式。';
+  const record = complete({sourceSnapshot:{...source, body:prose}, result:{...result, text:prose}});
+  const reopened = listAiRecords(roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record})).drafts)[0];
+  assert.equal(reopened.result.text, prose);
+  assert.equal(reopened.sourceSnapshot.body, prose);
+  assert.throws(() => complete({result:{...result, dataUrl:attachment.dataUrl}}), /未允许/);
+});
+
+test('schema-invalid returned text is retained as copy-only recovery through restart', () => {
+  const recoveryText = '服务返回原文\0需人工核对';
+  const record = complete({phase:'failed', result:null, error:'校验未完成', recoveryText});
+  const state = roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record}));
+  assert.equal(listAiRecords(state.drafts)[0].recoveryText, recoveryText);
+  assert.throws(() => insightSaveActions(state, record), /只有已完成/);
+});
+
+test('older oversized OCR drafts remain readable instead of disappearing after the limit alignment', () => {
+  const text = '旧'.repeat(1000001);
+  const record = complete({mode:'OCR', result:{text, local:true, pages:[]}});
+  const state = roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record}));
+  assert.equal(listAiRecords(state.drafts)[0].result.text, text);
 });
 
 test('a completed image insight atomically creates one text note and its saved receipt through reducer and serialization', async () => {

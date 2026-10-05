@@ -1,11 +1,23 @@
 import {safeSourceUrl,normalizeWorkspaceAttachment,selectCards} from './workspaceModel.js';
 
+export function copyDraftTitle(value,fallback='草稿'){
+ const title=typeof value==='string'&&value.trim()?value.trim():fallback,suffix=' · 副本';
+ let prefix=title.slice(0,1000-suffix.length);if(/[\uD800-\uDBFF]$/.test(prefix))prefix=prefix.slice(0,-1);
+ return prefix+suffix;
+}
+export function recoveredBoardCopy(value,id,collections){
+ return {...value,id,title:copyDraftTitle(value.title,'画布'),collectionId:collections.some(collection=>collection.id===value.collectionId)?value.collectionId:''};
+}
+
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function selectWorkspaceCards(cards,state,{filters={},route={},shuffle=0}={}) {
- let result=selectCards(cards,state,{...filters,media:filters.media==='All'?'':filters.media,hidden:route.page==='trash'?true:undefined,collectionId:route.page==='collection'?route.id:undefined,inLibrary:route.page==='library'||filters.inLibrary?true:undefined,favorite:route.page==='favorites'||filters.favorite?true:undefined});
+export function selectWorkspaceCards(cards,state,{filters={},route={},shuffle=0,readOnlySavedIds=[]}={}) {
+ let result=selectCards(cards,state,{...filters,media:filters.media==='All'?'':filters.media,hidden:route.page==='trash'?true:undefined,collectionId:route.page==='collection'?route.id:undefined,inLibrary:route.page==='library'||filters.inLibrary?true:undefined,favorite:route.page==='favorites'||filters.favorite?true:undefined},readOnlySavedIds);
  if(route.page==='following')result=result.filter(card=>(state.drafts.followingSources||[]).includes(card.sourceUrl));
  if(shuffle){const score=id=>[...id].reduce((sum,c)=>(sum*31+c.charCodeAt(0)+shuffle)%997,0);result=[...result].sort((a,b)=>score(a.id)-score(b.id));}
- if(filters.sort==='popular'||filters.sort==='least')result=[...result].sort((a,b)=>((state.favoriteIds.includes(b.id)?1:0)-(state.favoriteIds.includes(a.id)?1:0))*(filters.sort==='least'?-1:1));
+ if(filters.sort==='popular'||filters.sort==='least'){
+  const favoriteIds=new Set(state.favoriteIds);
+  result=[...result].sort((a,b)=>((favoriteIds.has(b.id)?1:0)-(favoriteIds.has(a.id)?1:0))*(filters.sort==='least'?-1:1));
+ }
  if(filters.sort==='old-updated')result=[...result].sort((a,b)=>String(a.updatedAt||'').localeCompare(String(b.updatedAt||'')));
  return result;
 }

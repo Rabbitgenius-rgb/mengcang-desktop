@@ -36,6 +36,9 @@ const DEFAULT_SETTINGS = Object.freeze({
 });
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const MAX_TEXT = 20000;
+// Keep the OCR and subtitle contracts aligned with the renderer's persisted data.
+const MAX_OCR_TEXT = 1000000;
+const MAX_TRANSCRIPT_BYTES = 2 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const IMAGE_MODES = new Set(['Image description', 'Visual analysis']);
 const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
@@ -145,7 +148,8 @@ function extractInput(input) {
 }
 function extractResult(value) {
   object(value, '文字识别响应');
-  const output = {text: text(value.text, '识别结果', 20 * 1024 * 1024, true), engine: text(value.engine, '识别引擎', 200), local: true};
+  if (typeof value.text === 'string' && value.text.length > MAX_OCR_TEXT) fail('识别文字超过 100 万字符，请拆分文件后识别；没有截断结果', 'INVALID_RESPONSE');
+  const output = {text: text(value.text, '识别结果', MAX_OCR_TEXT, true), engine: text(value.engine, '识别引擎', 200), local: true};
   if (!Array.isArray(value.pages) || value.pages.length > 100) fail('文字识别分页结果无效', 'INVALID_RESPONSE');
   let previous = 0;
   output.pages = value.pages.map(page => {
@@ -195,8 +199,10 @@ function transcriptionInput(input, maxBytes = 25 * 1024 * 1024) {
   if (!Number.isSafeInteger(input.attachment.size) || input.attachment.size <= 0 || input.attachment.size > maxBytes
     || typeof input.attachment.dataUrl !== 'string' || input.attachment.dataUrl.length > Math.ceil(maxBytes / 3) * 4 + 200) fail(`一次转录的音频须在${maxBytes / 1024 / 1024} MiB以内`);
   const attachment = normalizeWorkspaceAttachment(input.attachment);
-  if (!/^audio\//.test(attachment.type)) fail('音频转录仅接受音频附件');
-  return attachment;
+  const type = attachment.type.trim().toLowerCase();
+  if (!/^audio\//.test(type) && type !== 'application/ogg') fail('音频转录仅接受音频附件');
+  // application/ogg is an accepted audio alias throughout import and playback.
+  return {...attachment, type: type === 'application/ogg' ? 'audio/ogg' : type};
 }
 function transcriptionBody(attachment, model) {
   const boundary = `mengcang-${randomUUID()}`;
@@ -227,6 +233,7 @@ function transcriptionResult(value, attachment, model, local) {
   };
   const escape = value => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r\n?/g, '\n').replace(/\n\s*\n/g, '\n');
   const vtt = `WEBVTT\n\n${segments.map((segment, index) => `${index + 1}\n${stamp(segment.start)} --> ${stamp(Math.max(segment.end, segment.start + 0.001))}\n${escape(segment.text.trim())}\n`).join('\n')}`;
+  if (Buffer.byteLength(vtt) > MAX_TRANSCRIPT_BYTES) fail('转录字幕超过 2 MiB 保存上限，请拆分音频后转录；没有截断结果', 'INVALID_RESPONSE');
   return {text: vtt, transcript, segments, format: 'vtt', engine: model, local,
     name: `${path.basename(attachment.name, path.extname(attachment.name))}.vtt`,
     ...(typeof value.language === 'string' && value.language.length <= 80 ? {language: value.language} : {})};
@@ -316,8 +323,8 @@ function findClaude() {
 }
 async function runClaude({instructions, content, model, timeoutMs, spawnImpl = spawn, executable = findClaude()}) {
   if (!executable) fail('未找到 Claude CLI，请先安装并登录或改用 API', 'CLI_UNAVAILABLE');
+  const serialized = JSON.stringify(content); // Reject invalid input before starting a process.
   const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'mengcang-ai-'));
-  await fs.promises.chmod(directory, 0o700);
   const args = ['--print', '--output-format', 'json', '--tools', '', '--restricted', '--safe-mode',
     '--strict-mcp-config', '--mcp-config', '{"mcpServers":{}}', '--disable-slash-commands',
     '--no-session-persistence', '--no-chrome', '--setting-sources', '',
@@ -329,23 +336,40 @@ async function runClaude({instructions, content, model, timeoutMs, spawnImpl = s
   // credential files, shell startup files, or user/project tool configuration.
   env.PATH = `${path.dirname(executable)}${path.delimiter}${env.PATH || '/usr/bin:/bin'}`;
   try {
+    await fs.promises.chmod(directory, 0o700);
     return await new Promise((resolve, reject) => {
-      let output = '', bytes = 0, settled = false, timer;
+      let output = '', bytes = 0, settled = false, terminalError, timer;
       const child = spawnImpl(executable, args, {shell: false, cwd: directory, env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe']});
+      const onParentExit = () => { try { child.kill('SIGKILL'); } catch {} };
       const finish = (error, value) => {
-        if (settled) return; settled = true; clearTimeout(timer); error ? reject(error) : resolve(value);
+        if (settled) return; settled = true; clearTimeout(timer);
+        process.removeListener('exit', onParentExit);
+        error ? reject(error) : resolve(value);
       };
-      timer = setTimeout(() => { child.kill('SIGKILL'); finish(Object.assign(new Error('CLI 响应超时，请减少材料长度后重试'), {code: 'MODEL_TIMEOUT'})); }, timeoutMs);
+      const stop = error => {
+        if (settled || terminalError) return;
+        terminalError = error;
+        // Sending a signal is not completion. Keep the service busy and the
+        // private working directory alive until the actual child closes.
+        try { child.kill('SIGKILL'); } catch {}
+      };
+      process.once('exit', onParentExit);
+      timer = setTimeout(() => stop(Object.assign(new Error('CLI 响应超时，请减少材料长度后重试'), {code: 'MODEL_TIMEOUT'})), timeoutMs);
       child.stdout.setEncoding('utf8');
       child.stdout.on('data', chunk => {
+        if (settled || terminalError) return;
         bytes += Buffer.byteLength(chunk);
-        if (bytes > MAX_RESPONSE_BYTES) { child.kill('SIGKILL'); finish(Object.assign(new Error('CLI 响应超过允许大小'), {code: 'INVALID_RESPONSE'})); }
+        if (bytes > MAX_RESPONSE_BYTES) stop(Object.assign(new Error('CLI 响应超过允许大小'), {code: 'INVALID_RESPONSE'}));
         else output += chunk;
       });
       child.stderr.resume(); child.stdin.on('error', () => {});
-      child.on('error', () => finish(Object.assign(new Error('无法启动 Claude CLI'), {code: 'CLI_UNAVAILABLE'})));
+      child.on('error', () => {
+        const error = Object.assign(new Error('无法启动 Claude CLI'), {code: 'CLI_UNAVAILABLE'});
+        if (!child.pid) finish(error); else stop(error);
+      });
       child.on('close', code => {
         if (settled) return;
+        if (terminalError) { finish(terminalError); return; }
         try {
           if (code !== 0) fail('CLI 请求未完成，请检查 CLI 登录状态或改用 API', 'CLI_FAILED');
           const value = JSON.parse(output);
@@ -354,7 +378,7 @@ async function runClaude({instructions, content, model, timeoutMs, spawnImpl = s
             ...(usageOf(value.usage) ? {usage: usageOf(value.usage)} : {})});
         } catch (error) { finish(error?.code ? error : Object.assign(new Error('CLI 返回格式无效'), {code: 'INVALID_RESPONSE'})); }
       });
-      child.stdin.end(JSON.stringify(content));
+      child.stdin.end(serialized);
     });
   } finally { await fs.promises.rm(directory, {recursive: true, force: true}); }
 }
@@ -572,4 +596,4 @@ function createIntelligenceService({nativeAnalyze = analyze, fetchImpl = safeFet
   return Object.freeze({status, configure, request});
 }
 
-module.exports = {createIntelligenceService, DEFAULT_SETTINGS, MODES, loopbackEndpoint, apiEndpoint, runClaude, safeFetch};
+module.exports = {createIntelligenceService, DEFAULT_SETTINGS, MODES, MAX_OCR_TEXT, loopbackEndpoint, apiEndpoint, runClaude, safeFetch};

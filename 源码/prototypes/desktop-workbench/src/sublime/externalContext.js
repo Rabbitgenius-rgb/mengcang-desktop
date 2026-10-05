@@ -1,4 +1,5 @@
 // Only an explicit selection reaches this export. No live-library or file access.
+import {MAX_OCR_TEXT} from './workspaceModel.js';
 export const EXTERNAL_CONTEXT_FORMAT = 'mengcang-selected-context';
 export const MAX_EXTERNAL_CONTEXT_BYTES = 8 * 1024 * 1024;
 const string = (value, limit, label) => {
@@ -20,7 +21,7 @@ export function buildExternalContextExport(cards,{title='已选资料',includeNo
     ...(includeNotes?{note:string(card.caption,50000,'我的备注')}:{}),
     sourceTitle:string(card.sourceTitle,1000,'来源标题'),sourceUrl:publicUrl(card.sourceUrl),author:string(card.author,1000,'作者'),
     type:string(card.type,100,'素材类型'),page:string(card.page==null?'':String(card.page),1000,'页码'),sourceLocation:string(card.sourceLocation,1000,'来源位置'),
-    tags:Array.isArray(card.tags)?card.tags.slice(0,100).map(tag=>string(tag,120,'标签')):[],ocrText:string(card.ocrText,100000,'识别文字'),
+    tags:Array.isArray(card.tags)?card.tags.slice(0,100).map(tag=>string(tag,120,'标签')):[],ocrText:string(card.ocrText,MAX_OCR_TEXT,'识别文字'),
   };bytes+=new TextEncoder().encode(JSON.stringify(exported)).length;if(bytes>MAX_EXTERNAL_CONTEXT_BYTES)throw Error('资料包超过 8 MiB，请分批选择卡片导出。');return exported;})};
   const json=JSON.stringify(output,null,2);
   if(new TextEncoder().encode(json).length>MAX_EXTERNAL_CONTEXT_BYTES)throw Error('资料包超过 8 MiB，请分批选择卡片导出。');

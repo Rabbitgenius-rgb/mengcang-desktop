@@ -26,3 +26,8 @@ test('concurrent same operation returns one record and changed original is detec
 test('AI policy still rejects instead of consuming calls',()=>{assert.throws(()=>rejectAiRequest(),{code:'AI_DISABLED'});});
 
 test('existing JPEG extension remains readable without renaming original files',async t=>{const h=harness(t);h.write('01_sources/_originals/photo.jpeg',Buffer.from(attachment.dataUrl.split(',')[1],'base64'));assert.equal((await h.gateway.attachment('01_sources/_originals/photo.jpeg')).contentType,'image/jpeg');});
+
+test('oversized sparse notes reject before body loading while other notes remain available',async t=>{
+ const h=harness(t),large=h.write('01_sources/cards/text/large.md','');fs.truncateSync(large,4*1024*1024+1);h.write('01_sources/cards/text/good.md','---\ntype: material\ntitle: Good\n---\nbody');
+ await assert.rejects(h.gateway.readNote('01_sources/cards/text/large.md'),{code:'NOTE_TOO_LARGE'});const snapshot=await h.gateway.snapshot();assert.equal(snapshot.materials.length,1);assert.equal(snapshot.materials[0].title,'Good');assert.equal(snapshot.errors.length,1);
+});

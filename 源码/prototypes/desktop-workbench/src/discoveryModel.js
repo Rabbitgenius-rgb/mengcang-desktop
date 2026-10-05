@@ -138,8 +138,12 @@ function importRecord(record, inherited = {}) {
   const data = {...inherited, ...(isObject(record.fields) ? record.fields : {}), ...record};
   const body = pick(data, ['Highlight', 'highlight', 'body', 'full_text', 'tweet_text', 'text', 'content']);
   const sourceUrl = ['URL', 'url', 'sourceUrl', 'source_url', 'tweet_url', 'href', 'link', 'source'].map(name => safeImportUrl(pick(data, [name]))).find(Boolean) || '';
-  if (!body.trim() && !sourceUrl) return null;
-  const sourceTitle = pickNonEmpty(data, ['Book Title', 'book_title', 'bookTitle', 'sourceTitle', 'source_title']) || (body.trim() ? pick(data, ['title']) : '');
+  const caption = pick(data, ['Note', 'note', 'caption', 'description']);
+  const ocrText = pick(data, ['ocrText', 'localOcrText', 'local_ocr_text']);
+  if (!body.trim() && !sourceUrl && !caption.trim() && !ocrText.trim()) return null;
+  const sourceTitleNames = ['Book Title', 'book_title', 'bookTitle', 'sourceTitle', 'source_title'];
+  const hasSourceTitle = sourceTitleNames.some(name => typeof data[name] === 'string' || typeof data[name] === 'number');
+  const sourceTitle = pickNonEmpty(data, sourceTitleNames) || (!hasSourceTitle && body.trim() ? pick(data, ['title']) : '');
   const explicitPage = pickNonEmpty(data, ['Page', 'page', 'source_page', 'highlight_page']);
   const sourceLocation = pickNonEmpty(data, ['sourceLocation', 'source_location', 'Location', 'location', 'location_value']);
   const rawType = pick(data, ['type', 'kind']).toLowerCase();
@@ -152,16 +156,17 @@ function importRecord(record, inherited = {}) {
     author: pickNonEmpty(data, ['Author', 'author', 'username']),
     page: explicitPage,
     sourceLocation, sourceTitle,
-    caption: pick(data, ['Note', 'note', 'caption', 'description']),
+    caption,
     date: pick(data, ['Date', 'date', 'highlighted_at', 'created_at', 'createdAt']),
-    type: rawType || (isHighlight ? 'highlight' : social ? 'social' : body.trim() ? sourceUrl ? 'article' : 'text' : 'link'),
-    ocrText: pick(data, ['ocrText', 'localOcrText', 'local_ocr_text']),
+    type: rawType || (isHighlight ? 'highlight' : social ? 'social' : body.trim() ? sourceUrl ? 'article' : 'text' : sourceUrl ? 'link' : 'text'),
+    ocrText,
     tags:importTags(data.tags),
   };
   return {...result, fingerprint: importFingerprint(result)};
 }
 
-// Date and personal Note are not identity: re-exporting a highlight does not create a new item.
+// Date and personal Note do not change an ordinary highlight/link identity.
+// Bodyless, URL-less exports use their only textual payload instead of all colliding.
 export function importFingerprint(record) {
   const fields = isObject(record.fields) ? record.fields : {};
   const pageValue = fields.source_page ?? record.page;
@@ -173,7 +178,13 @@ export function importFingerprint(record) {
   // A single legacy Location used to occupy page. Keep that identity stable; when
   // both a physical page and a different location exist, include both to avoid loss.
   const identityLocation = location && page && location !== page ? JSON.stringify([page, location]) : location || page;
-  const canonical = JSON.stringify([text(record.body), sourceTitle.trim(), author.trim(), identityLocation, sourceUrl.trim()]);
+  const identity = [text(record.body), sourceTitle.trim(), author.trim(), identityLocation, sourceUrl.trim()];
+  if (!text(record.body).trim() && !sourceUrl.trim()) {
+    const caption = text(record.caption) || text(fields.caption);
+    const ocrText = text(record.ocrText) || text(record.localOcrText) || text(record.localOCR?.text) || text(fields.local_ocr_text);
+    if (caption.trim() || ocrText.trim()) identity.push(['text-only-v1', caption, ocrText]);
+  }
+  const canonical = JSON.stringify(identity);
   let hash = 14695981039346656037n;
   for (let index = 0; index < canonical.length; index += 1) { hash ^= BigInt(canonical.charCodeAt(index)); hash = BigInt.asUintN(64, hash * 1099511628211n); }
   return `highlight-v1:${hash.toString(16).padStart(16, '0')}`;
@@ -259,7 +270,7 @@ function unquote(value) {
 function parseMarkdownContext(input) {
   if (!input.startsWith('# 选定资料 · AI 上下文\n')) return null;
   const records = [];
-  const headers = /^## \d+\. (.*)\n\n- 来源：(.*)\n- 原链接：(.*)\n- 作者：(.*)\n- 页码：(.*)\n- 原位置：(.*)(?:\n- 日期：(.*))?(?:\n- 类型：(.*))?(?:\n- 标签：(.*))?\n\n/gm;
+  const headers = /^## \d+\. ([^\n]*)\n\n- 来源：([^\n]*)\n- 原链接：([^\n]*)\n- 作者：([^\n]*)\n- 页码：([^\n]*)\n- 原位置：([^\n]*)(?:\n- 日期：([^\n]*))?(?:\n- 类型：([^\n]*))?(?:\n- 标签：([^\n]*))?\n\n/gm;
   let cursor = 0;
   while (true) {
     headers.lastIndex = cursor;
@@ -410,7 +421,7 @@ export function publicDiscoveryItem(item) {
 const csvCell = value => /[",\r\n]/.test(scalar(value)) ? `"${scalar(value).replace(/"/g, '""')}"` : scalar(value);
 const metadataLine = value => /[\\\r\n]|^\s*["']/.test(scalar(value)) ? JSON.stringify(scalar(value)) : scalar(value);
 function fenced(value) {
-  const maximum = Math.max(2, ...(text(value).match(/`+/g) || []).map(run => run.length));
+  let maximum=2;for(const match of text(value).matchAll(/`+/g))maximum=Math.max(maximum,match[0].length);
   const fence = '`'.repeat(maximum + 1);
   return `${fence}text\n${value}\n${fence}`;
 }

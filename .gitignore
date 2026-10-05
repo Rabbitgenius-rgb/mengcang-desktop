@@ -22,6 +22,7 @@ intelligence-key.json
 intelligence-settings.json
 preferences.json
 vault-cache.json
+connection.json
 data.json
 candidate-config.json
 

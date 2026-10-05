@@ -80,40 +80,9 @@ test('conflict remains a recoverable error without disconnecting or retrying the
   assert.equal(f.calls.filter(call => call.endpoint === '/schedule').length, 1); assert.equal(f.gateway.status().connected, true);
 });
 
-test('preload exposes the bounded scheduleSave method without generic IPC access', async () => {
-  let api; const calls = [];
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../desktop/preload.cjs'), 'utf8'), {
-    require: () => ({ contextBridge: { exposeInMainWorld(name, value) { assert.equal(name, 'mengcang'); api = value; } }, ipcRenderer: { invoke: async (...args) => { calls.push(args); return { ok: true }; } } }),
-  });
-  const input = request(); await api.scheduleSave(input);
-  assert.equal(calls[0][0], 'mengcang:scheduleSave'); assert.equal(calls[0][1], input); assert.equal(api.invoke, undefined); assert.equal(Object.isFrozen(api), true);
-});
-
-test('main IPC rejects untrusted frames, preserves error codes and waits for schedule writes on quit', async () => {
-  const source = fs.readFileSync(path.join(__dirname, '../desktop/main.cjs'), 'utf8');
-  const handlers = new Map(), pendingMutations = new Set(); let resolveSave, calls = 0, quits = 0;
-  const pendingSave = new Promise(resolve => { resolveSave = resolve; });
-  const context = vm.createContext({
-    ipcMain: { handle: (name, callback) => handlers.set(name, callback) }, trustedFrame, jsonValue, pendingMutations,
-    safeError: error => ({ code: error.code, message: error.message }),
-    gateway: { scheduleSave: () => { calls++; return pendingSave; }, dispose() {} },
-    privateWrites: { failed: 0, drain: async () => {} }, app: { quit: () => { quits++; } },
-    quitTask: null, quitDrained: false, shuttingDown: false,
-  });
-  vm.runInContext(source.slice(source.indexOf('function handle('), source.indexOf('async function readPrivate(')), context);
-  vm.runInContext(source.slice(source.indexOf('function requestQuit()'), source.indexOf('async function pair()')), context);
-  vm.runInContext(source.split('\n').find(line => line.includes("handle('scheduleSave',")), context);
-  const invoke = handlers.get('mengcang:scheduleSave');
-  assert.equal((await invoke({ senderFrame: { url: 'https://outside.test/' }, sender: {} }, request())).error.code, 'FORBIDDEN'); assert.equal(calls, 0);
-  const frame = { url: 'mengcang://app/index.html' }, event = { senderFrame: frame, sender: { mainFrame: frame } };
-  const saving = invoke(event, request()); await Promise.resolve();
-  assert.equal(pendingMutations.size, 1); assert.equal(calls, 1);
-  const quitting = vm.runInContext('requestQuit()', context); await Promise.resolve(); assert.equal(quits, 0);
-  resolveSave({ item: { id: 'saved' } }); const result = await saving; await quitting;
-  assert.equal(result.ok, true); assert.equal(pendingMutations.size, 0); assert.equal(quits, 1);
-  context.gateway.scheduleSave = () => { const error = new Error('changed'); error.code = 'CONFLICT'; throw error; };
-  const conflict = await invoke(event, request()); assert.equal(conflict.ok, false); assert.equal(conflict.error.code, 'CONFLICT');
-  assert.equal(pendingMutations.size, 0);
+test('current standalone preload does not expose retired schedule mutations or generic IPC',async()=>{
+ let api;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../desktop/preload.cjs'),'utf8'),{require:()=>({contextBridge:{exposeInMainWorld:(_name,value)=>api=value},ipcRenderer:{invoke:async()=>({ok:true})}})});
+ assert.equal(api.scheduleSave,undefined);assert.equal(api.invoke,undefined);assert.equal(Object.isFrozen(api),true);assert.equal(typeof api.capture,'function');
 });
 
 test('work writes require the explicit v2 capability and never reach an old connector', async t => {

@@ -2,7 +2,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {valueOf} from '../desktopModel.js';
 import {INSIGHT_LABELS,IMAGE_INSIGHT_MODES,intelligenceText,rankEmbeddings,extractDataPayload,isImageReference,visionImagePayload,sameImageReference,formatImageBytes} from './intelligenceHelpers.js';
 import {DEEPSEEK_PRESET,isDeepSeekEndpoint} from './deepseekSettings.js';
-import {captureAiSource,normalizeAiRecord} from './intelligenceDrafts.js';
+import {captureAiSource,normalizeAiRecord,MAX_OCR_TEXT} from './intelligenceDrafts.js';
 import './intelligencePanel.css';
 
 const titleFor=mode=>INSIGHT_LABELS[mode]||({Settings:'AI 连接与用量',Insights:'AI 解读','Semantic search':'语义搜索',Related:'关联想法',Discover:'灵感发现',OCR:'图片与扫描 PDF 文字识别',Classification:'分类建议'}[mode]||mode);
@@ -27,6 +27,7 @@ export default function IntelligencePanel({mode='Settings',card,cards=[],collect
  const matchingDrafts=modeDrafts.filter(record=>record.sourceSnapshot?.id===chosen?.id);
  const pendingActive=matchingDrafts.some(record=>record.phase==='pending'&&requestIsActive?.(record.id));
  const draftSignature=modeDrafts.map(record=>`${record.id}:${record.phase}:${record.updatedAt}:${record.savedCardId}`).join('|');
+ const resultDurable=!!resultRecord&&(isResultDurable?isResultDurable(resultRecord.id,resultRecord.phase):storedPhases.has(`${resultRecord.id}:${resultRecord.phase}`)||resultDrafts.some(record=>record.id===resultRecord.id&&record.phase===resultRecord.phase));
  function showDraft(record){
   if(!live.current)return;
   const contentChanged=resultRecord?.id!==record?.id||resultRecord?.phase!==record?.phase||JSON.stringify(resultRecord?.result)!==JSON.stringify(record?.result);
@@ -81,27 +82,28 @@ export default function IntelligencePanel({mode='Settings',card,cards=[],collect
   if(live.current)showDraft(pending);
   registerRequest?.(id,true);
   try{
-   let data;
+   let data,complete;
    try{
     data=await request(input);
     if(data?.cancelled){const cancelled=Error('本次调用已取消，未自动重试');cancelled.code='AI_CONFIRMATION_REQUIRED';throw cancelled;}
     if(data?.mode!==undefined&&data.mode!==requestMode){const invalid=Error('模型响应的解读方式与本次请求不一致，未自动重试');invalid.code='INVALID_RESPONSE';throw invalid;}
+    const {mode:responseMode,...storedResult}=data;
+    complete=normalizeAiRecord({...pending,phase:'complete',result:storedResult,updatedAt:new Date().toISOString()});
    }catch(issue){
     const cancelled=issue.code==='AI_CONFIRMATION_REQUIRED'||issue.code==='USER_CANCELLED'||issue.code==='CANCELLED';
-    const failed=normalizeAiRecord({...pending,phase:'failed',updatedAt:new Date().toISOString(),error:cancelled?'本次调用已取消，未自动重试':issue.message||'本次调用未完成，未自动重试'});
+    const recoveryText=typeof data?.text==='string'?data.text:requestMode==='Classification'&&data?JSON.stringify({tags:data.tags,collectionIds:data.collectionIds,reason:data.reason},null,2):'';
+    const failed=normalizeAiRecord({...pending,phase:'failed',updatedAt:new Date().toISOString(),error:cancelled?'本次调用已取消，未自动重试':issue.message||'本次调用未完成，未自动重试',...(recoveryText?{recoveryText}:{})});
     if(live.current)showDraft(failed);
     await persistDraft(failed);
     throw issue;
    }
-   const {mode:responseMode,...storedResult}=data;
-   const complete=normalizeAiRecord({...pending,phase:'complete',result:storedResult,updatedAt:new Date().toISOString()});
    if(live.current)showDraft(complete);
    try{await persistDraft(complete);}catch(issue){throw Error(`AI 已返回，结果草稿尚未保存，请先另存笔记。${issue.message||''}`);}
    return data;
   }finally{registerRequest?.(id,false);}
  }
  async function saveTextResult(){await work(async()=>{
-  if(active==='OCR'){await onSaveOcr(result.sourceSnapshot,result,resultRecord);if(live.current)setMessage('文字已保存到本机卡片');return;}
+  if(active==='OCR'){if(result.text.length>MAX_OCR_TEXT)throw Error('这份旧识别结果超过 100 万字符，请先复制保留，再拆分文件识别；原草稿不会被截断。');await onSaveOcr(result.sourceSnapshot,result,resultRecord);if(live.current)setMessage('文字已保存到本机卡片');return;}
   const record=resultRecord;
   if(record&&(record.savedCardId||savedReceipts.current.has(record.id))){if(live.current)setMessage('这份解读已保存，请查看已保存笔记');return;}
   const cardId=await onSaveInsight(result.sourceSnapshot,active,result,record);
@@ -161,7 +163,10 @@ export default function IntelligencePanel({mode='Settings',card,cards=[],collect
    {resultRecord&&<p className="si-muted">结果来源：{resultRecord.sourceSnapshot.title||'未命名素材'} · {titleFor(resultRecord.mode)}</p>}
    {resultRecord?.phase==='pending'&&<p role="status" className="si-muted">{requestIsActive?.(resultRecord.id)?'本次调用正在处理，关闭工具后结果仍会保存到本机草稿。':'上次调用未完成，未自动重试。你可核对后手动发起新的调用。'}</p>}
    {resultRecord?.phase==='failed'&&<p role="alert" className="si-error">{resultRecord.error||'本次调用未完成，未自动重试。'}</p>}
-   {resultRecord?.phase==='complete'&&<p className="si-muted">{!onResultDraft?'结果保留于本次会话。':(isResultDurable?isResultDurable(resultRecord.id,'complete'):storedPhases.has(`${resultRecord.id}:complete`)||resultDrafts.some(record=>record.id===resultRecord.id&&record.phase==='complete'))?'结果已保存在本机草稿，关闭工具或切换解读方式后可恢复。':'结果已返回，尚未保存到磁盘，请复制或另存笔记；关闭软件后可能丢失。'}</p>}
+   {resultRecord?.recoveryText&&<section className="si-result"><p className="si-muted">服务已返回内容，但未通过结果校验。原文已作为待核对草稿保留，可复制后手工整理；不会自动采用或重新调用。</p><label className="sw-field">待核对的返回原文<textarea aria-label="待核对的返回原文" value={resultRecord.recoveryText} readOnly rows={12}/></label></section>}
+   {active==='OCR'&&result?.text?.length>MAX_OCR_TEXT&&<p className="si-muted">这份旧识别草稿超过当前 100 万字符保存上限。全文仍保留，可复制后拆分处理。</p>}
+   {resultRecord?.phase==='complete'&&<p className="si-muted">{!onResultDraft?'结果保留于本次会话。':resultDurable?'结果已保存在本机草稿，关闭工具或切换解读方式后可恢复。':'结果已返回，尚未保存到磁盘，请复制或另存笔记；关闭软件后可能丢失。'}</p>}
+   {resultRecord&&onResultDraft&&!resultDurable&&<p className="si-muted" role="status">这份结果草稿尚未写入磁盘。重新保存只保留已有内容，不会重新调用服务。<button type="button" disabled={busy||requestIsActive?.(resultRecord.id)} onClick={()=>work(async()=>{await persistDraft(resultRecord);if(live.current)setMessage('结果草稿已保存到本机，没有重新调用服务。');})}>重新保存结果草稿</button></p>}
    {active==='Semantic search'&&<label className="sw-field">描述你想找的内容<input aria-label="语义搜索描述" value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.nativeEvent.isComposing&&!busy){e.preventDefault();execute();}}}/></label>}
    {['Semantic search','Related','Discover'].includes(active)&&<p className="si-muted">比较当前资料库 {cards.length} 张卡片的本机句向量，每张取前 2 万字。不调用云端，也不读取公开社区；结果是待核对的相似素材。</p>}
    {generationMode&&imageReference&&<section className="si-image-preview" aria-label="待发送图片">{currentImage?.image?<><img src={currentImage.image.dataUrl} alt={`待发送原图：${currentImage.image.name}`}/><div><strong>{currentImage.image.name}</strong><small>{formatImageBytes(currentImage.image.size)} · {currentImage.image.type}</small><p className="si-muted">确认本次调用后，这张图片原文件和所选素材文字会发送给当前 API 服务。预览仅在本机准备，不会提前上传。</p></div></>:<p role={currentImage?.issue?'alert':'status'} className={currentImage?.issue?'si-error':'si-muted'}>{currentImage?.issue||'正在准备图片原文件…'}</p>}{imageProviderIssue&&<p className="si-error" role="alert">{imageProviderIssue}</p>}</section>}

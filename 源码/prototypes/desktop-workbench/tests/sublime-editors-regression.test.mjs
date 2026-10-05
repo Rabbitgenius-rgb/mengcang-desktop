@@ -109,3 +109,17 @@ test('clicking a canvas card gives it keyboard focus and persists arrow movement
   assert.equal(focused,false);
   assert.equal(prevented,false);
 });
+
+test('every canvas mutation reaches workspace persistence synchronously even while an earlier save is pending',async()=>{
+ const updates=[],waits=[];
+ const board={id:'canvas',title:'Draft',nodes:[{id:'node',itemPath:'card',x:0,y:0}],edges:[]};
+ const form=editor('CanvasEditor',{board,hasDraft:true,items:[],onChange:value=>{updates.push(value);return new Promise(resolve=>waits.push(resolve));},onBack:()=>{}});
+ assert.match(text(form.render()),/未保存的草稿/);
+ const element={};
+ function move(){form.find(value=>value.type==='article').props.onKeyDown({key:'ArrowRight',target:element,currentTarget:element,preventDefault(){},stopPropagation(){}});form.render();}
+ move();move();
+ assert.equal(updates.length,2,'the second mutation must be registered before navigation or quit can happen');
+ assert.deepEqual(updates.map(value=>value.nodes[0].x),[10,20]);
+ waits[0]();await Promise.resolve();await Promise.resolve();form.render();assert.match(text(form.render()),/正在保存/);
+ waits[1]();await Promise.resolve();await Promise.resolve();form.render();assert.doesNotMatch(text(form.render()),/未保存的草稿|正在保存/);
+});

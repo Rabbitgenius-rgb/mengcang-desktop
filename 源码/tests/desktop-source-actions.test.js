@@ -1,36 +1,8 @@
 'use strict';
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const path = require('node:path');
-const { relative, fail } = require('../desktop/security.cjs');
-const source = fs.readFileSync(path.join(__dirname, '../desktop/main.cjs'), 'utf8');
-const registration = source.split('\n').find(line => line.includes("handle('openSourceLink',"));
-function harness(note) {
-  let handler; const reads=[], opened=[];
-  vm.runInNewContext(registration, {
-    handle:(_name, callback)=>{handler=callback;}, relative, fail, URL,
-    gateway:{readNote:async value=>{reads.push(value);return note;}},
-    shell:{openExternal:async url=>{opened.push(url);}},
-  });
-  return {handler, reads, opened};
-}
-test('source link of an image opens the stored web source, not its attachment',async()=>{
-  const f=harness({kind:'image',url:'https://example.test/colors?q=1',attachmentPath:'01_sources/cards/images/color.png'});
-  await f.handler('01_sources/cards/images/color.md');
-  assert.deepEqual(f.reads,['01_sources/cards/images/color.md']);
-  assert.deepEqual(f.opened,['https://example.test/colors?q=1']);
-});
-test('source link rejects missing, local, executable and credential-bearing URLs',async()=>{
-  for(const url of [undefined,'','file:///etc/passwd','javascript:alert(1)','obsidian://open','https://user:secret@example.test']){
-    const f=harness({url});await assert.rejects(f.handler('01_sources/cards/text/test.md'));
-    assert.deepEqual(f.opened,[]);
-  }
-});
-test('renderer cannot supply a URL or escaped note path instead of a stored note',async()=>{
-  for(const value of ['https://example.test','../outside.md','/absolute.md',{url:'https://example.test'}]){
-    const f=harness({url:'https://example.test'});await assert.rejects(f.handler(value));
-    assert.deepEqual(f.reads,[]);assert.deepEqual(f.opened,[]);
-  }
-});
+const test=require('node:test'),assert=require('node:assert/strict');
+const {registerSourceActions,externalUrl}=require('../desktop/source-actions.cjs');
+function harness(original){const reads=[],urls=[],files=[];let handler;registerSourceActions({handle:(name,callback)=>{assert.equal(name,'openOriginal');handler=callback;},gateway:{original:async value=>{reads.push(value);return original;}},shell:{openExternal:async value=>urls.push(value),openPath:async value=>{files.push(value);return '';}}});return {handler,reads,urls,files};}
+test('current original-source handler opens a validated stored web source',async()=>{const f=harness({kind:'url',url:'https://example.test/read?q=1'});assert.deepEqual(await f.handler('01_sources/cards/text/card.md'),{opened:true});assert.deepEqual(f.urls,['https://example.test/read?q=1']);});
+test('current original-source handler opens the gateway-resolved original file',async()=>{const f=harness({kind:'file',path:'/synthetic/approved-file.pdf'});await f.handler('01_sources/books/book.md');assert.deepEqual(f.files,['/synthetic/approved-file.pdf']);assert.deepEqual(f.urls,[]);});
+test('stored executable or credential-bearing links cannot be opened',async()=>{for(const url of ['file:///synthetic','javascript:alert(1)','https://user:pass@example.test','']){const f=harness({kind:'url',url});await assert.rejects(f.handler('01_sources/cards/text/card.md'));assert.deepEqual(f.urls,[]);assert.equal(externalUrl(url),'');}});
+test('renderer cannot substitute a URL, object or escaped path for a stored source',async()=>{for(const value of ['https://example.test','../escape.md','/absolute.md',{}]){const f=harness({kind:'url',url:'https://example.test'});await assert.rejects(f.handler(value));assert.deepEqual(f.reads,[]);}});

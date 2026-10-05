@@ -12,6 +12,7 @@ const digest = value => createHash('sha256').update(value).digest('hex');
 const cacheDirectory = path.join(os.tmpdir(), 'mengcang-discovery-build');
 const metadataFile = path.join(cacheDirectory, `${digest(root)}.json`);
 const moduleCache = process.env.MENGCANG_SWIFT_CACHE || path.join(cacheDirectory, 'swift-modules');
+const nativeTarget = 'arm64-apple-macos13.0';
 
 function tool(command, args, label) {
   const result = spawnSync(command, args, {encoding: 'utf8', timeout: 180000, maxBuffer: 4 * 1024 * 1024});
@@ -32,7 +33,7 @@ async function build() {
   const compilerStat = await fs.stat(compiler);
   const fingerprint = digest(JSON.stringify({version: 1, source: digest(sourceBytes), compiler, compilerVersion,
     compilerModified: compilerStat.mtimeMs, compilerSize: compilerStat.size, sdk, sdkVersion,
-    architecture: process.arch, flags: ['-O', '-sdk']}));
+    architecture: process.arch, flags: ['-O', '-sdk', '-target', nativeTarget]}));
   try {
     const metadata = JSON.parse(await fs.readFile(metadataFile, 'utf8'));
     const binaryStat = await fs.lstat(output);
@@ -50,7 +51,7 @@ async function build() {
   const temporary = path.join(path.dirname(output), `.discovery-helper-${randomUUID()}.tmp`);
   try {
     console.log('[discovery-helper] 正在编译真实本机 OCR 与语义分析组件…');
-    tool(compiler, ['-module-cache-path', moduleCache, '-sdk', sdk, '-O', source, '-o', temporary], '编译 DiscoveryHelper.swift');
+    tool(compiler, ['-module-cache-path', moduleCache, '-sdk', sdk, '-target', nativeTarget, '-O', source, '-o', temporary], '编译 DiscoveryHelper.swift');
     await fs.chmod(temporary, 0o755);
     const binaryHash = digest(await fs.readFile(temporary));
     await fs.rename(temporary, output);

@@ -52,3 +52,8 @@ test('zoom changes CSS size while canvas allocation stays bounded, and selection
 test('original-file capture is opt-in and keeps exact original bytes independently of document indexes',()=>{
  const card={title:'Original',body:'',attachment,documentIndex:{text:'should not become source'}};const plain=cardCapturePayload(card,{operationId:'id'});assert.equal(plain.attachment,undefined);const captured=cardCapturePayload(card,{operationId:'id',includeAttachment:true});assert.deepEqual(captured.attachment,attachment);assert.equal(captured.body,'');assert.equal(captured.documentIndex,undefined);
 });
+
+test('PDF aggregate length reserves page separators and honestly marks a truncated last page',async()=>{
+ const values=['a'.repeat(999999),'Z'];const index=await indexPdfDocument({numPages:2,getPage:async page=>({getTextContent:async()=>({items:[{str:values[page-1]}]})})});
+ assert.equal(index.text.length,1000000);assert.equal(index.truncated,true);assert.equal(index.pages[1].text,'');assert.equal(index.text,index.pages.map(page=>page.text).join('\n'));
+});

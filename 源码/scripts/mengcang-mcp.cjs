@@ -16,7 +16,7 @@ const result=value=>({content:[{type:'text',text:JSON.stringify(value)}]});
 function normalizeContext(value) {
   if(!object(value)||value.format!==FORMAT||value.version!==1||value.access!=='read-only'||!text(value.title,1000)||!Array.isArray(value.cards)||value.cards.length<1||value.cards.length>2000)throw Error('请使用梦藏明确导出的外部 AI 资料包，不支持资料库备份或任意 JSON。');
   const seen=new Set(),cards=value.cards.map(card=>{
-    if(!object(card)||!/^card-[1-9]\d{0,5}$/.test(card.id)||seen.has(card.id)||!text(card.title,1000)||!text(card.body)||!text(card.note??'',50000)||!text(card.ocrText??''))throw Error('资料包中的卡片格式无效。');
+    if(!object(card)||!/^card-[1-9]\d{0,5}$/.test(card.id)||seen.has(card.id)||!text(card.title,1000)||!text(card.body)||!text(card.note??'',50000)||!text(card.ocrText??'',1000000))throw Error('资料包中的卡片格式无效。');
     seen.add(card.id);
     for(const key of ['sourceTitle','sourceLocation','author','page'])if(!text(card[key]??'',1000))throw Error('资料包中的出处格式无效。');
     if(!text(card.type??'',100)||!Array.isArray(card.tags)||card.tags.length>100||card.tags.some(tag=>!text(tag,120)))throw Error('资料包中的类型或标签无效。');

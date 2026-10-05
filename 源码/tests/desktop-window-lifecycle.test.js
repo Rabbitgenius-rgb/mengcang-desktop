@@ -10,21 +10,21 @@ const aiPolicy = require('../desktop/ai-policy.cjs');
 
 const source = fs.readFileSync(path.join(__dirname, '../desktop/main.cjs'), 'utf8');
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve=yes;reject=no; }); return { promise, resolve, reject }; }
-function harness({ smoke = false } = {}) {
+function harness({ smoke = false,nativePreview=async()=>({kind:"text",body:"Synthetic"}),mcpClose=async()=>{} } = {}) {
   const ready = deferred(), created = deferred(), windows = [], handlers = new Map(), protocols = new Map(), errors = [], timers = new Set();
-  let readyTask;
+  let readyTask,gateway,quits=0;const sent=[];
   const app = new EventEmitter();
   Object.assign(app, {
     setName() {}, requestSingleInstanceLock: () => true, getPath: () => '/synthetic/user-data',
     commandLine: { hasSwitch: name => smoke && name === 'smoke-test' },
     whenReady: () => ({ then(callback) { readyTask=ready.promise.then(callback);return readyTask; } }),
-    quit() {}, exit() {},
+    quit() {quits++;}, exit() {},
   });
   class FakeWindow extends EventEmitter {
     constructor(options) {
       super(); this.options=options;this.visible=false;this.minimized=false;this.destroyed=false;this.shows=0;this.restores=0;this.focuses=0;this.load=deferred();
       this.webContents = new EventEmitter();
-      Object.assign(this.webContents, { send() {}, setWindowOpenHandler() {}, isDestroyed:()=>this.destroyed, mainFrame:{}, session: Object.assign(new EventEmitter(), { setPermissionRequestHandler() {}, setPermissionCheckHandler() {}, webRequest: { onBeforeRequest() {} } }) });
+      Object.assign(this.webContents, { send(_channel,value) {sent.push(value);}, setWindowOpenHandler() {}, isDestroyed:()=>this.destroyed, mainFrame:{}, session: Object.assign(new EventEmitter(), { setPermissionRequestHandler() {}, setPermissionCheckHandler() {}, webRequest: { onBeforeRequest() {} } }) });
       this.routesReady = protocols.has('mengcang') && handlers.has('mengcang:status');
       windows.push(this);created.resolve(this);
     }
@@ -36,21 +36,22 @@ function harness({ smoke = false } = {}) {
     loadURL(url) { this.url=url;return this.load.promise; }
     destroy() { this.destroyed=true;this.emit('closed'); }
   }
-  class FakeGateway extends EventEmitter { status() { return { paired:false,connected:false }; } connect() { return Promise.resolve(); } dispose() {} }
+  class FakeGateway extends EventEmitter { constructor(){super();gateway=this;} status() { return { paired:false,connected:false }; } connect() { return Promise.resolve(); } dispose() {} }
   const electron = {
     app, BrowserWindow:FakeWindow, ipcMain:{handle(name,fn){handlers.set(name,fn);}},
     protocol:{registerSchemesAsPrivileged(){},handle(name,fn){protocols.set(name,fn);}},
     safeStorage:{isEncryptionAvailable(){throw Error('The test must not access credentials');}},
-    dialog:{showErrorBox(...args){errors.push(args);}}, shell:{},
+    dialog:{showErrorBox(...args){errors.push(args);},showMessageBox:async()=>({response:0})}, shell:{},
     Menu:{buildFromTemplate:items=>items,setApplicationMenu(){}}, powerMonitor:new EventEmitter(),
   };
-  const security = { PRODUCTION_VAULT:'/synthetic/vault', trustedFrame:event=>event?.syntheticTrusted===true, createPrivateWriteQueue:()=>({failed:0,drain:async()=>{},retryFailures:async()=>{}}) };
+  const security = { PRODUCTION_VAULT:'/synthetic/vault', trustedFrame:event=>event?.syntheticTrusted===true,captureJson:value=>value, createPrivateWriteQueue:()=>({failed:0,drain:async()=>{},retryFailures:async()=>{}}) };
   const mockFs = {existsSync:()=>false,promises:{mkdir:async()=>{}}};
-  const requireMock = id => id==='electron'?electron:id==='node:fs'?mockFs:id==='./intelligence-bridge.cjs'?{registerIntelligence:async()=>{}}:id==='./local-gateway.cjs'?{LocalVaultGateway:FakeGateway}:id==='./discovery.cjs'?{analyze(){throw Error('Window lifecycle tests must not launch native analysis');}}:id==='./renderer-quit.cjs'?require('../desktop/renderer-quit.cjs'):id==='./download-lifecycle.cjs'?require('../desktop/download-lifecycle.cjs'):id==='./ai-policy.cjs'?aiPolicy:id==='./security.cjs'?security:require(id);
+  const mcpMocks={'./mcp-library.cjs':{TOOLS:[],createLibraryReader:()=>({callTool:async()=>({content:[]})})},'./mcp-bridge.cjs':{startMcpBridge:async()=>({close:mcpClose})},'./mcp-workspace.cjs':{readWorkspaceSnapshot:async()=>null}};
+  const requireMock = id => mcpMocks[id]|| (id==='electron'?electron:id==='node:fs'?mockFs:id==='./intelligence-bridge.cjs'?{registerIntelligence:async()=>{}}:id==='./local-gateway.cjs'?{LocalVaultGateway:FakeGateway}:id==='./native-file-preview.cjs'?{previewNativeAttachment:nativePreview}:id==='./discovery.cjs'?{analyze(){throw Error('Window lifecycle tests must not launch native analysis');}}:id==='./renderer-quit.cjs'?require('../desktop/renderer-quit.cjs'):id==='./download-lifecycle.cjs'?require('../desktop/download-lifecycle.cjs'):id==='./ai-policy.cjs'?aiPolicy:id==='./security.cjs'?security:['./source-actions.cjs','./discovery-state.cjs'].includes(id)?require('../desktop/'+id.slice(2)):require(id));
   vm.runInNewContext(source, { require:requireMock,__dirname:'/synthetic/app',console,URL,structuredClone,Buffer,
     setTimeout:(callback,milliseconds)=>{const timer={callback,milliseconds};timers.add(timer);return timer;},clearTimeout:timer=>timers.delete(timer),
   }, {filename:'desktop/main.cjs'});
-  return {app,windows,handlers,errors,timers,
+  return {app,windows,handlers,errors,timers,sent,get gateway(){return gateway;},get quits(){return quits;},
     async start() { ready.resolve();return Promise.race([created.promise,readyTask.then(()=>{if(!windows.length)throw Error('Startup failed before window creation: '+JSON.stringify(errors));return windows[0];})]); },
     async finish(window) { window.load.resolve();await window.load.promise;await Promise.resolve(); },
     get readyTask() { return readyTask; },
@@ -126,4 +127,36 @@ test('desktop resource copy includes the policy required by its entry point', as
   const bundledPolicy=require(path.join(target,'ai-policy.cjs'));
   assert.equal(bundledPolicy.AI_ENABLED,false);
   assert.throws(()=>bundledPolicy.rejectAiRequest(),{code:'AI_DISABLED'});
+});
+
+async function until(check){for(let i=0;i<20;i++){if(check())return;await new Promise(resolve=>setImmediate(resolve));}assert.ok(check(),'expected asynchronous lifecycle transition');}
+test('capture IPC preserves error codes and rejects foreign frames',async()=>{
+ const f=harness(),window=await f.start();await f.finish(window);await f.readyTask;let calls=0;f.gateway.capture=async()=>{calls++;throw Object.assign(Error('Synthetic conflict'),{code:'CONFLICT'});};
+ const capture=f.handlers.get('mengcang:capture');assert.equal((await capture({syntheticTrusted:false},{})).error.code,'FORBIDDEN');assert.equal(calls,0);assert.equal((await capture({syntheticTrusted:true},{})).error.code,'CONFLICT');assert.equal(calls,1);
+});
+test('quit waits for existing capture, rejects new work, and waits for renderer persistence',async()=>{
+ const f=harness(),window=await f.start();await f.finish(window);await f.readyTask;const gate=deferred();f.gateway.capture=()=>gate.promise;
+ const operation=f.handlers.get('mengcang:capture')({syntheticTrusted:true},{});await Promise.resolve();f.app.emit('before-quit',{preventDefault(){}});
+ assert.equal((await f.handlers.get('mengcang:capture')({syntheticTrusted:true},{})).error.code,'APP_QUITTING');assert.equal(f.sent.length,0);
+ gate.resolve({saved:true});await operation;await until(()=>f.sent.some(e=>e.type==='prepareQuit'));const ticket=f.sent.find(e=>e.type==='prepareQuit');assert.equal(f.quits,0);
+ await f.handlers.get('mengcang:rendererQuitReady')({syntheticTrusted:true},{quitId:ticket.quitId,ok:true});await until(()=>f.quits===1);
+});
+test('rejecting renderer quit releases admission and sends the matching cancellation ticket',async()=>{
+ const f=harness(),window=await f.start();await f.finish(window);await f.readyTask;f.gateway.capture=async()=>({saved:true});f.app.emit('before-quit',{preventDefault(){}});
+ await until(()=>f.sent.some(e=>e.type==='prepareQuit'));const ticket=f.sent.find(e=>e.type==='prepareQuit');
+ await f.handlers.get('mengcang:rendererQuitReady')({syntheticTrusted:true},{quitId:ticket.quitId,ok:false,message:'Synthetic unsaved draft'});await until(()=>f.sent.some(e=>e.type==='quitCancelled'&&e.quitId===ticket.quitId));
+ assert.equal(f.quits,0);assert.equal((await f.handlers.get('mengcang:capture')({syntheticTrusted:true},{})).ok,true);
+});
+test('quit waits for native preview cleanup before asking the renderer',async()=>{
+ const cleanup=deferred();let cleaned=false;const f=harness({nativePreview:async()=>{await cleanup.promise;cleaned=true;return {kind:'text',body:'Synthetic'};}}),window=await f.start();await f.finish(window);await f.readyTask;
+ const preview=f.handlers.get('mengcang:nativeFilePreview')({syntheticTrusted:true},{});await Promise.resolve();f.app.emit('before-quit',{preventDefault(){}});assert.equal(f.sent.length,0);
+ cleanup.resolve();await preview;assert.equal(cleaned,true);await until(()=>f.sent.some(e=>e.type==='prepareQuit'));const ticket=f.sent.find(e=>e.type==='prepareQuit');await f.handlers.get('mengcang:rendererQuitReady')({syntheticTrusted:true},{quitId:ticket.quitId,ok:true});await until(()=>f.quits===1);
+});
+test('quit closes the local MCP bridge only after saved drafts are acknowledged and before application exit',async()=>{
+ const closing=deferred();let started=false;
+ const f=harness({mcpClose:async()=>{started=true;await closing.promise;}}),window=await f.start();await f.finish(window);await f.readyTask;
+ f.app.emit('before-quit',{preventDefault(){}});await until(()=>f.sent.some(value=>value.type==='prepareQuit'));
+ assert.equal(started,false);const ticket=f.sent.find(value=>value.type==='prepareQuit');
+ await f.handlers.get('mengcang:rendererQuitReady')({syntheticTrusted:true},{quitId:ticket.quitId,ok:true});await until(()=>started);
+ assert.equal(f.quits,0);closing.resolve();await until(()=>f.quits===1);
 });

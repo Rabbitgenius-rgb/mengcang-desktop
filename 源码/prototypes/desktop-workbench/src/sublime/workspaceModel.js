@@ -1,6 +1,8 @@
 // Pure workspace data. No storage, network, native bridge, or AI is invoked here.
 import {exportSelectedItems, parseCsv, safeImportUrl} from '../discoveryModel.js';
 
+export const MAX_OCR_TEXT = 1000000;
+
 const own = (value, name) => Object.prototype.hasOwnProperty.call(value, name);
 const forbiddenKeys = new Set(['__proto__', 'prototype', 'constructor']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
@@ -139,7 +141,7 @@ function safeImage(value) {
   return '';
 }
 
-const typeAliases = {images:'image', photos:'image', photo:'image', articles:'article', links:'link', websites:'link', web:'link', highlights:'highlight', quotes:'quote', texts:'text', notes:'text', note:'text', videos:'video', audios:'audio', books:'book', files:'file', pdf:'file', socials:'social', instagram:'social', twitter:'social', x:'social', 'social media':'social'};
+const typeAliases = Object.freeze(Object.assign(Object.create(null),{images:'image', photos:'image', photo:'image', articles:'article', links:'link', websites:'link', web:'link', highlights:'highlight', quotes:'quote', texts:'text', notes:'text', note:'text', videos:'video', audios:'audio', books:'book', files:'file', pdf:'file', socials:'social', instagram:'social', twitter:'social', x:'social', 'social media':'social'}));
 function normalizeDocumentIndex(value) {
   if(value===undefined||value===null)return null;
   if(!object(value)||!Number.isSafeInteger(value.pageCount)||value.pageCount<0||value.pageCount>1000000||!Array.isArray(value.pages)||value.pages.length>1500)fail('文档索引格式不正确');
@@ -168,14 +170,20 @@ function normalizeCard(value) {
   const page = value.page === undefined || value.page === null ? '' : text(String(value.page), '摘录页码', 1000);
   const sourceLocation = text(value.sourceLocation, '来源位置', 1000);
   const importFingerprint = text(value.importFingerprint, '导入识别标记', 150);
+  const sourceAudioSha256 = text(value.sourceAudioSha256, '音频来源指纹', 64);
+  if (sourceAudioSha256 && !/^[a-f\d]{64}$/i.test(sourceAudioSha256)) fail('音频来源指纹无效');
+  const sourceAttachmentSha256 = text(value.sourceAttachmentSha256, '来源附件指纹', 64);
+  if (sourceAttachmentSha256 && !/^[a-f\d]{64}$/i.test(sourceAttachmentSha256)) fail('来源附件指纹无效');
   if (/[\x00-\x1f\x7f]/.test(page + sourceLocation + importFingerprint)) fail('来源位置或导入标记包含控制字符');
   if (importFingerprint && !importFingerprint.startsWith('highlight-v1:')) fail('导入识别标记不受支持');
   return {
     id:cardId, path:value.path ? id(value.path, '卡片路径') : cardId,
     title:text(value.title, '卡片标题', 1000), body:text(value.body, '卡片正文'), caption:text(value.caption, '卡片配文', 50000),
     sourceUrl, sourceTitle:text(value.sourceTitle, '来源标题', 1000), author:text(value.author, '作者', 1000), type, image,
-    createdAt:text(value.createdAt, '创建日期', 100), updatedAt:text(value.updatedAt, '修改日期', 100), date:text(value.date,'来源日期',100), ocrText:text(value.ocrText,'已有本地OCR'), tags:[...new Set(tags)], origin, attachment, page, sourceLocation, importFingerprint,
+    createdAt:text(value.createdAt, '创建日期', 100), updatedAt:text(value.updatedAt, '修改日期', 100), date:text(value.date,'来源日期',100), ocrText:text(value.ocrText,'已有本地OCR',MAX_OCR_TEXT), tags:[...new Set(tags)], origin, attachment, page, sourceLocation, importFingerprint,
     sourceCardId:value.sourceCardId?id(value.sourceCardId,'来源卡片'):'',documentIndex:attachment?normalizeDocumentIndex(value.documentIndex):null,documentHighlights:attachment?keyed(value.documentHighlights,'文档高亮',normalizeDocumentHighlight):[],
+    ...(sourceAudioSha256?{sourceAudioSha256:sourceAudioSha256.toLowerCase()}:{}),
+    ...(sourceAttachmentSha256?{sourceAttachmentSha256:sourceAttachmentSha256.toLowerCase()}:{}),
   };
 }
 function normalizeCollection(value) {
@@ -252,8 +260,12 @@ export function normalizeWorkspaceState(raw) {
     const collection = collections.find(collection => collection.id === collectionId);
     if (!collection.cardIds.includes(cardId)) collection.cardIds.push(cardId);
   }
+  // Both membership sides may be individually valid but exceed the collection
+  // limit when reconciled. Reject the whole input rather than drop associations
+  // or return a state that cannot be normalized again on restore.
+  for (const collection of collections) list(collection.cardIds, '收藏集卡片');
   for (const collection of collections) for (const cardId of collection.cardIds) {
-    const annotation = annotations[cardId] || {note:null, private:false, collectionIds:[]};
+    const annotation = own(annotations,cardId) ? annotations[cardId] : {note:null, private:false, collectionIds:[]};
     if (!annotation.collectionIds.includes(collection.id)) annotation.collectionIds.push(collection.id);
     annotations[cardId] = annotation;
   }
@@ -328,7 +340,7 @@ export function workspaceReducer(state, action) {
       break;
     }
     case 'card.note': {
-      const cardId = id(action.id, '卡片标识'), previous = current.annotations[cardId] || {note:null, private:false, collectionIds:[]};
+      const cardId = id(action.id, '卡片标识'), previous = own(current.annotations,cardId) ? current.annotations[cardId] : {note:null, private:false, collectionIds:[]};
       next = {...current, annotations:{...current.annotations, [cardId]:{...previous, note:own(action, 'note') ? action.note == null ? null : text(action.note, '卡片注释', 50000) : previous.note, private:own(action, 'private') ? bool(action.private, '注释私密状态') : previous.private}}};
       break;
     }
@@ -386,16 +398,23 @@ function mediaMatches(card, filter) {
   return type === target;
 }
 
-export function selectCards(cards, state, filters = {}) {
+const keywordFields=(card,annotation)=>[[card.title,8],[Array.isArray(card.tags)?card.tags.join(' '):'',6],[card.sourceTitle,3],[card.author,3],[card.caption,2],[annotation?.note,2],[card.body,1],[card.ocrText,1],[card.documentIndex?.text,1],[card.sourceUrl,0.5]];
+
+export function selectCards(cards, state, filters = {}, readOnlySavedIds = []) {
   const current = normalizeWorkspaceState(state);
   const terms = String(filters.query || '').trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   const collection = filters.collectionId && filters.collectionId !== 'all' ? current.collections.find(item => item.id === filters.collectionId) : null;
   const membership = collection ? new Set(collection.cardIds) : null;
-  const saved = new Set(current.savedIds), favorite = new Set(current.favoriteIds), hidden = new Set(current.hiddenIds);
+  // Native files are already saved, but are not embedded persisted card state.
+  // Keep their read-only membership separate from the 20,000-item storage cap.
+  if(!Array.isArray(readOnlySavedIds))fail('只读来源卡片身份应为数组');
+  const saved = new Set([...current.savedIds,...Array.from(readOnlySavedIds,value=>id(value,'只读来源卡片'))]), favorite = new Set(current.favoriteIds), hidden = new Set(current.hiddenIds);
   const savedFilter = filters.saved ?? filters.inLibrary ?? filters.inlibrary;
   const favoriteFilter = filters.favorite ?? filters.favorites;
   const media = String(filters.media ?? filters.type ?? 'all').toLowerCase();
-  const results = list(cards, '待筛选卡片').filter(card => {
+  const candidates=cards===undefined?[]:cards;
+  if(!Array.isArray(candidates))fail('待筛选卡片应为数组');
+  const results = candidates.filter(card => {
     if (!card || typeof card.id !== 'string') return false;
     if (filters.hidden === true ? !hidden.has(card.id) : filters.includeHidden !== true && hidden.has(card.id)) return false;
     if (filters.collectionId && filters.collectionId !== 'all' && (!membership || !membership.has(card.id))) return false;
@@ -404,14 +423,14 @@ export function selectCards(cards, state, filters = {}) {
     if (filters.origin && card.origin !== filters.origin) return false;
     if (!mediaMatches(card, media)) return false;
     const annotation = current.annotations[card.id];
-    const haystack = [card.title, card.body, card.caption, card.sourceUrl, card.sourceTitle, card.author, card.documentIndex?.text, ...(Array.isArray(card.tags) ? card.tags : []), annotation?.note].filter(value => typeof value === 'string').join(' ').toLocaleLowerCase();
+    const haystack = keywordFields(card,annotation).map(([value])=>value).filter(value => typeof value === 'string').join(' ').toLocaleLowerCase();
     return terms.every(term => haystack.includes(term));
   });
   const date = value => Number.isFinite(Date.parse(value)) ? Date.parse(value) : 0;
   const sort = filters.sort ?? filters.sortBy ?? 'newest';
   if (sort === 'relevant' && terms.length) {
     const relevance = card => {
-      const fields = [[card.title,8],[card.tags?.join(' '),6],[card.sourceTitle,3],[card.author,3],[card.caption,2],[current.annotations[card.id]?.note,2],[card.body,1],[card.documentIndex?.text,1],[card.sourceUrl,0.5]];
+      const fields = keywordFields(card,current.annotations[card.id]);
       return fields.reduce((score,[value,weight]) => {
         const field = String(value || '').toLocaleLowerCase();
         for (const term of terms) {
@@ -464,8 +483,12 @@ export function parseWorkspaceBackup(value) {
 
 function backupDraftDescriptor(key, value) {
   if (!key.startsWith('window-draft:')) return {logicalKey:key, scoped:false};
-  if (!object(value) || typeof value.key !== 'string' || !own(value, 'value') || !/^(?:edit|new|collection|note|board|vault):.+$/.test(value.key)) return null;
-  try {return {logicalKey:id(value.key, '窗口草稿标识'), scoped:true};} catch {return null;}
+  if (!object(value) || typeof value.key !== 'string' || !own(value, 'value')) return null;
+  const editor = /^(?:edit|new|collection|note|board|vault):([\s\S]+)$/.exec(value.key);
+  if (!editor) return null;
+  // The editor prefix is not part of the original entity's 4096-character ID.
+  // Validate that ID without trimming or shortening the stored logical key.
+  try {id(editor[1], '窗口草稿标识'); return {logicalKey:value.key, scoped:true};} catch {return null;}
 }
 function backupRecoveryDraftKey(logicalKey, record) {
   // Stable import identity makes re-imports idempotent; it is not an integrity
@@ -473,14 +496,24 @@ function backupRecoveryDraftKey(logicalKey, record) {
   const input = JSON.stringify(record);
   let hash = 2166136261;
   for (let i = 0; i < input.length; i++) hash = Math.imul(hash ^ input.charCodeAt(i), 16777619);
-  return `window-draft:backup-recovery-${(hash >>> 0).toString(36)}:${encodeURIComponent(logicalKey)}`;
+  // Keep the display suffix within the storage-key limit, encoding whole code
+  // points. The full original identity remains in the hash input and record;
+  // lone surrogates are replaced only in this non-authoritative display label.
+  let label = '';
+  for (const character of logicalKey) {
+    const encoded = encodeURIComponent(character.length === 1 && /[\ud800-\udfff]/.test(character) ? '\ufffd' : character);
+    if (label.length + encoded.length > 4000) break;
+    label += encoded;
+  }
+  return `window-draft:backup-recovery-${(hash >>> 0).toString(36)}:${label}`;
 }
 function planWorkspaceBackupMerge(existing, incoming, context = {}) {
   if (!object(context) || Object.keys(context).some(key => !['knownCardIds', 'knownCardPaths'].includes(key))) fail('备份合并上下文格式不正确');
+  const loadedCardIds = new Set();
   const knownReferences = ['knownCardIds', 'knownCardPaths'].flatMap(field => {
     const values = context[field] ?? [];
     if (!Array.isArray(values) || values.length > 40000) fail('已载入卡片身份应为数组且不超过40000项');
-    return values.map(value => id(value, '已载入卡片身份'));
+    return values.map(value => {const normalized = id(value, '已载入卡片身份'); if (field === 'knownCardIds') loadedCardIds.add(normalized); return normalized;});
   });
   const current = normalizeWorkspaceState(existing), backup = normalizeWorkspaceState(incoming);
   const currentCardIds = new Set(current.cards.map(card => card.id));
@@ -498,7 +531,10 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     ...current.boards.flatMap(board => board.nodes.map(node => node.itemPath)),
     ...[...currentLogicalDraftKeys].flatMap(key => /^(?:edit|note|vault):(.+)$/.exec(key)?.slice(1) || []),
   ]);
-  const addedCards = backup.cards.filter(card => !currentCardIds.has(card.id));
+  // Local cards take precedence in the renderer's ID map. Do not let an old
+  // embedded card shadow a native card actually loaded in this workspace. Mere
+  // flags, notes or paths still allow an otherwise unavailable body to restore.
+  const addedCards = backup.cards.filter(card => !currentCardIds.has(card.id) && !loadedCardIds.has(card.id));
   const freshCardIds = new Set(addedCards.filter(card => !currentIdentities.has(card.id)).map(card => card.id));
   const resolvable = new Set([...currentIdentities, ...addedCards.flatMap(card => [card.id, card.path])]);
   const skippedExternal = new Set();
@@ -536,7 +572,7 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     };
   }
   const drafts = {...current.drafts};
-  let preservedDrafts = 0, skippedDrafts = 0, recoveryDrafts = 0;
+  let preservedDrafts = 0, skippedDrafts = 0, recoveryDrafts = 0, recoveredNotes = 0;
   for (const [key, value] of Object.entries(backup.drafts)) {
     const descriptor = backupDraftDescriptor(key, value);
     if (!descriptor) {skippedDrafts++; continue;}
@@ -549,14 +585,14 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
       const resolved = keepReference(cardDraft[2]);
       // Native write retry IDs belong to their original local session. Importing
       // a backup never reintroduces a saved/queued native write request.
-      if (cardDraft[1] === 'vault' || !resolved || (!scoped && !freshCardIds.has(cardDraft[2]))) {skippedDrafts++; continue;}
-    } else if (collectionDraft && collectionDraft[1] !== 'new' && (!scoped ? !addedCollectionIds.has(collectionDraft[1]) : !currentCollectionIds.has(collectionDraft[1]) && !addedCollectionIds.has(collectionDraft[1]))) {
+      if (cardDraft[1] === 'vault' || (!scoped && (!resolved || !freshCardIds.has(cardDraft[2])))) {skippedDrafts++; continue;}
+    } else if (collectionDraft && collectionDraft[1] !== 'new' && !scoped && !addedCollectionIds.has(collectionDraft[1])) {
       skippedDrafts++; continue;
-    } else if (boardDraft && (!scoped ? currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]) : !currentBoardIds.has(boardDraft[1]) && !addedBoards.some(board => board.id === boardDraft[1]))) {
+    } else if (boardDraft && !scoped && (currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]))) {
       skippedDrafts++; continue;
     }
     if (!scoped) {drafts[key] = value; continue;}
-    const recoveryOnly = !!value.recoveryOnly || currentLogicalDraftKeys.has(logicalKey) || !!cardDraft && !freshCardIds.has(cardDraft[2]) || !!collectionDraft && collectionDraft[1] !== 'new' && currentCollectionIds.has(collectionDraft[1]) || !!boardDraft && currentBoardIds.has(boardDraft[1]);
+    const recoveryOnly = !!value.recoveryOnly || currentLogicalDraftKeys.has(logicalKey) || !!cardDraft && !freshCardIds.has(cardDraft[2]) || !!collectionDraft && collectionDraft[1] !== 'new' && (currentCollectionIds.has(collectionDraft[1]) || !addedCollectionIds.has(collectionDraft[1])) || !!boardDraft && (currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]));
     // Storage revisions from another backup cannot serve as local edit bases.
     // A stale existing-entity draft stays a manual recovery copy; the session
     // forces conflicted recovery to be saved as a new card rather than overwrite.
@@ -568,6 +604,28 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     if (own(drafts, storageKey)) {preservedDrafts++; continue;}
     drafts[storageKey] = imported;
     if (recoveryOnly) recoveryDrafts++;
+  }
+  // A current (including cleared) note always wins. Keep unused backup prose
+  // available as manual recovery, even when its original native card is absent.
+  // Only exact, already-manual note copies suppress another recovery record;
+  // different privacy or extra draft fields must not discard either payload.
+  const retainedNotes = new Set(Object.entries(drafts).flatMap(([key, record]) => {
+    const descriptor = backupDraftDescriptor(key, record), value = record?.value;
+    return descriptor?.scoped && descriptor.logicalKey.startsWith('note:') && record.recoveryOnly === true && record.conflict === true && object(value) && Object.keys(value).length === 2 && typeof value.note === 'string' && typeof value.private === 'boolean'
+      ? [JSON.stringify([descriptor.logicalKey, value.note, value.private])] : [];
+  }));
+  for (const [cardId, annotation] of Object.entries(backup.annotations)) {
+    if (!annotation.note?.trim() || own(annotations, cardId) && annotations[cardId].note === annotation.note) continue;
+    const logicalKey = `note:${cardId}`, signature = JSON.stringify([logicalKey, annotation.note, annotation.private]);
+    if (retainedNotes.has(signature)) continue;
+    const imported = {key:logicalKey, value:{note:annotation.note, private:annotation.private}, base:null, adoptedFrom:null, imported:true, recoveryOnly:true, conflict:true};
+    const baseKey = backupRecoveryDraftKey(logicalKey, imported);
+    let storageKey = baseKey, suffix = 1;
+    while (own(drafts, storageKey) && JSON.stringify(drafts[storageKey]) !== JSON.stringify(imported)) storageKey = `${baseKey}:${suffix++}`;
+    if (own(drafts, storageKey)) continue;
+    drafts[storageKey] = imported;
+    retainedNotes.add(signature);
+    recoveryDrafts++; recoveredNotes++;
   }
   const backupStateIds = new Set([...backup.cards.map(card => card.id), ...backup.savedIds, ...backup.favoriteIds, ...backup.hiddenIds, ...Object.keys(backup.annotations)]);
   const state = normalizeWorkspaceState({
@@ -587,7 +645,7 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     addedMembershipsForExistingCards:addedCollections.reduce((total, collection) => total + collection.cardIds.filter(cardId => currentIdentities.has(cardId)).length, 0),
     skippedExternalReferences:skippedExternal.size,
     addedDrafts:Object.keys(drafts).length - Object.keys(current.drafts).length,
-    preservedDrafts, skippedDrafts, recoveryDrafts,
+    preservedDrafts, skippedDrafts, recoveryDrafts, recoveredNotes,
   }};
 }
 
@@ -605,7 +663,7 @@ export function exportCards(cards, format = 'markdown') {
   // Explicit card fields prevent raw DTOs, annotations, draft state, and operation
   // metadata from entering an export. Content export is a format conversion only.
   const requested = list(cards, '导出卡片');
-  const publicCards = requested.map(card => ({id:id(card.id, '卡片标识'), title:text(card.title, '卡片标题', 1000), body:text(card.body, '卡片正文'), caption:text(card.caption, '卡片配文', 50000), sourceUrl:safeSourceUrl(card.sourceUrl), sourceTitle:text(card.sourceTitle, '来源标题', 1000), author:text(card.author, '作者', 1000), page:card.page === undefined || card.page === null ? '' : text(String(card.page), '摘录页码', 1000), sourceLocation:text(card.sourceLocation, '来源位置', 1000), date:text(card.date || card.createdAt, '来源日期', 100), type:text(card.type,'卡片类型',100), ocrText:text(card.ocrText,'已有本地OCR'), tags:Array.isArray(card.tags)?card.tags.map(tag=>text(tag,'标签',120)):[]}));
+  const publicCards = requested.map(card => ({id:id(card.id, '卡片标识'), title:text(card.title, '卡片标题', 1000), body:text(card.body, '卡片正文'), caption:text(card.caption, '卡片配文', 50000), sourceUrl:safeSourceUrl(card.sourceUrl), sourceTitle:text(card.sourceTitle, '来源标题', 1000), author:text(card.author, '作者', 1000), page:card.page === undefined || card.page === null ? '' : text(String(card.page), '摘录页码', 1000), sourceLocation:text(card.sourceLocation, '来源位置', 1000), date:text(card.date || card.createdAt, '来源日期', 100), type:text(card.type,'卡片类型',100), ocrText:text(card.ocrText,'已有本地OCR',MAX_OCR_TEXT), tags:Array.isArray(card.tags)?card.tags.map(tag=>text(tag,'标签',120)):[]}));
   const fileRefs = requested.map(card => {
     const file = normalizeAttachment(card.attachment), image = safeImage(card.image);
     return {attachment:file ? {name:file.name, type:file.type, size:file.size} : null, imageReference:/^(?:data:|blob:)/i.test(image) ? '' : image};

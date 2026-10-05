@@ -117,10 +117,11 @@ function completeRecord({mode='The Gist',result={text:'历史解读'},sourceSnap
  return draftHelpers.normalizeAiRecord({id:crypto.randomUUID(),mode,phase:'complete',sourceSnapshot,result,createdAt,updatedAt:createdAt,savedCardId:'',error:'',...options});
 }
 test('pending persists before sending and an unmounted image request still records its completed text and hash without binary',async()=>{
- const records=[],inFlight=new Set();let permitPending,finishModel,calls=0;
+ const records=[],inFlight=new Set();let permitPending,finishModel,calls=0,pendingSaved;
+ const pendingReady=new Promise(resolve=>pendingSaved=resolve);
  const api={intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{calls++;return new Promise(resolve=>finishModel=()=>resolve({ok:true,data:{mode:'Image description',text:'卸载后返回的合成解读'}}));}};
- const form=panel({mode:'Image description',card:imageSource,cards:[imageSource],api,onResultDraft:async record=>{records.push(structuredClone(record));if(record.phase==='pending')await new Promise(resolve=>permitPending=resolve);},requestIsActive:id=>inFlight.has(id),registerRequest:(id,active)=>active?inFlight.add(id):inFlight.delete(id)});
- await form.ready();const operation=form.button('准备调用并确认').props.onClick();await form.ready();assert.equal(calls,0);assert.equal(records[0].phase,'pending');assert.ok(records[0].sourceSnapshot.attachmentMeta.sha256);assert.equal(JSON.stringify(records[0]).includes('base64'),false);
+ const form=panel({mode:'Image description',card:imageSource,cards:[imageSource],api,onResultDraft:async record=>{records.push(structuredClone(record));if(record.phase==='pending'){pendingSaved();await new Promise(resolve=>permitPending=resolve);}},requestIsActive:id=>inFlight.has(id),registerRequest:(id,active)=>active?inFlight.add(id):inFlight.delete(id)});
+ await form.ready();const operation=form.button('准备调用并确认').props.onClick();await pendingReady;await form.ready();assert.equal(calls,0);assert.equal(records[0].phase,'pending');assert.ok(records[0].sourceSnapshot.attachmentMeta.sha256);assert.equal(JSON.stringify(records[0]).includes('base64'),false);
  permitPending();await form.ready();assert.equal(calls,1);assert.equal(inFlight.size,1);form.unmount();finishModel();await operation;
  assert.equal(records.length,2);assert.equal(records[1].id,records[0].id);assert.equal(records[1].phase,'complete');assert.equal(records[1].result.text,'卸载后返回的合成解读');assert.equal(JSON.stringify(records[1]).includes('base64'),false);assert.equal(inFlight.size,0);
 });
@@ -154,6 +155,23 @@ test('native cancellation and cancelled bridge results persist failed records in
 });
 test('completed persistence failure keeps returned text for manual saving and does not claim it is stored',async()=>{
  const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:'不可丢失的合成结果'}})},onResultDraft:async record=>{if(record.phase==='complete')throw Error('合成持久化失败');}});await form.ready();await form.button('准备调用并确认').props.onClick();form.render();assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,'不可丢失的合成结果');assert.ok(form.text().includes('请先另存笔记'));assert.equal(form.text().includes('结果已保存在本机草稿'),false);
+});
+
+test('a returned prose data URL is saved exactly instead of losing a successful response',async()=>{
+ const content='编码示例：data:image/png;base64,eA==',records=[];
+ const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:content}})},onResultDraft:async record=>records.push(record)});
+ await form.ready();await form.button('准备调用并确认').props.onClick();form.render();
+ assert.equal(records.at(-1).phase,'complete');assert.equal(records.at(-1).result.text,content);
+ assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,content);
+});
+
+test('normalization failure terminates pending and preserves returned text for copying',async()=>{
+ const content='需核对的返回内容\0完整原文',records=[];
+ const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:content}})},onResultDraft:async record=>records.push(record)});
+ await form.ready();await form.button('准备调用并确认').props.onClick();form.render();
+ assert.equal(records.at(-1).phase,'failed');assert.equal(records.at(-1).recoveryText,content);
+ assert.equal(form.find(node=>node.props?.['aria-label']==='待核对的返回原文').props.value,content);
+ assert.equal(form.button('另存为解读笔记'),null);
 });
 test('a historical result whose source is absent can still be selected and saved as text without sending a missing material',async()=>{
  const record=completeRecord({sourceSnapshot:{...source,id:'removed-source',title:'已移除原素材'}});let calls=0,savedSource;

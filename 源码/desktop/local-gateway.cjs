@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { randomUUID } = require('node:crypto');
+const {readBoundedFile}=require('./bounded-read.cjs');
 const { toNote } = require('../src/desktop-connector/note-dto.js');
 const { hash, frontmatterOf, ConnectorError } = require('../src/desktop-connector/notes.js');
 const { ATTACHMENT_TYPES, capturePaths, validateCaptureInput, assertCaptureLocation, hasCaptureOperation, createCapture } = require('../src/desktop-connector/capture.js');
@@ -43,7 +44,8 @@ class LocalVaultGateway extends EventEmitter {
   async readFile(relative){
     this.locate(relative,false,true);
     const file=await fs.promises.open(path.join(this.vaultPath,relative),fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW);
-    try{const stat=await file.stat();if(!stat.isFile())fail('PATH_FORBIDDEN','此路径不是文件');const value=await file.readFile();this.locate(relative,false,true);return value;}finally{await file.close();}
+    try{const note=relative.endsWith('.md'),value=await readBoundedFile(file,{maxBytes:note?4*1024*1024:64*1024*1024,code:note?'NOTE_TOO_LARGE':'ATTACHMENT_TOO_LARGE',message:note?'笔记过大，请打开原文件阅读':'单个附件预览上限为 64 MiB，可打开原文件阅读'});this.locate(relative,false,true);return value;}
+    finally{await file.close();}
   }
   notePath(value){safeRelative(value);if(!value.endsWith('.md')||!ROOTS.some(root=>value.startsWith(root)))fail('PATH_FORBIDDEN','此笔记不在资料范围内');return value;}
   attachmentPath(value,sourcePath){

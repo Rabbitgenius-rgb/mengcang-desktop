@@ -122,7 +122,7 @@ function createLocalTranscriber({runtimeDir = path.join(__dirname, 'local-transc
       });
       drain(child.stdout); drain(child.stderr);
       child.on('error', () => {
-        terminalError = errorOf(`${label}未能启动`, 'LOCAL_TRANSCRIPTION_PROCESS_FAILED');
+        terminalError ||= errorOf(`${label}未能启动`, 'LOCAL_TRANSCRIPTION_PROCESS_FAILED');
         // Failed spawn has no running process to await; regular process errors
         // are followed by close and keep the lifecycle accurate until then.
         if (!child.pid) finish(terminalError);

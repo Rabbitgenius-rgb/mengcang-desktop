@@ -64,3 +64,7 @@ test('transport rejects nonfeeds and decompression bombs without sending credent
   const response=await requestFeed(new URL(base),[{address:'127.0.0.1',family:4}],options);assert.equal(response.bytes.toString(),rss);assert.equal(observed.cookie,undefined);assert.equal(observed.authorization,undefined);assert.equal(observed.referer,undefined);
   await assert.rejects(requestFeed(new URL(base+'/large'),[],options),{code:'FEED_TOO_LARGE'});await assert.rejects(requestFeed(new URL(base+'/html'),[],options),{code:'UNSUPPORTED_CONTENT'});
 });
+
+test('publisher-local entry identifiers are scoped to their feed addresses',()=>{
+ const one=parseFeed(rss,'https://one.example.com/feed').items[0],two=parseFeed(rss,'https://two.example.com/feed').items[0];assert.notEqual(one.id,two.id);assert.equal(one.id,parseFeed(rss.replace('倾听','修订'),'https://one.example.com/feed').items[0].id);
+});

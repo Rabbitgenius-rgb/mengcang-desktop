@@ -1,7 +1,9 @@
 // Recoverable local AI results. This module never reads storage, credentials,
 // the Vault, or a model; callers commit its actions in one workspace transaction.
 import {INSIGHT_LABELS, generatedInsightCard} from './intelligenceHelpers.js';
-import {MAX_ATTACHMENT_BYTES, normalizeWorkspaceAttachment, safeSourceUrl} from './workspaceModel.js';
+import {MAX_ATTACHMENT_BYTES, MAX_OCR_TEXT, safeSourceUrl} from './workspaceModel.js';
+import {fingerprintWorkspaceAttachment} from './attachmentFingerprint.js';
+export {MAX_OCR_TEXT};
 
 export const AI_RESULT_PREFIX = 'ai-result:';
 const modes = new Set([...Object.keys(INSIGHT_LABELS), 'Classification', 'OCR']);
@@ -18,7 +20,9 @@ function only(value, fields, name) {
 function string(value, name, limit = 100000, fallback = '') {
   if (value === undefined || value === null) return fallback;
   if (typeof value !== 'string' || value.length > limit || value.includes('\0')) fail(`${name}不是有效文字或超过 ${limit} 字上限`);
-  if (/data:[^\s,;]+(?:;[^\s,]*)?;base64,/i.test(value)) fail(`${name}不能包含原文件 base64`);
+  // Text may legitimately quote data URLs (for example OCR of documentation).
+  // Raw attachments and credentials are excluded by field allowlists, not by
+  // rejecting arbitrary substrings in the user's or model's prose.
   return value;
 }
 function identifier(value, name) {
@@ -58,7 +62,7 @@ export function compactAiSource(source) {
   object(source, '来源快照');
   const result = {id:identifier(source.id, '来源标识')};
   for (const [key, limit] of Object.entries({title:1000, body:1000000, caption:50000, sourceTitle:1000,
-    author:1000, createdAt:100, updatedAt:100, date:100, ocrText:1000000, page:1000,
+    author:1000, createdAt:100, updatedAt:100, date:100, ocrText:MAX_OCR_TEXT, page:1000,
     sourceLocation:1000, importFingerprint:150, originalPath:4096, originalMime:100})) {
     result[key] = string(key === 'page' && Number.isSafeInteger(source[key]) ? String(source[key]) : source[key], `来源 ${key}`, limit);
   }
@@ -87,12 +91,7 @@ export function compactAiSource(source) {
 export async function captureAiSource(source) {
   const result = compactAiSource(source);
   if (!source.attachment?.dataUrl) return result;
-  const attachment = normalizeWorkspaceAttachment(source.attachment);
-  if (!globalThis.crypto?.subtle) throw Error('当前环境无法核验原文件，请保留结果并在梦藏应用内重试。');
-  const raw = atob(attachment.dataUrl.slice(attachment.dataUrl.indexOf(',') + 1));
-  const bytes = Uint8Array.from(raw, character => character.charCodeAt(0));
-  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
-  result.attachmentMeta = {...attachmentMeta(attachment, false), sha256:Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('')};
+  result.attachmentMeta = await fingerprintWorkspaceAttachment(source.attachment);
   return result;
 }
 
@@ -100,6 +99,9 @@ function normalizeResult(value, mode) {
   only(value, ['mode', 'text', 'tags', 'collectionIds', 'reason', 'engine', 'local', 'usage', 'pages'], '工具结果');
   const result = {};
   if (own(value, 'mode')) { if (value.mode !== mode) fail('响应方式与请求不一致'); result.mode = value.mode; }
+  // Earlier versions could persist up to 20 MiB of OCR in a draft, even though
+  // it could not be saved to a card. Keep those drafts readable for recovery;
+  // new main-process requests and card adoption use MAX_OCR_TEXT.
   if (own(value, 'text')) result.text = string(value.text, '结果正文', mode === 'OCR' ? 20 * 1024 * 1024 : 100000);
   if (mode !== 'Classification' && (typeof result.text !== 'string' || mode !== 'OCR' && !result.text.trim())) fail('结果正文不能为空');
   if (own(value, 'tags') || mode === 'Classification') result.tags = array(value.tags, '建议标签', 8, tag => {
@@ -128,14 +130,18 @@ function normalizeResult(value, mode) {
 }
 
 export function normalizeAiRecord(record) {
-  only(record, ['id', 'mode', 'phase', 'sourceSnapshot', 'result', 'createdAt', 'updatedAt', 'savedCardId', 'error'], '请求记录');
+  only(record, ['id', 'mode', 'phase', 'sourceSnapshot', 'result', 'createdAt', 'updatedAt', 'savedCardId', 'error', 'recoveryText'], '请求记录');
   if (!modes.has(record.mode)) fail('解读方式不受支持');
   if (!['pending', 'complete', 'failed'].includes(record.phase)) fail('请求阶段无效');
   if (record.phase !== 'complete' && record.result != null) fail('未完成的请求不能携带结果');
+  // Preserve a returned textual response even when it fails the result schema.
+  // This is copy-only recovery content, never an adoptable/classification result.
+  if (own(record, 'recoveryText') && (typeof record.recoveryText !== 'string' || record.recoveryText.length > MAX_OCR_TEXT)) fail('待核对原文格式无效');
   return {id:uuid(record.id), mode:record.mode, phase:record.phase, sourceSnapshot:compactAiSource(record.sourceSnapshot),
     result:record.phase === 'complete' ? normalizeResult(record.result, record.mode) : null,
     createdAt:date(record.createdAt, '创建时间'), updatedAt:date(record.updatedAt, '更新时间'),
-    savedCardId:record.savedCardId ? identifier(record.savedCardId, '保存卡片标识') : '', error:string(record.error, '错误说明', 10000)};
+    savedCardId:record.savedCardId ? identifier(record.savedCardId, '保存卡片标识') : '', error:string(record.error, '错误说明', 10000),
+    ...(record.phase === 'failed' && own(record, 'recoveryText') ? {recoveryText:record.recoveryText} : {})};
 }
 
 export function listAiRecords(drafts) {

@@ -14,21 +14,30 @@ function validateRequest(input) {
   if(input.command==='extract' && (!['image','pdf'].includes(input.kind)||typeof input.base64!=='string'))throw Error('文件提取格式无效');
   return input;
 }
-function analyze(input,{helper=path.join(__dirname.endsWith('app.asar')?__dirname+'.unpacked':__dirname,'discovery-helper'),timeout=120000}={}) {
+function analyze(input,{helper=path.join(__dirname.endsWith('app.asar')?__dirname+'.unpacked':__dirname,'discovery-helper'),timeout=120000,spawnImpl=spawn}={}) {
   validateRequest(input);
+  const serialized=JSON.stringify(input);
   if(!fs.existsSync(helper))return Promise.reject(Error('本地分析组件尚未构建，请使用完整候选版本'));
   return new Promise((resolve,reject)=>{
-    const child=spawn(helper,[],{stdio:['pipe','pipe','pipe'],windowsHide:true});
-    let output='',size=0,settled=false;
-    const finish=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);error?reject(error):resolve(value);};
-    const timer=setTimeout(()=>{child.kill();finish(Error('分析超时，请减少文件大小或素材数量'));},timeout);
+    const child=spawnImpl(helper,[],{stdio:['pipe','pipe','pipe'],windowsHide:true});
+    let output='',size=0,settled=false,terminalError,timer;
+    const onParentExit=()=>{try{child.kill('SIGKILL');}catch{}};
+    const finish=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);process.removeListener('exit',onParentExit);error?reject(error):resolve(value);};
+    const stop=error=>{
+      if(settled||terminalError)return;
+      terminalError=error;
+      // Keep the caller busy until close confirms that native analysis stopped.
+      try{child.kill('SIGKILL');}catch{}
+    };
+    process.once('exit',onParentExit);
+    timer=setTimeout(()=>stop(Error('分析超时，请减少文件大小或素材数量')),timeout);
     child.stdout.setEncoding('utf8');
-    child.stdout.on('data',chunk=>{size+=Buffer.byteLength(chunk);if(size>32*1024*1024){child.kill();finish(Error('分析结果过大'));}else output+=chunk;});
+    child.stdout.on('data',chunk=>{if(settled||terminalError)return;size+=Buffer.byteLength(chunk);if(size>32*1024*1024)stop(Error('分析结果过大'));else output+=chunk;});
     child.stderr.resume();
-    child.on('error',error=>finish(error));
+    child.on('error',error=>{if(!child.pid)finish(terminalError||error);else stop(error);});
     child.stdin.on('error',()=>{});
-    child.on('close',code=>{try{const result=JSON.parse(output);if(code!==0 || result.error)finish(Error(result.error || '本地分析失败'));else finish(null,result);}catch{finish(Error('本地分析没有返回可用结果'));}});
-    child.stdin.end(JSON.stringify(input));
+    child.on('close',code=>{if(settled)return;if(terminalError){finish(terminalError);return;}try{const result=JSON.parse(output);if(code!==0 || result.error)finish(Error(result.error || '本地分析失败'));else finish(null,result);}catch{finish(Error('本地分析没有返回可用结果'));}});
+    child.stdin.end(serialized);
   });
 }
 module.exports={analyze,validateRequest};

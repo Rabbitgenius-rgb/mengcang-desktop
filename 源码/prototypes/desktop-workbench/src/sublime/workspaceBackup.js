@@ -1,7 +1,14 @@
 import JSZip from 'jszip';
 import { attachmentFileExtension } from './attachmentRegistry.js';
 import { MAX_ATTACHMENT_BYTES, MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup, serializeWorkspace, normalizeWorkspaceAttachment } from './workspaceModel.js';
-import { attachmentReference, externalizeAttachments, restoreAttachmentData, nativeAttachmentUrl, hydrateAttachmentUrls } from './attachmentStore.js';
+import {
+  attachmentReference,
+  externalizeAttachments,
+  externalizeAttachmentUrls,
+  restoreAttachmentData,
+  nativeAttachmentUrl,
+  hydrateAttachmentUrls,
+} from './attachmentStore.js';
 
 export const WORKSPACE_ZIP_FORMAT = 'mengcang-workspace-backup-v3';
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
@@ -47,9 +54,15 @@ function validateManifest(value) {
   for (const version of Object.values(value.entityVersions)) {
     if (!Number.isSafeInteger(version) || version < 0 || version > value.revision) throw Error('备份实体版本无效。');
   }
+  if (value.sourceIdentity !== undefined && (typeof value.sourceIdentity !== 'string' || value.sourceIdentity.length > 4096)) throw Error('备份来源无效。');
+  if (
+    value.originalFingerprints !== undefined &&
+    (!record(value.originalFingerprints) || Object.entries(value.originalFingerprints).some(([id, hash]) => id.length > 4096 || !/^[a-f0-9]{64}$/.test(hash)))
+  )
+    throw Error('备份原始资料校验信息无效。');
   return { ...value, attachments: actual };
 }
-export async function exportWorkspaceZip(state, store, { type = 'blob', revision = 0, entityVersions = {} } = {}) {
+export async function exportWorkspaceZip(state, store, { type = 'blob', revision = 0, entityVersions = {}, sourceIdentity, originalFingerprints } = {}) {
   const saved = await externalizeAttachments(state, store),
     refs = collectAttachmentReferences(saved);
   const manifest = validateManifest({
@@ -60,6 +73,7 @@ export async function exportWorkspaceZip(state, store, { type = 'blob', revision
     revision,
     entityVersions,
     attachments: refs,
+    ...(sourceIdentity ? { sourceIdentity, originalFingerprints: originalFingerprints || {} } : {}),
   });
   const zip = new JSZip();
   const manifestText = JSON.stringify(manifest);
@@ -94,15 +108,37 @@ function crc32(bytes) {
   }
   return (checksum ^ 0xffffffff) >>> 0;
 }
+async function inspectLegacyBackup(text) {
+  const files = new Map();
+  const key = (ref) => `${ref.sha256}:${ref.type}:${ref.size}`;
+  const state = await externalizeAttachments(parseWorkspaceBackup(text), {
+    async put(value) {
+      const attachment = normalizeWorkspaceAttachment(value);
+      const bytes = Uint8Array.from(atob(attachment.dataUrl.split(',')[1]), (character) => character.charCodeAt(0));
+      const ref = attachmentReference({ sha256: await digest(bytes), type: attachment.type, size: attachment.size });
+      files.set(key(ref), attachment);
+      return ref;
+    },
+  });
+  const attachments = collectAttachmentReferences(state);
+  if (attachments.some((ref) => !files.has(key(ref)))) throw Error('旧 JSON 备份缺少原附件，请选择含原件的完整备份。');
+  return {
+    state,
+    revision: 0,
+    entityVersions: {},
+    format: 'legacy-json',
+    attachments,
+    readFile: async (ref) => files.get(key(ref)),
+  };
+}
 export async function inspectWorkspaceBackup(input) {
-  if (typeof input === 'string') return { state: parseWorkspaceBackup(input), revision: 0, entityVersions: {}, format: 'legacy-json' };
+  if (typeof input === 'string') return inspectLegacyBackup(input);
   const bytes = input instanceof Blob ? await input.arrayBuffer() : input;
   const head = new TextDecoder().decode(
     new Uint8Array(bytes instanceof Uint8Array ? bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + Math.min(bytes.byteLength, 64)) : bytes.slice(0, 64)),
   );
   if (/^\s*\{/.test(head) && bytes.byteLength > MAX_WORKSPACE_BACKUP_BYTES) throw Error('备份超过256MiB导入上限。');
-  if (/^\s*\{/.test(head))
-    return { state: parseWorkspaceBackup(new TextDecoder('utf-8', { fatal: true }).decode(bytes)), revision: 0, entityVersions: {}, format: 'legacy-json' };
+  if (/^\s*\{/.test(head)) return inspectLegacyBackup(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   const zip = await JSZip.loadAsync(bytes, { checkCRC32: false, createFolders: false });
   const manifestFile = zip.file('manifest.json');
   if (!manifestFile || manifestFile._data.uncompressedSize > MAX_WORKSPACE_BACKUP_BYTES) throw Error('备份缺少有效清单或清单过大。');
@@ -142,6 +178,8 @@ export async function inspectWorkspaceBackup(input) {
     revision: manifest.revision,
     entityVersions: manifest.entityVersions,
     format: WORKSPACE_ZIP_FORMAT,
+    sourceIdentity: manifest.sourceIdentity,
+    originalFingerprints: manifest.originalFingerprints,
     attachments: manifest.attachments,
     readFile,
   };
@@ -153,28 +191,41 @@ export async function previewBackupState(plan) {
   return hydrateAttachmentUrls(plan.state, { url: nativeAttachmentUrl });
 }
 
-export async function applyWorkspaceBackup(plan, store, commit, stillCurrent = () => true) {
+export async function applyWorkspaceBackup(plan, store, commit, stillCurrent = () => true, { retainedState } = {}) {
   const checkCurrent = () => {
     if (!stillCurrent()) throw Error('恢复操作已取消，请重新选择备份。');
   };
-  const token = crypto.randomUUID();
   const touched = new Map();
   let applied = false;
+  let retained;
   try {
     for (const ref of plan.attachments || []) {
+      if (touched.has(ref.sha256)) continue;
       checkCurrent();
       const value = await plan.readFile(ref);
       checkCurrent();
-      touched.set(ref.sha256, ref);
+      const token = crypto.randomUUID();
+      touched.set(ref.sha256, { ref, token });
       const stored = attachmentReference(store.restore ? await store.restore(value, token) : await store.put(value));
       if (stored.sha256 !== ref.sha256 || stored.size !== ref.size || stored.type !== ref.type) throw Error('备份附件写入校验失败。');
     }
     checkCurrent();
     const result = await commit(plan.state);
     applied = true;
+    if (retainedState) retained = new Set(collectAttachmentReferences(externalizeAttachmentUrls(retainedState(result))).map((ref) => ref.sha256));
     return result;
   } finally {
-    if (store.settleRestore && touched.size) await store.settleRestore(token, [...touched.values()], applied);
+    if (store.settleRestore) {
+      let failure;
+      for (const { ref, token } of touched.values()) {
+        try {
+          await store.settleRestore(token, [ref], applied && (!retained || retained.has(ref.sha256)));
+        } catch (error) {
+          failure ||= error;
+        }
+      }
+      if (failure) throw failure;
+    }
   }
 }
 
@@ -182,7 +233,12 @@ export async function applyWorkspaceBackup(plan, store, commit, stillCurrent = (
 // call inspectWorkspaceBackup and only call applyWorkspaceBackup on confirmation.
 export async function importWorkspaceBackup(input, store) {
   const plan = await inspectWorkspaceBackup(input);
-  return applyWorkspaceBackup(plan, store, (state) => ({ state, revision: plan.revision, entityVersions: plan.entityVersions, format: plan.format }));
+  return applyWorkspaceBackup(plan, store, async (state) => ({
+    state: plan.format === 'legacy-json' ? await restoreAttachmentData(state, store) : state,
+    revision: plan.revision,
+    entityVersions: plan.entityVersions,
+    format: plan.format,
+  }));
 }
 const raster = (type) => /^image\/(?:png|jpe?g|pjpeg|gif|webp|avif|bmp|tiff)$/i.test(String(type || '').trim());
 const refValue = (value) => (record(value) && Object.keys(value).length === 1 && own(value, '$attachment') ? attachmentReference(value.$attachment) : null);

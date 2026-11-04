@@ -94,6 +94,7 @@ function createFileAttachmentStore({ directory }) {
   // Serialize claiming a new digest, repairing it, and rolling back unpublished
   // bytes. An ordinary save adopting the same digest takes permanent ownership.
   const provisional = new Map();
+  const tokenDigests = new Map();
   let mutations = Promise.resolve();
   function mutate(fn) {
     const result = mutations.then(fn);
@@ -101,11 +102,21 @@ function createFileAttachmentStore({ directory }) {
     return result;
   }
   function claim(ref, token, created) {
-    if (!token) provisional.delete(ref.sha256);
+    if (!token) releaseDigest(ref.sha256);
     else if (created || provisional.has(ref.sha256)) {
       if (!provisional.has(ref.sha256)) provisional.set(ref.sha256,new Set());
       provisional.get(ref.sha256).add(token);
+      if (!tokenDigests.has(token)) tokenDigests.set(token, new Set());
+      tokenDigests.get(token).add(ref.sha256);
     }
+  }
+  function releaseDigest(sha) {
+    for (const token of provisional.get(sha) || []) {
+      const digests = tokenDigests.get(token);
+      digests?.delete(sha);
+      if (!digests?.size) tokenDigests.delete(token);
+    }
+    provisional.delete(sha);
   }
   async function write(value, token) {
     const match = typeof value?.dataUrl === 'string' && /^data:([^;,]+);base64,/i.exec(value.dataUrl);
@@ -179,14 +190,16 @@ function createFileAttachmentStore({ directory }) {
     validateToken(token);
     if (typeof committed !== 'boolean') throw Error('恢复提交状态无效。');
     return mutate(async () => {
-      for (const [sha,owners] of provisional) {
-        if (!owners.delete(token)) continue;
-        if (committed) { provisional.delete(sha); continue; }
-        if (owners.size === 0) {
+      for (const sha of tokenDigests.get(token) || []) {
+        const owners = provisional.get(sha);
+        if (!owners?.has(token)) continue;
+        if (committed) { releaseDigest(sha); continue; }
+        if (owners.size === 1) {
           await fs.rm(path.join(root,sha),{force:true});
-          provisional.delete(sha);
-        }
+          releaseDigest(sha);
+        } else owners.delete(token);
       }
+      tokenDigests.delete(token);
     });
   }
   return { put:value=>mutate(()=>write(value)), read, capacity, restore, settleRestore };

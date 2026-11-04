@@ -117,7 +117,20 @@ export function useWorkspaceActions({
     documentJobs,
     documentWaiters,
   });
-  const backupRestore = useBackupRestore({ modal, cards, viewRef, epoch, session, modalRef, navigate, notify, setError });
+  const backupRestore = useBackupRestore({
+    modal,
+    cards,
+    identityId,
+    documentJobs,
+    documentWaiters,
+    viewRef,
+    epoch,
+    session,
+    modalRef,
+    navigate,
+    notify,
+    setError,
+  });
   const { backup, previewBackupText, openPastedBackup, updatePastedBackup, previewPastedBackup, readBackupFile, recoverDraft } = useDraftRecovery({
     epoch,
     modalRef,

@@ -1186,13 +1186,132 @@ export function canRestoreEmptyWorkspace(state) {
   return (
     ['cards', 'collections', 'boards', 'savedIds', 'favoriteIds', 'hiddenIds'].every((key) => state[key]?.length === 0) &&
     Object.keys(state.annotations || {}).length === 0 &&
-    Object.entries(state.drafts || {}).every(([key, value]) => key === 'legacyDiscoveryImported' && value === true)
+    Object.entries(state.drafts || {}).every(
+      ([key, value]) => (key === 'legacyDiscoveryImported' && value === true) || (key === 'appearance' && ['dark', 'light', 'system'].includes(value)),
+    )
   );
 }
+function restoredBackupDrafts(drafts) {
+  return Object.fromEntries(
+    Object.entries(drafts).map(([storageKey, value]) => {
+      const descriptor = backupDraftDescriptor(storageKey, value);
+      if (!descriptor || !/^(?:edit|new|collection|note|board):/.test(descriptor.logicalKey)) return [storageKey, value];
+      // Imported edit versions belong to the source workspace. They cannot
+      // become baselines for the unrelated destination revision counter.
+      const imported = {
+        ...(descriptor.scoped ? value : { key: descriptor.logicalKey, value }),
+        base: null,
+        adoptedFrom: null,
+        imported: true,
+        recoveryOnly: true,
+        conflict: true,
+      };
+      return [descriptor.scoped ? storageKey : backupRecoveryDraftKey(descriptor.logicalKey, imported), imported];
+    }),
+  );
+}
+
+export function prepareWorkspaceBackupRestore(incoming, { allowOriginalState = false, allowedOriginalIds = [] } = {}) {
+  const backup = normalizeWorkspaceState(incoming);
+  if (allowOriginalState) return backup;
+  const localIds = new Set(backup.cards.filter((card) => card.origin !== 'vault').map((card) => card.id));
+  const allowedIds = new Set([...localIds, ...allowedOriginalIds]);
+  const drafts = { ...backup.drafts };
+  for (const card of backup.cards.filter((card) => !localIds.has(card.id))) {
+    const { articleFigure, ...copy } = card;
+    const record = {
+      key: 'new:text',
+      value: { ...copy, origin: 'local', sourceCardId: '', backupOriginalId: card.id },
+      base: null,
+      adoptedFrom: null,
+      imported: true,
+      recoveryOnly: true,
+      conflict: true,
+    };
+    drafts[backupRecoveryDraftKey('new:text', record)] = record;
+  }
+  for (const [cardId, annotation] of Object.entries(backup.annotations)) {
+    if (allowedIds.has(cardId) || !annotation.note?.trim()) continue;
+    // A new-card recovery has no editor key or relation pointing at an
+    // unrelated destination note that happens to use the same relative path.
+    const record = {
+      key: 'new:text',
+      value: {
+        title: '原始资料备注恢复副本',
+        body: annotation.note,
+        private: annotation.private,
+        backupOriginalState: {
+          id: cardId,
+          annotation,
+          saved: backup.savedIds.includes(cardId),
+          favorite: backup.favoriteIds.includes(cardId),
+          hidden: backup.hiddenIds.includes(cardId),
+        },
+      },
+      base: null,
+      adoptedFrom: null,
+      imported: true,
+      recoveryOnly: true,
+      conflict: true,
+    };
+    drafts[backupRecoveryDraftKey('new:text', record)] = record;
+  }
+  for (const [key, value] of Object.entries(drafts)) {
+    const descriptor = backupDraftDescriptor(key, value);
+    const reference = /^(?:edit|note|vault):(.+)$/.exec(descriptor?.logicalKey || '');
+    if (reference && !allowedIds.has(reference[1])) {
+      const raw = descriptor.scoped ? value.value : value;
+      const original = object(raw) ? raw : { body: raw == null ? '' : String(raw) };
+      const record = {
+        key: 'new:text',
+        value: { ...original, body: original.body || original.note || original.payload?.body || '', backupSourceKey: descriptor.logicalKey },
+        base: null,
+        adoptedFrom: null,
+        imported: true,
+        recoveryOnly: true,
+        conflict: true,
+      };
+      delete drafts[key];
+      drafts[backupRecoveryDraftKey('new:text', record)] = record;
+    }
+    if (key.startsWith('reader:') && !allowedIds.has(key.slice('reader:'.length))) delete drafts[key];
+  }
+  const collections = backup.collections.map((collection) => ({ ...collection, cardIds: collection.cardIds.filter((id) => allowedIds.has(id)) }));
+  const boards = backup.boards.map((board) => {
+    const nodes = board.nodes.filter((node) => allowedIds.has(node.itemPath));
+    const nodeIds = new Set(nodes.map((node) => node.id));
+    return { ...board, nodes, edges: board.edges.filter((edge) => nodeIds.has(edge.from) && nodeIds.has(edge.to)) };
+  });
+  return normalizeWorkspaceState({
+    ...backup,
+    cards: backup.cards
+      .filter((card) => localIds.has(card.id))
+      .map((card) => {
+        if (!card.sourceCardId || allowedIds.has(card.sourceCardId)) return card;
+        const { articleFigure, ...independent } = card;
+        return { ...independent, sourceCardId: '' };
+      }),
+    savedIds: backup.savedIds.filter((id) => allowedIds.has(id)),
+    favoriteIds: backup.favoriteIds.filter((id) => allowedIds.has(id)),
+    hiddenIds: backup.hiddenIds.filter((id) => allowedIds.has(id)),
+    annotations: Object.fromEntries(Object.entries(backup.annotations).filter(([id]) => allowedIds.has(id))),
+    collections,
+    boards,
+    drafts,
+  });
+}
+
 export function restoreEmptyWorkspace(existing, incoming) {
   if (!canRestoreEmptyWorkspace(existing)) throw Error('当前工作区已有本机资料或整理记录，请重新预览并使用合并备份。');
   const restored = normalizeWorkspaceState(incoming);
-  return { ...restored, drafts: { ...existing.drafts, ...restored.drafts } };
+  return {
+    ...restored,
+    drafts: {
+      ...existing.drafts,
+      ...restoredBackupDrafts(restored.drafts),
+      ...(existing.drafts.appearance !== undefined ? { appearance: existing.drafts.appearance } : {}),
+    },
+  };
 }
 
 export function mergeWorkspaceBackup(existing, incoming, context) {

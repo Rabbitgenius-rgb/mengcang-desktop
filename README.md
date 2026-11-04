@@ -29,6 +29,8 @@ npm run candidate
 
 修复候选的桌面复核使用 `node governance/recovery-acceptance.cjs /path/to/梦藏治理候选.app` 和 `node governance/migration-safety-acceptance.cjs /path/to/梦藏治理候选.app`，分别检查备份还原和旧副本清理。
 
+复审修复候选使用 `node governance/candidate.mjs --package --safety-candidate` 打包，输出到 `qa/packages-safety/`。新增的 `review-fixes-acceptance.cjs`、`restore-cleanup-acceptance.cjs`、`backup-failure-acceptance.cjs` 均接收同一个候选包路径。最终结果见[复审八项修复](验收记录/复审八项修复.md)。
+
 ## 存储与恢复
 
 v3将卡片、收藏集、画布、备注、草稿和元数据分开保存。桌面附件由主进程按SHA-256管理，浏览器附件保存在IndexedDB Blob。迁移前自动备份并校验v2，连续三次成功启动后提供旧副本手动清理。

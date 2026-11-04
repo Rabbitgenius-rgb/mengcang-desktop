@@ -9,6 +9,7 @@ import {
   openWorkspaceDatabase,
 } from './workspaceMigrationV3.js';
 import { WORKSPACE_V3_STORES, workspaceMeta, writeWorkspaceRecords, readWorkspaceRecords } from './workspaceStoreV3Entities.js';
+import { withAttachmentMaintenance } from './attachmentMaintenance.js';
 
 export const WORKSPACE_V3_DATABASE = 'mengcang-sublime-workspace-v3';
 const localListeners = new Map();
@@ -385,8 +386,12 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
       readOnlyFailure();
       if (!migrationStatus().canCleanup) throw Error('请完成三次正常启动读回后再清理旧副本。');
       if (!locks?.request) throw Error('当前环境无法锁定跨窗口写入，旧副本已保留。请在梦藏桌面版重试。');
-      await locks.request(`${WORKSPACE_V3_DATABASE}:${key}`, () =>
-        verifyAndRemoveLegacy({ readWorkspace: () => readRaw({ fresh: true }), legacy, attachments, updateMeta: maintain }),
+      await withAttachmentMaintenance(
+        () =>
+          locks.request(`${WORKSPACE_V3_DATABASE}:${key}`, () =>
+            verifyAndRemoveLegacy({ readWorkspace: () => readRaw({ fresh: true }), legacy, attachments, updateMeta: maintain }),
+          ),
+        { locks },
       );
       return migrationStatus();
     },

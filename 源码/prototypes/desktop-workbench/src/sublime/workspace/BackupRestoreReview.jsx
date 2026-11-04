@@ -5,63 +5,86 @@ import {
   mergeWorkspaceBackup,
   previewWorkspaceBackupMerge,
   normalizeWorkspaceState,
+  prepareWorkspaceBackupRestore,
+  serializeWorkspace,
 } from '../workspaceModel.js';
-import { hydrateAttachmentUrls, nativeAttachmentUrl, reconnectAttachmentUrls } from '../attachmentStore.js';
-import { applyWorkspaceBackup } from '../workspaceBackup.js';
+import { hydrateAttachmentUrls, nativeAttachmentUrl, reconnectAttachmentUrls, externalizeAttachmentUrls } from '../attachmentStore.js';
+import { applyWorkspaceBackup, inspectWorkspaceBackup, previewBackupState } from '../workspaceBackup.js';
+import { matchingBackupOriginals } from '../workspaceBackupSource.js';
+import { withAttachmentMaintenance } from '../attachmentMaintenance.js';
 import { attachmentFiles } from './constants.js';
 
-export function useBackupRestore({ modal, cards, viewRef, epoch, session, modalRef, navigate, notify, setError }) {
+export function useBackupRestore({ modal, cards, identityId, documentJobs, documentWaiters, viewRef, epoch, session, modalRef, navigate, notify, setError }) {
   const pending = useRef(new WeakSet());
   const [working, setWorking] = useState(null);
-  async function confirmRestore(exact) {
+  function confirmRestore(exact) {
     if (modalRef.current !== modal || pending.current.has(modal)) return;
+    if (session.migrationStatus?.()?.readOnly) {
+      setError('资料库当前只读，请先导出备份并核对旧版资料。');
+      return;
+    }
     pending.current.add(modal);
     setWorking(modal);
     const run = epoch.current,
       route = viewRef.current.route;
     const isVisible = () => run === epoch.current && viewRef.current.route === route && modalRef.current === modal;
-    try {
-      await applyWorkspaceBackup(
-        modal.plan || { state: modal.value },
-        attachmentFiles,
-        async (raw) => {
-          const replacements = new Map();
-          const incoming = modal.plan
-            ? normalizeWorkspaceState(
-                await hydrateAttachmentUrls(raw, {
-                  async url(ref) {
-                    const display = await attachmentFiles.url(ref);
-                    if (display.startsWith('blob:')) replacements.set(nativeAttachmentUrl(ref), display);
-                    return display;
-                  },
-                }),
-              )
-            : raw;
-          const context = { knownCardIds: cards.map((card) => card.id), knownCardPaths: cards.map((card) => card.path).filter(Boolean) };
-          // Confirmation belongs to this captured session. Later navigation
-          // controls only where feedback appears, never the transaction target.
-          await session.commit((existing) => {
-            if (exact) return restoreEmptyWorkspace(existing, incoming);
-            return mergeWorkspaceBackup(reconnectAttachmentUrls(existing, replacements), incoming, context);
-          });
-        },
-        () => run === epoch.current,
-      );
-      if (isVisible()) {
-        navigate('library');
-        notify(exact ? '备份已恢复' : '备份已合并 · 当前状态已保留');
+    const job = withAttachmentMaintenance(async () => {
+      try {
+        if (session.migrationStatus?.()?.readOnly) throw Error('资料库当前只读，请先导出备份并核对旧版资料。');
+        const plan = modal.plan || (await inspectWorkspaceBackup(serializeWorkspace(modal.value)));
+        const allowedOriginalIds = await matchingBackupOriginals(plan, identityId, cards);
+        const approved = prepareWorkspaceBackupRestore(normalizeWorkspaceState(await previewBackupState(plan)), { allowedOriginalIds });
+        await applyWorkspaceBackup(
+          plan,
+          attachmentFiles,
+          async () => {
+            const replacements = new Map();
+            const incoming = normalizeWorkspaceState(
+              await hydrateAttachmentUrls(externalizeAttachmentUrls(approved), {
+                async url(ref) {
+                  const display = await attachmentFiles.url(ref);
+                  if (display.startsWith('blob:')) replacements.set(nativeAttachmentUrl(ref), display);
+                  return display;
+                },
+              }),
+            );
+            const context = { knownCardIds: cards.map((card) => card.id), knownCardPaths: cards.map((card) => card.path).filter(Boolean) };
+            // Confirmation belongs to this captured session. Later navigation
+            // controls only where feedback appears, never the transaction target.
+            return session.commit(
+              (existing) => {
+                if (exact) return restoreEmptyWorkspace(existing, incoming);
+                return mergeWorkspaceBackup(reconnectAttachmentUrls(existing, replacements), incoming, context);
+              },
+              { failureOwner: 'caller' },
+            );
+          },
+          () => run === epoch.current,
+          { retainedState: (result) => result },
+        );
+        if (isVisible()) {
+          navigate('library');
+          notify(exact ? '备份已恢复' : '备份已合并 · 当前状态已保留');
+        }
+      } catch (error) {
+        if (isVisible()) setError(error.message);
+      } finally {
+        pending.current.delete(modal);
+        setWorking((current) => (current === modal ? null : current));
       }
-    } catch (error) {
-      if (isVisible()) setError(error.message);
-    } finally {
-      pending.current.delete(modal);
-      setWorking((current) => (current === modal ? null : current));
-    }
+    });
+    // Include attachment preparation and rollback in the existing quit/export
+    // wait, even before the entity transaction is submitted.
+    documentJobs?.current.set(job, identityId);
+    for (const waiter of documentWaiters?.current || []) if (waiter.identity === undefined || waiter.identity === identityId) waiter.jobs.add(job);
+    void job.finally(() => documentJobs?.current.delete(job)).catch(() => {});
+    return job;
   }
   return { confirmRestore, restoringBackup: working === modal };
 }
 
-export function renderBackupRestoreReview({ modal, cards, state, confirmRestore, restoringBackup }) {
+export function renderBackupRestoreReview({ modal, cards, state, session, confirmRestore, restoringBackup }) {
+  const readOnly = session?.migrationStatus?.()?.readOnly;
   const context = { knownCardIds: cards.map((card) => card.id), knownCardPaths: cards.map((card) => card.path).filter(Boolean) };
   const exact = canRestoreEmptyWorkspace(state);
   let preview;
@@ -78,6 +101,9 @@ export function renderBackupRestoreReview({ modal, cards, state, confirmRestore,
   return (
     <>
       <p>所选备份：{modal.filename || '未命名备份'}</p>
+      {readOnly && <p role="alert">资料库当前只读。可以导出备份，请核对旧版资料后再恢复。</p>}
+      <p className="sw-muted">原始资料的整理状态只恢复到身份和内容均匹配的原卡。无法核对的备注会保留为独立恢复稿。</p>
+      <p className="sw-muted">备份中的旧编辑草稿保留为恢复副本，可从本机工具的“恢复草稿”另存。</p>
       <p>
         备份包含 {modal.value.cards.length} 张卡、{modal.value.collections.length} 个收藏集和 {modal.value.boards.length} 个画布。
       </p>
@@ -95,11 +121,11 @@ export function renderBackupRestoreReview({ modal, cards, state, confirmRestore,
         {preview.recoveryDrafts || 0} 个历史草稿将保留在恢复列表。
       </p>
       <footer>
-        <button disabled={restoringBackup} onClick={() => confirmRestore(false)}>
+        <button disabled={restoringBackup || readOnly} onClick={() => confirmRestore(false)}>
           合并备份
         </button>
         {exact && (
-          <button className="sw-primary" disabled={restoringBackup} onClick={() => confirmRestore(true)}>
+          <button className="sw-primary" disabled={restoringBackup || readOnly} onClick={() => confirmRestore(true)}>
             恢复备份
           </button>
         )}

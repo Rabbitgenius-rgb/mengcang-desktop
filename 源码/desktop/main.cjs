@@ -29,7 +29,10 @@ if(!app.requestSingleInstanceLock()){app.quit();}else{
 let win,gateway,readerSources,mcpBridge,recallBridge,clipperBridge,recallPresentation,mcpBridgeError='',quitDrained=false,quitTask=null,quitRequested=false,quitId=null,ready=false;
 const writes=createPrivateWriteQueue(),pending=new Set(),userData=app.getPath('userData');
 const attachments=require('./attachment-store.cjs').createFileAttachmentStore({directory:path.join(userData,'attachments-v3')});
-const quitSensitiveRequests=new Set(['attachmentPut','attachmentRestore','capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
+const quitSensitiveRequests=new Set(['attachmentPut','capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
+// Confirmed backup jobs are drained by the renderer for their entire lifetime.
+// Their remaining file writes must be allowed while that drain is in progress.
+const quitDrainRequests=new Set([...quitSensitiveRequests,'attachmentRestore','attachmentRestoreEnd']);
 const vaultPath=config.vaultPath||PRODUCTION_VAULT,bundleRoot=path.join(__dirname,'renderer');
 const smokeTest=app.commandLine.hasSwitch('smoke-test');let smokeTimeout;
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.woff2':'font/woff2','.json':'application/json'};
@@ -41,7 +44,7 @@ async function readPrivate(file,fallback){try{return JSON.parse(await fs.promise
 function handle(name,handler){ipcMain.handle(`mengcang:${name}`,async(event,...args)=>{
  if(!trustedFrame(event))return {ok:false,error:{code:'FORBIDDEN',message:'此页面无权调用梦藏接口'}};
  if(quitRequested&&quitSensitiveRequests.has(name))return {ok:false,error:{code:'APP_QUITTING',message:'正在完成已有保存并退出，新的操作尚未开始；输入仍保留在页面中。'}};
- let task;try{task=Promise.resolve().then(()=>handler(...args));if(quitSensitiveRequests.has(name))pending.add(task);return {ok:true,data:await task};}catch(error){return {ok:false,error:errorOf(error)};}finally{pending.delete(task);}
+ let task;try{task=Promise.resolve().then(()=>handler(...args));if(quitDrainRequests.has(name))pending.add(task);return {ok:true,data:await task};}catch(error){return {ok:false,error:errorOf(error)};}finally{pending.delete(task);}
 });}
 function requestQuit(){
  if(quitTask)return quitTask;

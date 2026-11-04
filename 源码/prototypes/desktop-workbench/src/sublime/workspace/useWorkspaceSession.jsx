@@ -2,6 +2,7 @@ import React from 'react';
 export function useWorkspaceSession({ ready, epoch, setSaving, session, draftRef, stateRef, setState, setError, notify, documentJobs, documentWaiters }) {
   async function commit(actions, options) {
     if (!ready) throw Error('资料库尚未就绪，原数据保持不变。');
+    if (session.migrationStatus?.()?.readOnly) throw Error('资料库当前只读，请先导出备份并核对旧版资料。');
     const run = epoch.current;
     setSaving(true);
     const job = session.commit(actions, options);

@@ -1,6 +1,7 @@
 import { collectAttachmentReferences } from './workspaceBackup.js';
 import { createWorkspaceState, normalizeWorkspaceState } from './workspaceModel.js';
 import { sameValue } from './workspaceStoreV3Entities.js';
+import { hydrateAttachmentUrls, nativeAttachmentUrl } from './attachmentStore.js';
 
 export function openWorkspaceDatabase(indexedDB, name, stores) {
   let opening;
@@ -140,6 +141,13 @@ export async function verifyAndRemoveLegacy({ readWorkspace, legacy, attachments
   const { meta, diskState } = await readWorkspace();
   if (!meta.legacySource?.present || meta.legacyCleaned || (meta.successfulStartIds?.length || 0) < 3) {
     throw Error('旧副本状态已改变，请重新打开本机工具。');
+  }
+  try {
+    // Run the same entity validation as cold startup, using metadata-only URLs
+    // so malformed cards cannot be hidden by an already hydrated in-memory cache.
+    normalizeWorkspaceState(await hydrateAttachmentUrls(diskState, { url: nativeAttachmentUrl }));
+  } catch (error) {
+    throw Error('新资料库结构校验失败，旧版副本已保留。请先恢复资料再重试。', { cause: error });
   }
   const previous = await legacy.read();
   if (!(await matchingLegacyVersion(previous, meta.legacySource))) throw Error('旧版资料发生变化，旧副本已保留。');

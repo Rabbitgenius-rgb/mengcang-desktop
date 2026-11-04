@@ -4,6 +4,7 @@ import { workspaceReducer, normalizeWorkspaceState, MAX_WORKSPACE_BACKUP_BYTES, 
 import { exportWorkspaceZip, inspectWorkspaceBackup, previewBackupState, exportLegacyWorkspace } from '.././workspaceBackup.js';
 import { copyDraftTitle, recoveredBoardCopy } from '.././workspaceView.js';
 import { uid, attachmentFiles, download, checkPastedBackupSize } from './constants.js';
+import { workspaceBackupSource } from '../workspaceBackupSource.js';
 
 export function useDraftRecovery({
   epoch,
@@ -48,7 +49,7 @@ export function useDraftRecovery({
         throw Error('仍有 AI/转录结果只保留在此窗口，完整备份尚未生成。请重新保存结果后再备份；也可先复制这些文字保留。');
       const text = legacy
           ? await exportLegacyWorkspace(latest, attachmentFiles)
-          : await exportWorkspaceZip(latest, attachmentFiles, session.backupMetadata?.()),
+          : await exportWorkspaceZip(latest, attachmentFiles, { ...session.backupMetadata?.(), ...(await workspaceBackupSource(identityId, cards)) }),
         filename = legacy ? '梦藏-旧版兼容备份.json' : '梦藏-资料库备份.zip',
         contentType = legacy ? 'application/json' : 'application/zip';
       setError('');

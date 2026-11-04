@@ -1,6 +1,8 @@
 // Real projections and inert views shared by the workspace handler fixtures.
 import { IDBFactory } from 'fake-indexeddb';
 import * as workspaceBackup from '../../src/sublime/workspaceBackup.js';
+import * as workspaceBackupSource from '../../src/sublime/workspaceBackupSource.js';
+import * as attachmentMaintenance from '../../src/sublime/attachmentMaintenance.js';
 import * as attachmentRegistry from '../../src/sublime/attachmentRegistry.js';
 import * as attachmentStore from '../../src/sublime/attachmentStore.js';
 import * as recallLibrary from '../../src/sublime/recallLibrary.js';
@@ -24,6 +26,8 @@ export const workspaceDependencies = {
  './attachmentRegistry.js': attachmentRegistry,
  './attachmentStore.js': { ...attachmentStore, createAttachmentStore: createFixtureAttachments },
  './workspaceBackup.js': workspaceBackup,
+ './workspaceBackupSource.js': workspaceBackupSource,
+ './attachmentMaintenance.js': attachmentMaintenance,
  './recallLibrary.js': recallLibrary,
  './starHomeView.js': starHomeView,
  './StarHome.jsx': { default: () => null },

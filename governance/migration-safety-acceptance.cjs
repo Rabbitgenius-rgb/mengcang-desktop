@@ -150,6 +150,21 @@ const raw = {
     await close();
     await launch();
     assert.equal((await record(v3, 'meta')).successfulStartIds.length, 3);
+    const beforeStructureCheck = await record(v3, 'meta');
+    const originalCard = await record(v3, 'cards', 'get', undefined, [id, 'original']);
+    await record(v3, 'cards', 'put', { ...originalCard, value: { ...originalCard.value, origin: 'broken' } }, [id, 'original']);
+    await cleanup();
+    await page
+      .getByRole('dialog')
+      .getByRole('alert')
+      .filter({ hasText: /新资料库结构校验失败/ })
+      .waitFor();
+    assert.deepEqual(await record(v2, 'workspaces'), raw);
+    assert.equal((await record(v3, 'meta')).revision, beforeStructureCheck.revision);
+    assert.equal((await record(v3, 'meta')).legacyCleaned, false);
+    await button('取消').click();
+    await record(v3, 'cards', 'put', originalCard, [id, 'original']);
+    result.damagedEntityWithUnchangedRevisionBlockedCleanup = true;
     const broken = Buffer.from(original);
     broken[broken.length - 1] ^= 1;
     await fs.writeFile(storedFile, broken);

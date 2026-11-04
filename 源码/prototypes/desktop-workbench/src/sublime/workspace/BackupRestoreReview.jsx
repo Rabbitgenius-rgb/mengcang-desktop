@@ -102,7 +102,7 @@ export function renderBackupRestoreReview({ modal, cards, state, session, confir
     <>
       <p>所选备份：{modal.filename || '未命名备份'}</p>
       {readOnly && <p role="alert">资料库当前只读。可以导出备份，请核对旧版资料后再恢复。</p>}
-      <p className="sw-muted">原始资料的整理状态只恢复到身份和内容均匹配的原卡。无法核对的备注会保留为独立恢复稿。</p>
+      <p className="sw-muted">原始资料的整理状态只恢复到身份和内容均匹配的原卡。无法核对的备注、标星、隐藏和收藏集归属会保留为独立恢复稿。</p>
       <p className="sw-muted">备份中的旧编辑草稿保留为恢复副本，可从本机工具的“恢复草稿”另存。</p>
       <p>
         备份包含 {modal.value.cards.length} 张卡、{modal.value.collections.length} 个收藏集和 {modal.value.boards.length} 个画布。

@@ -10,15 +10,18 @@ const qa = path.join(root, 'qa');
 const benchmark = process.argv.includes('--benchmark');
 const recovery = process.argv.includes('--recovery-candidate');
 const safety = process.argv.includes('--safety-candidate');
+const drafts = process.argv.includes('--draft-candidate');
 if (benchmark && process.argv.includes('--package')) throw Error('性能资料目录不能打包为候选版。');
 if (benchmark) await fs.mkdir(path.join(qa, 'benchmark-runs'), { recursive: true });
 const home = benchmark
   ? await fs.mkdtemp(path.join(qa, 'benchmark-runs/run-'))
-  : safety
-    ? path.join(qa, 'safety-candidate')
-    : recovery
-      ? path.join(qa, 'recovery-candidate')
-      : qa;
+  : drafts
+    ? path.join(qa, 'draft-candidate')
+    : safety
+      ? path.join(qa, 'safety-candidate')
+      : recovery
+        ? path.join(qa, 'recovery-candidate')
+        : qa;
 const vault = path.join(home, benchmark ? 'vault' : 'candidate-vault');
 const appDir = path.join(source, 'desktop/build/app');
 await fs.mkdir(path.join(vault, '01_sources/cards/text'), { recursive: true });
@@ -41,7 +44,7 @@ if (!process.argv.includes('--package')) {
   console.log(appDir);
 } else {
   const version = JSON.parse(await fs.readFile(path.join(source, 'node_modules/electron/package.json'))).version;
-  const out = path.join(qa, safety ? 'packages-safety' : recovery ? 'packages-recovery' : 'packages');
+  const out = path.join(qa, drafts ? 'packages-drafts' : safety ? 'packages-safety' : recovery ? 'packages-recovery' : 'packages');
   const results = await packager({
     dir: appDir,
     out,

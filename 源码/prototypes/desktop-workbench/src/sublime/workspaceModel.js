@@ -1,4 +1,5 @@
 import { attachmentRefForUrl } from './attachmentRegistry.js';
+import { sanitizeBackupDraftReferences } from './backupDraftReferences.js';
 // Pure workspace data. No storage, network, native bridge, or AI is invoked here.
 import { exportSelectedItems, parseCsv, safeImportUrl } from '../discoveryModel.js';
 import { normalizeDocumentIndex, chooseDocumentTextIndex } from './documentIndex.js';
@@ -1230,22 +1231,45 @@ export function prepareWorkspaceBackupRestore(incoming, { allowOriginalState = f
     };
     drafts[backupRecoveryDraftKey('new:text', record)] = record;
   }
-  for (const [cardId, annotation] of Object.entries(backup.annotations)) {
-    if (allowedIds.has(cardId) || !annotation.note?.trim()) continue;
+  const originalStateIds = new Set([
+    ...Object.keys(backup.annotations),
+    ...backup.savedIds,
+    ...backup.favoriteIds,
+    ...backup.hiddenIds,
+    ...backup.collections.flatMap((collection) => collection.cardIds),
+  ]);
+  for (const cardId of originalStateIds) {
+    if (allowedIds.has(cardId)) continue;
+    const annotation = backup.annotations[cardId] || null;
+    const memberships = backup.collections.filter((collection) => collection.cardIds.includes(cardId)).map(({ id, title }) => ({ id, title }));
+    const saved = backup.savedIds.includes(cardId),
+      favorite = backup.favoriteIds.includes(cardId),
+      hidden = backup.hiddenIds.includes(cardId);
+    if (!annotation?.note?.length && !annotation?.private && !saved && !favorite && !hidden && memberships.length === 0) continue;
     // A new-card recovery has no editor key or relation pointing at an
     // unrelated destination note that happens to use the same relative path.
     const record = {
       key: 'new:text',
       value: {
-        title: '原始资料备注恢复副本',
-        body: annotation.note,
-        private: annotation.private,
+        title: annotation?.note?.trim() ? '原始资料备注恢复副本' : '原始资料整理恢复记录',
+        body: annotation?.note?.trim()
+          ? annotation.note
+          : [
+              '原始资料 ' + cardId,
+              '收藏状态 ' + (saved ? '已收藏' : '未收藏'),
+              '标星状态 ' + (favorite ? '已标星' : '未标星'),
+              '隐藏状态 ' + (hidden ? '已隐藏' : '未隐藏'),
+              '收藏集 ' + (memberships.map((collection) => collection.title).join('、') || '无'),
+              '原卡身份尚未核对，此记录保留原有整理信息。',
+            ].join('\n'),
+        private: !!annotation?.private,
         backupOriginalState: {
           id: cardId,
           annotation,
-          saved: backup.savedIds.includes(cardId),
-          favorite: backup.favoriteIds.includes(cardId),
-          hidden: backup.hiddenIds.includes(cardId),
+          saved,
+          favorite,
+          hidden,
+          collections: memberships,
         },
       },
       base: null,
@@ -1256,15 +1280,26 @@ export function prepareWorkspaceBackupRestore(incoming, { allowOriginalState = f
     };
     drafts[backupRecoveryDraftKey('new:text', record)] = record;
   }
+  const backupCollectionIds = new Set(backup.collections.map((collection) => collection.id));
   for (const [key, value] of Object.entries(drafts)) {
     const descriptor = backupDraftDescriptor(key, value);
     const reference = /^(?:edit|note|vault):(.+)$/.exec(descriptor?.logicalKey || '');
-    if (reference && !allowedIds.has(reference[1])) {
-      const raw = descriptor.scoped ? value.value : value;
+    const linkedSource = key.startsWith('linked-note-draft:') ? key.slice('linked-note-draft:'.length) : '';
+    if ((reference && !allowedIds.has(reference[1])) || (linkedSource && !allowedIds.has(linkedSource))) {
+      const raw = descriptor?.scoped ? value.value : value;
       const original = object(raw) ? raw : { body: raw == null ? '' : String(raw) };
       const record = {
         key: 'new:text',
-        value: { ...original, body: original.body || original.note || original.payload?.body || '', backupSourceKey: descriptor.logicalKey },
+        value: sanitizeBackupDraftReferences(
+          {
+            ...original,
+            ...(linkedSource ? { sourceCardId: linkedSource } : {}),
+            body: original.body || original.note || original.payload?.body || '',
+            backupSourceKey: descriptor?.logicalKey || key,
+          },
+          allowedIds,
+          backupCollectionIds,
+        ),
         base: null,
         adoptedFrom: null,
         imported: true,
@@ -1273,6 +1308,14 @@ export function prepareWorkspaceBackupRestore(incoming, { allowOriginalState = f
       };
       delete drafts[key];
       drafts[backupRecoveryDraftKey('new:text', record)] = record;
+    } else if (descriptor && /^(?:edit|new|collection|board):/.test(descriptor.logicalKey)) {
+      const original = descriptor.scoped ? value.value : value;
+      const sanitized = sanitizeBackupDraftReferences(original, allowedIds, backupCollectionIds);
+      if (!descriptor.scoped && sanitized !== original && /^(?:board|collection):/.test(descriptor.logicalKey)) {
+        const recovered = { key: descriptor.logicalKey, value: sanitized, base: null, adoptedFrom: null, imported: true, recoveryOnly: true, conflict: true };
+        delete drafts[key];
+        drafts[backupRecoveryDraftKey(descriptor.logicalKey, recovered)] = recovered;
+      } else drafts[key] = descriptor.scoped ? { ...value, value: sanitized } : sanitized;
     }
     if (key.startsWith('reader:') && !allowedIds.has(key.slice('reader:'.length))) delete drafts[key];
   }

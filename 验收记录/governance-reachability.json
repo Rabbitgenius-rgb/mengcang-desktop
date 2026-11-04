@@ -60,6 +60,7 @@
     "src/sublime/attachmentPreview.js",
     "src/sublime/attachmentRegistry.js",
     "src/sublime/attachmentStore.js",
+    "src/sublime/backupDraftReferences.js",
     "src/sublime/bookCover.css",
     "src/sublime/bookCover.js",
     "src/sublime/cardContent.css",

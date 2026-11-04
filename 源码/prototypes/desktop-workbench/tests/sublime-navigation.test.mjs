@@ -34,3 +34,21 @@ test('direct link back uses library fallback and another identity cannot restore
  assert.equal(readWorkspaceNavigation(b.history.state,'preview','#/other'),null);
  assert.equal(workspaceRouteHash({page:'card',id:'a/b ?中文',sourcePage:7}),'#/card/a%2Fb%20%3F%E4%B8%AD%E6%96%87?page=7');
 });
+
+test('reader return restores the source card and then its library context without adding another history entry',()=>{
+ const b=browserFixture();b.navigation.replace({page:'library',id:''});b.navigation.open({page:'card',id:'book'});b.navigation.open({page:'reader',id:'book'});
+ b.navigation.back();b.navigation.restoreCurrent();assert.equal(b.view.route.page,'card');
+ b.navigation.back();b.navigation.restoreCurrent();assert.equal(b.view.route.page,'library');assert.equal(b.view.scrollTop,0);
+ b.navigation.back();b.navigation.restoreCurrent();assert.equal(b.view.route.page,'library');
+});
+test('reader opened from an excerpt returns to that excerpt with its scroll position',()=>{
+ const b=browserFixture();b.navigation.open({page:'card',id:'excerpt'});b.view.scrollTop=350;b.navigation.open({page:'reader',id:'book'});b.navigation.back();b.navigation.restoreCurrent();assert.equal(b.view.route.id,'excerpt');assert.equal(b.view.scrollTop,350);
+});
+
+test('jump from related materials into the same article preserves a distinct return position',()=>{
+ const b=browserFixture(),article={page:'card',id:'w3',sourcePage:1};
+ b.navigation.open(article);b.view.scrollTop=4800;
+ b.navigation.open(article,{scrollTop:0});b.view.scrollTop=1200;
+ b.navigation.back();b.navigation.restoreCurrent();assert.equal(b.view.route.id,'w3');assert.equal(b.view.scrollTop,4800);
+ b.history.forward();b.navigation.restoreCurrent();assert.equal(b.view.scrollTop,1200);
+});

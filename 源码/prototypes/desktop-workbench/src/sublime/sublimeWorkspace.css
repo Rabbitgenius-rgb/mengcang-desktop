@@ -803,3 +803,143 @@
 .sublime-workspace[data-theme="light"] .sw-collection-card { background:var(--sw-card); }
 .sublime-workspace .sw-modal blockquote { margin:18px 0; padding:14px; border-radius:8px; background:var(--sw-card); overflow-wrap:anywhere; }
 @media(max-width:600px) { .sublime-workspace .sw-popover-tools { bottom:calc(100px + env(safe-area-inset-bottom)); left:auto; right:15px; } }
+
+/* Note reading: compact rhythm, original content and source links retained. */
+.sublime-workspace .sw-detail-card .sw-card-body { padding: 14px 12px; font-size: 16px; line-height: 1.75; letter-spacing: 0; }
+.sublime-workspace .sw-rich-body { white-space: normal; }
+.sublime-workspace .sw-rich-body p { margin: 0 0 .8em; min-height: 0; }
+.sublime-workspace .sw-rich-body :is(h1,h2,h3,h4,h5,h6) { font-weight: 650; line-height: 1.4; margin: 1.5em 0 .6em; }
+.sublime-workspace .sw-rich-body h1 { font-size: 1.5em; margin-bottom: .85em; }
+.sublime-workspace .sw-rich-body h2 { font-size: 1.15em; }
+.sublime-workspace .sw-rich-body > :first-child { margin-top: 0; }
+.sublime-workspace .sw-rich-body > :last-child { margin-bottom: 0; }
+.sublime-workspace .sw-rich-body ul { margin: .65em 0 1em; padding-left: 1.45em; }
+.sublime-workspace .sw-rich-body li { margin: .35em 0; }
+.sublime-workspace .sw-rich-body blockquote { margin: .8em 0; padding-left: .85em; opacity: 1; color: var(--sw-muted); border-color: var(--sw-icon); }
+.sublime-workspace .se-inline-reference { font: inherit; color: inherit; }
+.sublime-workspace button.se-inline-reference { display: inline; padding: 0; border: 0; background: none; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.sublime-workspace .sw-rich-body a:hover,.sublime-workspace button.se-inline-reference:hover { color: #008ed4; }
+.sublime-workspace .sw-note-archive { margin-top: 1.2em; padding-top: .85em; border-top: 1px solid var(--sw-icon); color: var(--sw-muted); font-size: 14px; }
+.sublime-workspace .sw-note-archive summary { cursor: pointer; }
+.sublime-workspace .sw-note-archive[open] summary { margin-bottom: 1em; }
+.sublime-workspace .sw-note-links { margin-top: 24px; padding: 20px; border-radius: 12px; background: var(--sw-card); color: var(--sw-text); }
+.sublime-workspace .sw-note-links h2 { display:flex; align-items:center; gap:8px; margin:0 0 12px; font-size:16px; font-weight:600; }
+.sublime-workspace .sw-note-links ul { list-style:none; padding:0; margin:0; }
+.sublime-workspace .sw-note-links li+li { border-top:1px solid color-mix(in srgb,var(--sw-icon) 18%,transparent); }
+.sublime-workspace .sw-note-links :is(a,button) { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:3px 10px; align-items:center; width:100%; padding:12px 0; border:0; background:none; color:inherit; text-align:left; cursor:pointer; font:inherit; font-size:15px; text-decoration:none; }
+.sublime-workspace .sw-note-links :is(a,button):hover { color:#008ed4; }
+.sublime-workspace .sw-note-links span { overflow-wrap:anywhere; }
+.sublime-workspace .sw-note-links small { grid-row:2; color:var(--sw-muted); font-size:12px; overflow-wrap:anywhere; }
+.sublime-workspace .sw-note-links svg { grid-column:2; grid-row:1 / span 2; }
+.sublime-workspace .sw-note-links h2 svg { grid-column:auto; }
+.sublime-workspace .sw-note-links > p { color:var(--sw-muted); font-size:14px; margin:0; }
+.sublime-workspace .sw-other-materials > summary { text-align:center; cursor:pointer; font-size:15px; }
+@media(max-width:600px){.sublime-workspace .sw-detail-card .sw-card-body{padding:12px 6px}.sublime-workspace .sw-note-links{padding:16px}}
+.sublime-workspace .sw-reference-choice { display:block; width:100%; padding:14px; text-align:left; border:0; border-radius:8px; background:var(--sw-card); color:var(--sw-text); margin:8px 0; }
+.sublime-workspace .sw-reference-choice small { display:block; margin-top:6px; overflow-wrap:anywhere; color:var(--sw-muted); }
+/* Sublime desktop alignment, 2026-11-02. Shared surfaces and reading proportions. */
+.sublime-workspace { --sw-card:#2c333b; --sw-icon:#8b949e; }
+.sublime-workspace .sw-detail-stage { min-height:0; padding:40px 30px 60px; }
+.sublime-workspace .sw-detail-cluster { width:min(600px,100%); transform:none; }
+.sublime-workspace .sw-image-stage .sw-detail-cluster { width:min(800px,100%); }
+.sublime-workspace .sw-article-stage .sw-detail-cluster { width:min(1050px,100%); }
+.sublime-workspace .sw-detail-card { padding:0; overflow:hidden; box-shadow:none; }
+.sublime-workspace .sw-detail-card .sw-card-body { padding:22px; font-size:18px; line-height:1.65; }
+.sublime-workspace .sw-origin-link { display:flex; width:fit-content; max-width:100%; align-items:center; gap:6px; margin:0 0 10px auto; padding:6px 12px; border-radius:30px; color:var(--sw-muted); background:var(--sw-panel); font-size:12px; text-decoration:none; overflow-wrap:anywhere; }
+.sublime-workspace .sw-position-error { display:inline-flex; flex-wrap:wrap; gap:4px 8px; margin:0 0 12px; font-size:12px; line-height:1.5; color:var(--sw-muted); }
+.sublime-workspace .sw-position-result { display:grid; gap:3px; margin:4px 0 12px; border-inline-start:2px solid var(--sw-muted); padding-inline-start:10px; font-size:14px; line-height:1.5; color:var(--sw-text); }
+.sublime-workspace .sw-position-result small { color:var(--sw-muted); }
+.sublime-workspace .sw-position-error a { color:inherit; text-decoration:underline; }
+.sublime-workspace .sw-detail-caption { padding:12px 16px; color:var(--sw-text); font-size:15px; line-height:1.45; overflow-wrap:anywhere; }
+.sublime-workspace .sw-detail-caption small { display:block; color:var(--sw-muted); font-size:12px; margin-top:4px; }
+.sublime-workspace .sw-detail-caption button { margin-top:4px; min-height:0; line-height:20px; font-size:13px; border:0; padding:0; background:none; color:var(--sw-muted); text-align:left; }
+.sublime-workspace .sw-image-stage .sw-card-body { padding:12px 16px 4px; font-size:16px; line-height:1.5; }
+.sublime-workspace .sw-detail-info { color:var(--sw-muted); font-size:12px; margin-top:18px; }
+.sublime-workspace .sw-detail-info summary,.sublime-workspace .sw-note-links summary { cursor:pointer; }
+.sublime-workspace .sw-detail-info .sw-card-identity { display:flex; margin-top:8px; }
+.sublime-workspace .sw-note-links { background:transparent; padding:0; font-size:13px; }
+.sublime-workspace .sw-related { width:min(1050px,calc(100% - 60px)); margin:0 auto 140px; padding:50px 40px; border-radius:40px; }
+.sublime-workspace .sw-article-other { background:none; padding-top:0; }
+.sublime-workspace .sw-related .sw-masonry { column-gap:90px; }
+.sublime-workspace .sw-masonry { width:min(890px,calc(100% - 60px)); column-gap:90px; }
+.sublime-workspace .sw-tile { overflow:visible; background:transparent!important; box-shadow:none; border:0; }
+.sublime-workspace .sw-tile-actions { top:-42px; left:0; right:0; height:42px; padding:0 0 7px; background:none; }
+.sublime-workspace .sw-tile-actions>div { display:flex; width:100%; gap:6px; }
+.sublime-workspace .sw-tile-active .sw-tile-actions { opacity:1; }
+.sublime-workspace .sw-tile-actions .sw-save { flex:1; justify-content:space-between; margin:0; }
+.sublime-workspace .sw-tile-actions .sw-icon-button { color:#8b949e; background:#f5f5f5; border-radius:50%; }
+.sublime-workspace .sw-media-tabs { justify-content:flex-start; width:min(890px,calc(100% - 60px)); padding:0; gap:8px; margin:20px auto 80px; mask-image:linear-gradient(to right,#000 96%,transparent); }
+.sublime-workspace .sw-media-tabs button { display:flex; align-items:center; gap:6px; border:1px solid transparent; border-radius:30px; background:var(--sw-card); padding:7px 12px; color:var(--sw-muted); }
+.sublime-workspace .sw-media-tabs button:hover { color:var(--sw-text); background:var(--sw-panel); }
+.sublime-workspace .sw-media-tabs button.active { color:var(--sw-white); background:var(--sw-panel); border-color:var(--sw-icon); }
+.sublime-workspace .sw-collection-title { width:min(890px,calc(100% - 60px)); padding:0; text-align:left; margin:25px auto 45px; }
+.sublime-workspace .sw-collection-title h1 { margin-bottom:6px; }
+.sublime-workspace .sw-collection-title small { color:var(--sw-muted); font-size:13px; }
+.sublime-workspace .sw-dock { box-shadow:0 8px 26px #0003; background:color-mix(in srgb,var(--sw-card) 85%,transparent); backdrop-filter:blur(18px); }
+.sublime-workspace .sw-dock-item { font-size:12px; }
+.sublime-workspace .sw-popover { box-shadow:0 8px 28px #0004; border:1px solid color-mix(in srgb,var(--sw-icon) 15%,transparent); }
+.sublime-workspace .sw-menu a[role="menuitem"] { display:flex; align-items:center; gap:10px; padding:10px 14px; font-size:14px; text-decoration:none; }
+.sublime-workspace .sw-menu .sw-menu-label { padding:6px 14px; margin:0; font-size:11px; letter-spacing:.04em; }
+.sublime-workspace .sw-menu hr { margin:6px 0; }
+.sublime-workspace .sw-popover-more { max-height:calc(100svh - 140px); overflow-y:auto; }
+@media (max-width:1100px) {
+ .sublime-workspace .sw-library-header .sw-search { width:300px; }
+ .sublime-workspace .sw-library-header { gap:10px; }
+ .sublime-workspace .sw-masonry,.sublime-workspace .sw-related .sw-masonry { column-gap:48px; }
+ .sublime-workspace .sw-related { padding:40px 30px; }
+}
+.sublime-workspace .sw-tile-actions { gap:6px; }
+.sublime-workspace .sw-tile-actions .pr-save { display:flex; align-items:center; justify-content:space-between; flex:1; min-width:0; height:35px; border:0; border-radius:30px; background:#f5f5f5; color:#8b949e; padding:5px 12px; font-size:15px; }
+.sublime-workspace .sw-tile::before { content:''; position:absolute; left:0; right:0; top:-45px; height:45px; }
+.sublime-workspace .sw-tile:hover { box-shadow:none; }
+.sublime-workspace .sw-favorite-mark { top:10px; bottom:auto; }
+
+/* A linked thought is a separate library card; keep its action distinct
+   from the existing saved-state / card-annotation control. */
+.sublime-workspace .sw-write-linked {
+  display:inline-flex; align-items:center; gap:6px; white-space:nowrap; flex:none;
+  min-height:40px; padding:0 14px; margin-left:8px; border:0; border-radius:24px;
+  background:var(--sw-card); color:var(--sw-text); font:inherit; font-size:14px; cursor:pointer;
+}
+.sublime-workspace .sw-write-linked:hover { background:var(--sw-active); }
+.sw-linked-editor .sw-linked-context { display:flex; align-items:flex-start; gap:6px; color:var(--sw-muted); }
+.sublime-workspace .sw-linked-editor footer { gap:6px; flex-wrap:wrap; }
+.sw-linked-editor .sw-draft-discard { margin-right:auto; }
+.sw-linked-discard { margin-top:18px; }
+.sw-linked-discard p { margin:0 0 4px; }
+.sw-linked-context svg,.sw-linked-notes svg { flex:none; }
+.sw-linked-editor label { display:grid; gap:6px; margin-top:14px; color:var(--sw-muted); font-size:13px; }
+.sw-linked-notes { display:grid; gap:8px; margin:14px 0; text-align:left; }
+.sw-linked-notes>div { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 10px; }
+.sw-linked-notes>div>span,.sw-linked-notes>small { font-size:12px; color:var(--sw-muted); }
+.sw-linked-notes ul { display:flex; flex-wrap:wrap; gap:4px 10px; margin:0; padding:0; list-style:none; }
+.sw-linked-notes button { display:inline; padding:2px 0; border:0; background:transparent;
+  color:var(--sw-text); font:inherit; font-size:14px; text-align:left; overflow-wrap:anywhere;
+  text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.sw-linked-notes button svg { vertical-align:middle; }
+.sw-linked-notes button:hover { color:var(--sw-white); }
+@media(max-width:720px) {
+ .sublime-workspace .sw-actions:has(.sw-write-linked) .sw-save { width:auto; }
+ .sublime-workspace .sw-write-linked { min-height:36px; padding:0 10px; gap:3px; }
+}
+
+/* Keep the scroll viewport above the fixed controls. The sky still fills its window. */
+.sublime-workspace[data-with-dock=true]{--dock-band:68px;--dock-edge:16px}
+.sublime-workspace[data-with-dock=true][data-star-home=false]{bottom:var(--dock-band);scroll-padding-bottom:12px}
+.sublime-workspace[data-with-dock=true][data-star-home=false]::after{content:"";position:fixed;bottom:0;left:0;right:0;height:var(--dock-band);pointer-events:none;background:var(--sw-bg);border-top:1px solid color-mix(in srgb,var(--sw-muted) 12%,transparent);z-index:16}
+.sublime-workspace[data-with-dock=true] nav.sw-dock{left:var(--dock-edge);bottom:10px;right:auto;transform:none;width:max-content;max-width:calc(100vw - 32px);min-width:0;height:48px;gap:2px;padding:5px 7px;border-radius:24px}
+.sublime-workspace[data-with-dock=true] nav.sw-dock .sw-dock-item{display:flex;flex-flow:row;gap:6px;margin:0;min-width:0;min-height:0;height:36px;padding:0 11px;border-radius:18px;font-size:13px;line-height:1}
+.sublime-workspace[data-with-dock=true] nav.sw-dock .sw-dock-item :is(svg,img){width:18px;height:18px}
+.sublime-workspace[data-with-dock=true] nav.sw-dock .sw-dock-spacer{width:1px;height:16px;flex:none;background:var(--sw-muted);opacity:.28;margin:0 3px}
+.sublime-workspace[data-with-dock=true] nav.sw-dock .sw-icon-button{width:32px;height:32px}
+.sublime-workspace[data-with-dock=true] nav.sw-dock .sw-icon-button svg{width:18px;height:18px}
+.sublime-workspace[data-with-dock=true] .mc-star-caption{left:calc(var(--dock-edge) + 8px);bottom:calc(var(--dock-band) + 7px)}
+.sublime-workspace[data-with-dock=true] .article-reader .ar-reading-jump{left:50%;right:auto;bottom:12px;transform:translateX(-50%);z-index:25}
+.sublime-workspace[data-with-dock=true] .article-reader .ar-selection-quick{bottom:12px;right:16px;max-width:calc(50vw - 135px);padding:6px 8px 6px 12px;gap:8px;z-index:24}
+.sublime-workspace[data-with-dock=true] .sw-add{width:44px;height:44px;right:18px;bottom:12px;padding:8px}
+.sublime-workspace[data-with-dock=true] .sw-add svg{width:28px;height:28px}
+.sublime-workspace[data-with-dock=true] .sw-popover-tools{left:var(--dock-edge);bottom:var(--dock-band)}
+.sublime-workspace .sw-search-summary{width:min(890px,calc(100% - 60px));margin:24px auto 12px;color:var(--sw-muted);font-size:14px;line-height:1.5}
+.sublime-workspace .sw-search-summary~.sw-masonry{margin-top:12px}
+.sw-linked-purpose{font-size:14px;line-height:1.6;color:var(--sw-muted)}
+@media(max-width:900px){.sublime-workspace[data-with-dock=true] .ar-selection-quick>span{display:none}}

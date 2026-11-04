@@ -9,7 +9,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const ROOTS = ['01_sources/cards/text/', '01_sources/cards/web/'];
 const KEYS = new Set(['vaultId', 'operationId', 'title', 'body', 'caption', 'sourceUrl', 'sourceTitle', 'author', 'page', 'sourceLocation', 'sourcePath', 'expectedSourceHash', 'tags', 'importFingerprint','attachment']);
 const ORIGINAL_ROOT='01_sources/_originals/';
-const ATTACHMENT_TYPES=Object.freeze({png:'image/png',jpg:'image/jpeg',gif:'image/gif',webp:'image/webp',avif:'image/avif',bmp:'image/bmp',tiff:'image/tiff',pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',heic:'image/heic',heif:'image/heif',mp4:'video/mp4',mov:'video/quicktime',avi:'video/x-msvideo',ogv:'video/ogg',mp3:'audio/mpeg',wav:'audio/wav',m4a:'audio/mp4',aac:'audio/aac',flac:'audio/flac',ogg:'audio/ogg'});
+const ATTACHMENT_TYPES=Object.freeze({png:'image/png',jpg:'image/jpeg',gif:'image/gif',webp:'image/webp',avif:'image/avif',bmp:'image/bmp',tiff:'image/tiff',pdf:'application/pdf',epub:'application/epub+zip',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',heic:'image/heic',heif:'image/heif',mp4:'video/mp4',mov:'video/quicktime',avi:'video/x-msvideo',ogv:'video/ogg',mp3:'audio/mpeg',wav:'audio/wav',m4a:'audio/mp4',aac:'audio/aac',flac:'audio/flac',ogg:'audio/ogg'});
 function captureAttachment(raw) {
   if(raw===undefined||raw===null)return null;
   if(typeof raw!=='object'||Object.keys(raw).some(key=>!['name','type','size','dataUrl'].includes(key)))fail('附件请求包含不支持的字段');

@@ -10,16 +10,25 @@ test('API key is encrypted at rest, destination-bound and never returned by stat
   await handlers.get('intelligenceConfigure')({endpoint:'https://different.example.com/v1'});assert.equal((await handlers.get('intelligenceStatus')()).hasApiKey,false);await assert.rejects(opts.getApiKey(),/地址已改变/);await handlers.get('intelligenceSetKey')('');assert.equal((await handlers.get('intelligenceStatus')()).hasApiKey,false);
  }finally{await fs.rm(root,{recursive:true,force:true});}
 });
-test('native image confirmation describes the upload without receiving image bytes',async()=>{
- const root=await fs.mkdtemp(path.join(os.tmpdir(),'mengcang-image-confirm-'));let opts,box,response=0;
- try{await registerIntelligence({handle:()=>{},userData:root,safeStorage:{isEncryptionAvailable:()=>true},dialog:{showMessageBox:async(_window,value)=>{box=value;return {response};}},getWindow:()=>({isDestroyed:()=>false}),writes:createPrivateWriteQueue(),serviceFactory:o=>{opts=o;return {status:()=>({settings:{endpoint:'https://api.deepseek.com/v1'}})};}});
-  const info={provider:'api',endpoint:'https://api.deepseek.com/v1',model:'deepseek-flash',characters:12,action:'insight',image:{name:'测试图片.png',type:'image/png',bytes:1048576}};
-  assert.equal(await opts.confirmRequest(info),false);
-  assert.match(box.detail,/测试图片\.png · image\/png · 1\.00 MiB/);
-  assert.match(box.detail,/确认后将上传这张图片和所选文字/);
-  assert.match(box.detail,/12 个字符/);assert.equal(box.defaultId,0);assert.equal(box.cancelId,0);
-  assert.equal(JSON.stringify(box).includes('base64'),false);assert.equal(JSON.stringify(box).includes('dataUrl'),false);
-  response=1;assert.equal(await opts.confirmRequest(info),true);
+test('analysis click is authorized without a second dialog while probe still requires confirmation',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'mengcang-direct-analysis-'));let opts,dialogs=0,response=0,destroyed=false;
+ try{await registerIntelligence({handle:()=>{},userData:root,safeStorage:{isEncryptionAvailable:()=>true},dialog:{showMessageBox:async()=>{dialogs++;return {response};}},getWindow:()=>({isDestroyed:()=>destroyed}),writes:createPrivateWriteQueue(),serviceFactory:o=>{opts=o;return {status:()=>({settings:{endpoint:'https://api.example.com/v1'}})};}});
+  for(const provider of ['api','cli'])for(const action of ['insight','classify','grill'])assert.equal(await opts.confirmRequest({provider,action}),true);
+  assert.equal(dialogs,0);assert.equal(opts.analysisRequiresConfirmation,false);
+  assert.equal(await opts.confirmRequest({provider:'api',action:'probe'}),false);assert.equal(dialogs,1);
+  destroyed=true;assert.equal(await opts.confirmRequest({provider:'api',action:'insight'}),false);assert.equal(dialogs,1);
+ }finally{await fs.rm(root,{recursive:true,force:true});}
+});
+test('decrypted key is reused only for the current ciphertext and endpoint and is cleared on removal',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'mengcang-key-cache-')),handlers=new Map();let opts,decryptions=0,settings={endpoint:'https://api.example.com/v1',generationEnabled:true};
+ const safeStorage={isEncryptionAvailable:()=>true,encryptString:key=>Buffer.from(key),decryptString:b=>{decryptions++;return b.toString();}};
+ try{await registerIntelligence({handle:(n,h)=>handlers.set(n,h),userData:root,safeStorage,dialog:{},getWindow:()=>null,writes:createPrivateWriteQueue(),serviceFactory:o=>{opts=o;return {status:()=>({settings}),configure:p=>{settings={...settings,...p};return {settings};}};}});
+  await handlers.get('intelligenceSetKey')('synthetic-first');assert.equal(decryptions,0);
+  for(let i=0;i<3;i++)assert.equal(await opts.getApiKey(),'synthetic-first');assert.equal(decryptions,1);
+  await handlers.get('intelligenceSetKey')('synthetic-second');assert.equal(await opts.getApiKey(),'synthetic-second');assert.equal(decryptions,2);
+  await handlers.get('intelligenceConfigure')({endpoint:'https://changed.example.com/v1'});await assert.rejects(opts.getApiKey(),/地址已改变/);assert.equal(decryptions,2);
+  await handlers.get('intelligenceSetKey')('');assert.equal(await opts.getApiKey(),'');
+  assert.equal(JSON.stringify(await handlers.get('intelligenceStatus')()).includes('synthetic-'),false);
  }finally{await fs.rm(root,{recursive:true,force:true});}
 });
 test('native local transcription confirmation describes offline one-shot execution and keeps API settings separate',async()=>{
@@ -33,5 +42,22 @@ test('native local transcription confirmation describes offline one-shot executi
   assert.match(box.detail,/不上传音频、不调用云端、不消耗 API 额度/);assert.match(box.detail,/完整访谈\.wav · 1\.00 MiB/);
   assert.equal(box.detail.includes('api.deepseek.com'),false);assert.equal(box.message.includes('消耗所选服务'),false);
   assert.equal(box.defaultId,0);assert.equal(box.cancelId,0);response=1;assert.equal(await opts.confirmRequest(info),true);
+ }finally{await fs.rm(root,{recursive:true,force:true});}
+});
+
+test('one explicit analysis request sends one mocked API call without a native confirmation or startup call',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'mengcang-click-integration-')),handlers=new Map();let calls=0,decryptions=0;
+ const {createIntelligenceService}=require('../desktop/intelligence.cjs');
+ try{await registerIntelligence({handle:(n,h)=>handlers.set(n,h),userData:root,writes:createPrivateWriteQueue(),safeStorage:{isEncryptionAvailable:()=>true,encryptString:key=>Buffer.from(key),decryptString:b=>{decryptions++;return b.toString();}},dialog:{showMessageBox:async()=>{throw Error('Unexpected analysis confirmation');}},getWindow:()=>({isDestroyed:()=>false}),serviceFactory:opts=>createIntelligenceService({...opts,fetchImpl:async()=>{calls++;return new Response(JSON.stringify({choices:[{message:{content:'synthetic-result'},finish_reason:'stop'}]}));}})});
+  await handlers.get('intelligenceConfigure')({generationEnabled:true,provider:'api',model:'synthetic',endpoint:'https://api.example.com/v1'});await handlers.get('intelligenceSetKey')('synthetic-key');
+  const status=await handlers.get('intelligenceStatus')();assert.equal(status.requiresConfirmation,false);assert.equal(status.transcriptionRequiresConfirmation,true);assert.equal(calls,0);assert.equal(decryptions,0);
+  for(let i=0;i<2;i++){const result=await handlers.get('intelligenceRequest')({action:'insight',mode:'The Gist',title:'Synthetic material',text:'Synthetic body'});assert.equal(result.text,'synthetic-result');assert.equal(calls,i+1);}
+  assert.equal(decryptions,1);
+ }finally{await fs.rm(root,{recursive:true,force:true});}
+});
+test('denied keychain access does not populate the cache and returns a useful local error without a model request',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'mengcang-key-denied-')),handlers=new Map();let opts,allowed=false,decryptions=0;
+ try{await registerIntelligence({handle:(n,h)=>handlers.set(n,h),userData:root,writes:createPrivateWriteQueue(),safeStorage:{isEncryptionAvailable:()=>true,encryptString:key=>Buffer.from(key),decryptString:b=>{decryptions++;if(!allowed)throw Error('synthetic OS denial');return b.toString();}},dialog:{},getWindow:()=>null,serviceFactory:o=>{opts=o;return {status:()=>({settings:{endpoint:'https://api.example.com/v1',generationEnabled:true}})};}});
+  await handlers.get('intelligenceSetKey')('synthetic-key');await assert.rejects(opts.getApiKey(),{code:'API_KEY_UNLOCK_REQUIRED'});assert.equal(decryptions,1);allowed=true;assert.equal(await opts.getApiKey(),'synthetic-key');assert.equal(decryptions,2);assert.equal(await opts.getApiKey(),'synthetic-key');assert.equal(decryptions,2);
  }finally{await fs.rm(root,{recursive:true,force:true});}
 });

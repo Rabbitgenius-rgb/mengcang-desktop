@@ -22,7 +22,8 @@ test('desktop CSP permits only local blob attachments and packaged/local workers
   assert.deepEqual(directives['object-src'],['blob:']);
   assert.deepEqual(directives['worker-src'],["'self'",'blob:']);
   assert.deepEqual(directives['script-src'],["'self'"]);
-  assert.deepEqual(directives['connect-src'],["'self'",'mengcang-asset:']);
+  assert.deepEqual(directives['connect-src'],["'self'",'mengcang-asset:','mengcang-reader:']);
+  assert.deepEqual(directives['font-src'],["'self'",'blob:']);
   assert.deepEqual(directives['frame-src'],["'none'"]);
   assert.deepEqual(directives['default-src'],["'none'"]);
   assert.deepEqual(directives['base-uri'],["'none'"]);
@@ -36,6 +37,6 @@ test('desktop request interceptor allows application-owned attachment blobs with
   assert.ok(declaration);
   const intercept=vm.runInNewContext(`(${declaration})`,{URL});
   const allowed=url=>{let result;intercept({url},value=>{result=value;});assert.ok(result,'The request must receive a decision');return result.cancel===false;};
-  for(const url of ['mengcang://app/assets/attachmentWord-worker.js','mengcang-asset://vault/?path=fixture.pdf','blob:mengcang://app/4b2ac5d7-7f75-4f5f-bb44-d88820f8d4e6']) assert.equal(allowed(url),true,url);
+  for(const url of ['mengcang://app/assets/attachmentWord-worker.js','mengcang-asset://vault/?path=fixture.pdf','mengcang-reader://source/'+ 'a'.repeat(64),'blob:mengcang://app/4b2ac5d7-7f75-4f5f-bb44-d88820f8d4e6']) assert.equal(allowed(url),true,url);
   for(const url of ['https://example.com/video.mp4','http://127.0.0.1/private','file:///etc/passwd','data:text/html,script','blob:https://example.com/id','blob:null/id','blob:mengcang://app.evil/id','blob:mengcang-asset://vault/id','not a url']) assert.equal(allowed(url),false,url);
 });

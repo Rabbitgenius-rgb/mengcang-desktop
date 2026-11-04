@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {valueOf,draftFields,patchFields,mergeSavedDraft,noteDraftKey,normalizeRecord,rebaseDraft,connectionErrorMessage,searchText} from '../src/desktopModel.js';
+import {valueOf,draftFields,patchFields,mergeSavedDraft,noteDraftKey,normalizeRecord,standaloneRecords,rebaseDraft,connectionErrorMessage,searchText} from '../src/desktopModel.js';
 
 test('conflict code survives IPC envelope for draft recovery',()=>{
  assert.throws(()=>valueOf({ok:false,error:{code:'CONFLICT',message:'changed'}}),e=>e.code==='CONFLICT');
@@ -117,4 +117,21 @@ test('thumbnail selection rejects JSON, PDF, external, and unsafe image paths',(
   const actual=normalizeRecord({kind:'pattern',attachmentPath,fields:{cover:attachmentPath}},{assetUrl:()=>assert.fail('Unsafe or non-image path requested')});
   assert.equal(actual.assetUrl,'');
  }
+});
+
+
+test('standalone library retains registered project notes beside existing source cards without copies or asset requests',()=>{
+ const project={id:'03_projects/one.md',path:'03_projects/one.md',kind:'project',title:'原项目',body:'旧正文保留',fields:{id:'one'},projectIds:[]};
+ const snapshot={entries:[{id:'entry',kind:'entry',fields:{}}],materials:[{id:'material',kind:'image',fields:{}}],books:[{id:'book',kind:'book',originalAvailable:true,originalName:'原书.pdf',originalPath:'',fields:{}}],projects:[project,structuredClone(project)]};
+ const before=JSON.stringify(snapshot),cards=standaloneRecords(snapshot,{assetUrl:()=>assert.fail('No thumbnail should be requested')});
+ assert.equal(cards.length,4);assert.equal(cards[3].path,project.path);assert.equal(cards[3].body,project.body);assert.equal(cards[3].raw,project);assert.equal(cards[2].originalAvailable,true);assert.equal(cards[2].originalPath,'');assert.equal(JSON.stringify(snapshot),before);
+ assert.deepEqual(standaloneRecords(undefined,{}),[]);
+});
+
+test('approved project documents join the reader without activating historical projects or duplicating paths',()=>{
+ const retired={id:'03_projects/rabbitpet-project-brief-2026-07-13.md',path:'03_projects/rabbitpet-project-brief-2026-07-13.md',kind:'project-document',title:'历史说明',body:'仅保留历史审计价值',fields:{type:'project',status:'archived'},readOnly:true,originalAvailable:true,originalName:'历史说明.md'};
+ const index={id:'03_projects/index.md',path:'03_projects/index.md',kind:'project-document',title:'Projects Index',body:'# Projects Index',fields:{}};
+ const snapshot={projects:[],documents:[retired,index,structuredClone(retired)]},before=JSON.stringify(snapshot);
+ const cards=standaloneRecords(snapshot,{assetUrl:()=>assert.fail('No asset reads')});
+ assert.equal(cards.length,2);assert.equal(cards[0].type,'text');assert.equal(cards[0].raw.fields.status,'archived');assert.equal(cards[0].readOnly,true);assert.equal(cards[1].title,'Projects Index');assert.equal(snapshot.projects.length,0);assert.equal(JSON.stringify(snapshot),before);
 });

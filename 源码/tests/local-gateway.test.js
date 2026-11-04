@@ -26,3 +26,35 @@ test('concurrent same operation returns one record and changed original is detec
 test('AI policy still rejects instead of consuming calls',()=>{assert.throws(()=>rejectAiRequest(),{code:'AI_DISABLED'});});
 
 test('existing JPEG extension remains readable without renaming original files',async t=>{const h=harness(t);h.write('01_sources/_originals/photo.jpeg',Buffer.from(attachment.dataUrl.split(',')[1],'base64'));assert.equal((await h.gateway.attachment('01_sources/_originals/photo.jpeg')).contentType,'image/jpeg');});
+
+test('oversized sparse notes reject before body loading while other notes remain available',async t=>{
+ const h=harness(t),large=h.write('01_sources/cards/text/large.md','');fs.truncateSync(large,4*1024*1024+1);h.write('01_sources/cards/text/good.md','---\ntype: material\ntitle: Good\n---\nbody');
+ await assert.rejects(h.gateway.readNote('01_sources/cards/text/large.md'),{code:'NOTE_TOO_LARGE'});const snapshot=await h.gateway.snapshot();assert.equal(snapshot.materials.length,1);assert.equal(snapshot.materials[0].title,'Good');assert.equal(snapshot.errors.length,1);
+});
+
+test('traditional Chinese colour archive is excluded from listing, direct reads and native opens without deleting sources',async t=>{
+ const h=harness(t),paths=['01_sources/cards/images/patterns/色韵/001-海天霞.md','01_sources/cards/images/patterns/atlases/色韵色卡图鉴.md','01_sources/cards/images/relocated-colour.md'];
+ const sources=paths.map(relative=>h.write(relative,'---\ntype: material\ncollection_kind: color-palette\npattern_family: 色韵\n---\n原文保留'));
+ const hashes=sources.map(file=>hash(fs.readFileSync(file)));let noteReads=0;const read=h.gateway.readFile.bind(h.gateway);h.gateway.readFile=async relative=>{if(relative.startsWith('01_sources/cards/images/patterns/色韵/'))noteReads++;return read(relative);};
+ let snapshot=await h.gateway.snapshot();assert.equal(snapshot.materials.length,0);assert.equal(snapshot.errors.length,0);assert.equal(noteReads,0);
+ for(const relative of paths){await assert.rejects(h.gateway.readNote(relative),{code:'SOURCE_EXCLUDED'});await assert.rejects(h.gateway.original(relative),{code:'SOURCE_EXCLUDED'});}
+ h.write('01_sources/cards/images/patterns/色韵/new-colour.md','---\ntype: material\n---\n新增色卡');snapshot=await h.gateway.snapshot();assert.equal(snapshot.materials.length,0);assert.equal(snapshot.errors.length,0);
+ sources.forEach((file,index)=>assert.equal(hash(fs.readFileSync(file)),hashes[index]));
+});
+
+test('colour exclusion preserves design, ordinary palettes, colour-related inspirations, books and approved documents',async t=>{
+ const h=harness(t);h.write('01_sources/cards/images/design.md','---\ntype: material\ntitle: 孟菲斯美学\n---\n颜色参与结构阅读');
+ h.write('01_sources/cards/images/other-palette.md','---\ntype: material\ncollection_kind: color-palette\npattern_family: 其他配色\nsource_url: https://example.com\n---\n其他配色');
+ h.write('01_sources/cards/text/idea.md','---\nrecord_type: inspiration\ntitle: 用色彩与花朵表达灵感时间\n---\n颜色灵感');
+ h.write('01_sources/cards/web/site.md','---\ntype: material\nsource_url: https://cncolor.art/news\n---\n非色卡的网页');
+ h.write('01_sources/books/book.md','---\ntype: book\n---\n图书');h.write('03_projects/index.md','# Projects Index');
+ const snapshot=await h.gateway.snapshot();assert.equal(snapshot.materials.length,3);assert.equal(snapshot.entries.length,1);assert.equal(snapshot.books.length,1);assert.equal(snapshot.documents.length,1);assert.equal(snapshot.errors.length,0);
+ const input=request({body:'保留普通新素材'});await h.gateway.capture(input);assert.equal((await h.gateway.snapshot()).materials.length,4);
+});
+
+test('relocated cncolor palette metadata is excluded while source-reference captures fail before writing',async t=>{
+ const h=harness(t),id='01_sources/cards/text/relocated.md';const source=h.write(id,'---\ntype: material\ncollection_kind: color-palette\nsource_url: https://cncolor.art/colors\n---\n来源色卡');
+ assert.equal((await h.gateway.snapshot()).materials.length,0);assert.equal((await h.gateway.snapshot()).errors.length,0);
+ const input=request({sourcePath:id,expectedSourceHash:hash(fs.readFileSync(source))});await assert.rejects(h.gateway.capture(input),{code:'SOURCE_EXCLUDED'});
+ assert.equal(fs.existsSync(path.join(h.root,`01_sources/cards/text/capture-${input.operationId}.md`)),false);assert.match(fs.readFileSync(source,'utf8'),/来源色卡/);
+});

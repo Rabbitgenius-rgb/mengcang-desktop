@@ -88,6 +88,6 @@ test('equal-content recovery creates no redundant archive and conflicting source
  await store.update(state=>workspaceReducer(state,{type:'draft.set',key:'window-draft:old:edit%3Acard',value:{key:'edit:card',value:{body:'source'},base:{entity:'card:card',version:-1},conflict:true,recoveryOnly:true}}));
  const current=createWorkspaceSession(store,{sessionId:'current'});await current.load();const source=current.recoverableDrafts()[0];
  await current.resumeDraft(source.id);await current.resumeDraft(source.id);assert.equal(current.recoverableDrafts().length,2);
- await assert.rejects(current.commit({type:'card.upsert',card:{id:'card',body:'must not overwrite'}}),{code:'WORKSPACE_CONFLICT'});
+ await assert.rejects(current.commit({type:'card.upsert',card:{id:'card',body:'must not overwrite'}},{editKey:'edit:card'}),{code:'WORKSPACE_CONFLICT'});
  await current.copyDraft(source.id,'new:text');const target=(await store.load()).drafts['window-draft:current:new%3Atext'];assert.equal(target.conflict,false);assert.equal(target.base,null);assert.equal(target.adoptedFrom,null);
 });

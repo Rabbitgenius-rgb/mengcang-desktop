@@ -1,5 +1,13 @@
 // Pure workspace data. No storage, network, native bridge, or AI is invoked here.
 import {exportSelectedItems, parseCsv, safeImportUrl} from '../discoveryModel.js';
+import {normalizeDocumentIndex,chooseDocumentTextIndex} from './documentIndex.js';
+import {mergeReaderBackupState} from '../reader/readerState.js';
+import {normalizeRecallSource,normalizeRecallReceipt} from '../../../../src/recall/contract.mjs';
+import {normalizeArticleModel} from '../../../../src/clipper/article.mjs';
+import {normalizeWebAnchor} from '../../../../src/clipper/anchors.mjs';
+export {normalizeDocumentIndex};
+
+export const MAX_OCR_TEXT = 1000000;
 
 const own = (value, name) => Object.prototype.hasOwnProperty.call(value, name);
 const forbiddenKeys = new Set(['__proto__', 'prototype', 'constructor']);
@@ -44,7 +52,7 @@ export const MAX_ATTACHMENT_BYTES = 64 * 1024 * 1024;
 export const MAX_WORKSPACE_BACKUP_BYTES = 256 * 1024 * 1024;
 export const WORKSPACE_FILE_TYPES = Object.freeze([
   ['image/png',['.png'],'image'], ['image/jpeg',['.jpg','.jpeg'],'image'], ['image/gif',['.gif'],'image'], ['image/webp',['.webp'],'image'], ['image/avif',['.avif'],'image'], ['image/bmp',['.bmp'],'image'], ['image/tiff',['.tif','.tiff'],'image'],
-  ['application/pdf',['.pdf'],'pdf'], ['application/msword',['.doc'],'word'], ['application/vnd.openxmlformats-officedocument.wordprocessingml.document',['.docx'],'word'],
+  ['application/pdf',['.pdf'],'pdf'], ['application/epub+zip',['.epub'],'epub'], ['application/msword',['.doc'],'word'], ['application/vnd.openxmlformats-officedocument.wordprocessingml.document',['.docx'],'word'],
   ['image/heic',['.heic'],'heic'], ['image/heif',['.heif'],'heic'],
   ['video/mp4',['.mp4'],'video'], ['video/quicktime',['.mov'],'video'], ['video/x-msvideo',['.avi'],'video'], ['video/ogg',['.ogv'],'video'],
   ['audio/mpeg',['.mp3'],'audio'], ['audio/wav',['.wav'],'audio'], ['audio/x-wav',[],'audio'], ['audio/mp4',['.m4a','.m4b'],'audio'], ['audio/aac',['.aac'],'audio'], ['audio/flac',['.flac'],'audio'], ['audio/ogg',['.ogg','.opus'],'audio'], ['application/ogg',[],'audio'],
@@ -80,6 +88,27 @@ function isDocx(base64, size) {
   }
   return cursor === directory.length && names.has('[Content_Types].xml') && names.has('word/document.xml');
 }
+function isEpub(base64,size){
+  // An EPUB is not an arbitrary renamed ZIP. Require the standard uncompressed
+  // first mimetype entry, container metadata, and a package document. Reading
+  // and sanitizing package XHTML remains the reader's separate responsibility.
+  const first=base64Bytes(base64,0,Math.min(size,58));
+  if(first.length<58||first.slice(0,4)!=='PK\x03\x04'||readLittle(first,6,2)&1||readLittle(first,8,2)!==0||readLittle(first,18,4)!==20||readLittle(first,22,4)!==20||readLittle(first,26,2)!==8||readLittle(first,28,2)!==0||first.slice(30,38)!=='mimetype'||first.slice(38,58)!=='application/epub+zip')return false;
+  const tailStart=Math.max(0,size-65557),tail=base64Bytes(base64,tailStart,size),end=tail.lastIndexOf('PK\x05\x06');
+  if(end<0||end+22>tail.length||readLittle(tail,end+4,2)||readLittle(tail,end+6,2)||end+22+readLittle(tail,end+20,2)!==tail.length)return false;
+  const entries=readLittle(tail,end+10,2),length=readLittle(tail,end+12,4),offset=readLittle(tail,end+16,4);
+  if(!entries||entries>10000||entries!==readLittle(tail,end+8,2)||length>4*1024*1024||offset+length!==tailStart+end)return false;
+  const directory=base64Bytes(base64,offset,offset+length),names=new Set();let cursor=0,totalInflated=0,mimetype=false;
+  for(let i=0;i<entries;i++){
+    if(directory.slice(cursor,cursor+4)!=='PK\x01\x02'||cursor+46>directory.length)return false;
+    const flags=readLittle(directory,cursor+8,2),method=readLittle(directory,cursor+10,2),compressed=readLittle(directory,cursor+20,4),uncompressed=readLittle(directory,cursor+24,4),nameLength=readLittle(directory,cursor+28,2),extra=readLittle(directory,cursor+30,2),comment=readLittle(directory,cursor+32,2),localOffset=readLittle(directory,cursor+42,4),name=directory.slice(cursor+46,cursor+46+nameLength);
+    totalInflated+=uncompressed;
+    if(flags&1||![0,8].includes(method)||totalInflated>256*1024*1024||compressed>size||localOffset+30+nameLength>offset||!name||/[\\\x00]/.test(name)||name.startsWith('/')||name.split('/').some(part=>part==='..'||part==='.')||names.has(name))return false;
+    if(name==='mimetype')mimetype=localOffset===0&&method===0&&compressed===20&&uncompressed===20;
+    names.add(name);cursor+=46+nameLength+extra+comment;if(cursor>directory.length)return false;
+  }
+  return cursor===directory.length&&mimetype&&names.has('META-INF/container.xml')&&[...names].some(name=>/\.opf$/i.test(name));
+}
 function inspectFileDataUrl(dataUrl) {
   if (typeof dataUrl !== 'string' || dataUrl.length > Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200) fail('附件超过64MiB');
   const match = /^data:([^;,]+);base64,([A-Za-z0-9+/]*={0,2})$/i.exec(dataUrl);
@@ -94,6 +123,7 @@ function inspectFileDataUrl(dataUrl) {
   const riff = kind => header.startsWith('RIFF') && header.slice(8,12) === kind;
   const ftyp = header.slice(4,8) === 'ftyp', brands = header.slice(8);
   const signature = mime === 'application/pdf' ? header.startsWith('%PDF-')
+    : mime === 'application/epub+zip' ? isEpub(base64,size)
     : mime === 'application/msword' ? header.startsWith('\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1')
     : mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? header.startsWith('PK\x03\x04') && isDocx(base64,size)
     : ['image/heic','image/heif'].includes(mime) ? ftyp && /heic|heix|hevc|hevx|mif1|msf1/.test(brands)
@@ -122,6 +152,7 @@ export function normalizeWorkspaceAttachment(value) {
   if (!name.trim() || /[\x00-\x1f\x7f]/.test(name)) fail('附件名称无效');
   if (/\.(?:html?|svg|xml|[cm]?js|exe|app|sh|command)$/i.test(name.trim())) fail('附件名称不能使用可执行网页或程序扩展名');
   const type = text(value.type, '附件类型', 100);
+  if(type.trim().toLowerCase()==='application/epub+zip'&&!/\.epub$/i.test(name.trim()))fail('EPUB 原件需要使用 .epub 扩展名');
   const dataUrl = text(value.dataUrl, '附件内容', Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200);
   const inspected = inspectFileDataUrl(dataUrl);
   if (canonicalMime(type.trim().toLowerCase()) !== canonicalMime(inspected.mime) || !supportedMime.has(type.trim().toLowerCase()) || !Number.isSafeInteger(value.size) || value.size !== inspected.size) fail('附件类型或字节数与内容不匹配');
@@ -139,14 +170,7 @@ function safeImage(value) {
   return '';
 }
 
-const typeAliases = {images:'image', photos:'image', photo:'image', articles:'article', links:'link', websites:'link', web:'link', highlights:'highlight', quotes:'quote', texts:'text', notes:'text', note:'text', videos:'video', audios:'audio', books:'book', files:'file', pdf:'file', socials:'social', instagram:'social', twitter:'social', x:'social', 'social media':'social'};
-function normalizeDocumentIndex(value) {
-  if(value===undefined||value===null)return null;
-  if(!object(value)||!Number.isSafeInteger(value.pageCount)||value.pageCount<0||value.pageCount>1000000||!Array.isArray(value.pages)||value.pages.length>1500)fail('文档索引格式不正确');
-  const pages=value.pages.map(item=>{if(!object(item)||!Number.isSafeInteger(item.page)||item.page<1||item.page>Math.max(1,value.pageCount))fail('文档索引页码不正确');return {page:item.page,text:text(item.text,'文档页文字',1000000)};});
-  if(pages.reduce((sum,item)=>sum+item.text.length,0)>1000000||new Set(pages.map(item=>item.page)).size!==pages.length)fail('文档索引过长或页码重复');
-  return {text:text(value.text,'文档索引',1000000),pages,pageCount:value.pageCount,truncated:bool(value.truncated,'部分索引'),indexedAt:text(value.indexedAt,'索引日期',100)};
-}
+const typeAliases = Object.freeze(Object.assign(Object.create(null),{images:'image', photos:'image', photo:'image', articles:'article', links:'link', websites:'link', web:'link', highlights:'highlight', quotes:'quote', texts:'text', notes:'text', note:'text', videos:'video', audios:'audio', books:'book', files:'file', pdf:'file', socials:'social', instagram:'social', twitter:'social', x:'social', 'social media':'social'}));
 function normalizeDocumentHighlight(value) {
   if(!object(value)||!Number.isSafeInteger(value.page)||value.page<1||value.page>1000000||!Array.isArray(value.rects)||value.rects.length>1000)fail('文档高亮格式不正确');
   const rects=value.rects.map(rect=>{if(!object(rect)||['x','y','width','height'].some(key=>!Number.isFinite(rect[key])||rect[key]<0||rect[key]>1)||!rect.width||!rect.height)fail('文档高亮位置不正确');return {x:rect.x,y:rect.y,width:rect.width,height:rect.height};});
@@ -168,14 +192,33 @@ function normalizeCard(value) {
   const page = value.page === undefined || value.page === null ? '' : text(String(value.page), '摘录页码', 1000);
   const sourceLocation = text(value.sourceLocation, '来源位置', 1000);
   const importFingerprint = text(value.importFingerprint, '导入识别标记', 150);
+  const sourceAudioSha256 = text(value.sourceAudioSha256, '音频来源指纹', 64);
+  if (sourceAudioSha256 && !/^[a-f\d]{64}$/i.test(sourceAudioSha256)) fail('音频来源指纹无效');
+  const sourceAttachmentSha256 = text(value.sourceAttachmentSha256, '来源附件指纹', 64);
+  if (sourceAttachmentSha256 && !/^[a-f\d]{64}$/i.test(sourceAttachmentSha256)) fail('来源附件指纹无效');
   if (/[\x00-\x1f\x7f]/.test(page + sourceLocation + importFingerprint)) fail('来源位置或导入标记包含控制字符');
   if (importFingerprint && !importFingerprint.startsWith('highlight-v1:')) fail('导入识别标记不受支持');
+  let articleFigure;
+  if (value.articleFigure !== undefined) {
+    const figure=value.articleFigure;
+    if(!object(figure)||!value.sourceCardId||typeof figure.blockId!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(figure.blockId))fail('文章配图出处无效');
+    const imageUrl=safeSourceUrl(figure.imageUrl);
+    if(figure.imageUrl&&!imageUrl)fail('文章配图原址无效');
+    articleFigure={blockId:figure.blockId,imageUrl};
+  }
   return {
     id:cardId, path:value.path ? id(value.path, '卡片路径') : cardId,
-    title:text(value.title, '卡片标题', 1000), body:text(value.body, '卡片正文'), caption:text(value.caption, '卡片配文', 50000),
+    title:text(value.title, '卡片标题', 1000), body:text(value.body, '卡片正文', value.externalSource ? 200000 : 100000), caption:text(value.caption, '卡片配文', 50000),
     sourceUrl, sourceTitle:text(value.sourceTitle, '来源标题', 1000), author:text(value.author, '作者', 1000), type, image,
-    createdAt:text(value.createdAt, '创建日期', 100), updatedAt:text(value.updatedAt, '修改日期', 100), date:text(value.date,'来源日期',100), ocrText:text(value.ocrText,'已有本地OCR'), tags:[...new Set(tags)], origin, attachment, page, sourceLocation, importFingerprint,
-    sourceCardId:value.sourceCardId?id(value.sourceCardId,'来源卡片'):'',documentIndex:attachment?normalizeDocumentIndex(value.documentIndex):null,documentHighlights:attachment?keyed(value.documentHighlights,'文档高亮',normalizeDocumentHighlight):[],
+    createdAt:text(value.createdAt, '创建日期', 100), updatedAt:text(value.updatedAt, '修改日期', 100), date:text(value.date,'来源日期',100), ocrText:text(value.ocrText,'已有本地OCR',MAX_OCR_TEXT), tags:[...new Set(tags)], origin, attachment, page, sourceLocation, importFingerprint,
+    sourceCardId:value.sourceCardId?id(value.sourceCardId,'来源卡片'):'',documentIndex:normalizeDocumentIndex(value.documentIndex),documentHighlights:attachment?keyed(value.documentHighlights,'文档高亮',normalizeDocumentHighlight):[],
+    ...(sourceAudioSha256?{sourceAudioSha256:sourceAudioSha256.toLowerCase()}:{}),
+    ...(sourceAttachmentSha256?{sourceAttachmentSha256:sourceAttachmentSha256.toLowerCase()}:{}),
+    ...(value.article?{article:normalizeArticleModel(value.article,{normalizeAttachment:normalizeWorkspaceAttachment})}:{}),
+    ...(articleFigure?{articleFigure}:{}),
+    ...(value.webAnchor?{webAnchor:normalizeWebAnchor(value.webAnchor)}:{}),
+    ...(value.externalSource ? {externalSource:normalizeRecallSource(value.externalSource)} : {}),
+    ...(value.recallReceipt ? {recallReceipt:normalizeRecallReceipt(value.recallReceipt),recallDue:bool(value.recallDue ?? false,'待回看状态')} : {}),
   };
 }
 function normalizeCollection(value) {
@@ -252,8 +295,12 @@ export function normalizeWorkspaceState(raw) {
     const collection = collections.find(collection => collection.id === collectionId);
     if (!collection.cardIds.includes(cardId)) collection.cardIds.push(cardId);
   }
+  // Both membership sides may be individually valid but exceed the collection
+  // limit when reconciled. Reject the whole input rather than drop associations
+  // or return a state that cannot be normalized again on restore.
+  for (const collection of collections) list(collection.cardIds, '收藏集卡片');
   for (const collection of collections) for (const cardId of collection.cardIds) {
-    const annotation = annotations[cardId] || {note:null, private:false, collectionIds:[]};
+    const annotation = own(annotations,cardId) ? annotations[cardId] : {note:null, private:false, collectionIds:[]};
     if (!annotation.collectionIds.includes(collection.id)) annotation.collectionIds.push(collection.id);
     annotations[cardId] = annotation;
   }
@@ -316,7 +363,9 @@ export function workspaceReducer(state, action) {
     case 'card.documentIndex': case 'card.highlight': case 'card.removeHighlight': {
       const cardId=id(action.id,'卡片标识'),card=current.cards.find(item=>item.id===cardId);
       if(!card?.attachment||card.attachment.dataUrl!==action.expectedDataUrl)fail('附件已更换，旧索引或高亮未保存');
-      const patch=action.type==='card.documentIndex'?{documentIndex:normalizeDocumentIndex(action.index)}:action.type==='card.highlight'?{documentHighlights:upsert(card.documentHighlights,normalizeDocumentHighlight(action.highlight))}:{documentHighlights:card.documentHighlights.filter(item=>item.id!==id(action.highlightId,'高亮标识'))};
+      // Inspect the committed card, not the preview's earlier closure. Another
+      // window may have adopted OCR while PDF.js was reading its text layer.
+      const patch=action.type==='card.documentIndex'?{documentIndex:chooseDocumentTextIndex(card.documentIndex,action.index).index}:action.type==='card.highlight'?{documentHighlights:upsert(card.documentHighlights,normalizeDocumentHighlight(action.highlight))}:{documentHighlights:card.documentHighlights.filter(item=>item.id!==id(action.highlightId,'高亮标识'))};
       if(patch.documentHighlights?.length>5000)fail('高亮数量超过5000条');
       next={...current,cards:upsert(current.cards,{...card,...patch})};break;
     }
@@ -328,7 +377,7 @@ export function workspaceReducer(state, action) {
       break;
     }
     case 'card.note': {
-      const cardId = id(action.id, '卡片标识'), previous = current.annotations[cardId] || {note:null, private:false, collectionIds:[]};
+      const cardId = id(action.id, '卡片标识'), previous = own(current.annotations,cardId) ? current.annotations[cardId] : {note:null, private:false, collectionIds:[]};
       next = {...current, annotations:{...current.annotations, [cardId]:{...previous, note:own(action, 'note') ? action.note == null ? null : text(action.note, '卡片注释', 50000) : previous.note, private:own(action, 'private') ? bool(action.private, '注释私密状态') : previous.private}}};
       break;
     }
@@ -386,16 +435,23 @@ function mediaMatches(card, filter) {
   return type === target;
 }
 
-export function selectCards(cards, state, filters = {}) {
+const keywordFields=(card,annotation)=>[[card.title,8],[Array.isArray(card.tags)?card.tags.join(' '):'',6],[card.sourceTitle,3],[card.author,3],[card.caption,2],[annotation?.note,2],[card.body,1],[card.ocrText,1],[card.documentIndex?.text,1],[card.sourceUrl,0.5]];
+
+export function selectCards(cards, state, filters = {}, readOnlySavedIds = []) {
   const current = normalizeWorkspaceState(state);
   const terms = String(filters.query || '').trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   const collection = filters.collectionId && filters.collectionId !== 'all' ? current.collections.find(item => item.id === filters.collectionId) : null;
   const membership = collection ? new Set(collection.cardIds) : null;
-  const saved = new Set(current.savedIds), favorite = new Set(current.favoriteIds), hidden = new Set(current.hiddenIds);
+  // Native files are already saved, but are not embedded persisted card state.
+  // Keep their read-only membership separate from the 20,000-item storage cap.
+  if(!Array.isArray(readOnlySavedIds))fail('只读来源卡片身份应为数组');
+  const saved = new Set([...current.savedIds,...Array.from(readOnlySavedIds,value=>id(value,'只读来源卡片'))]), favorite = new Set(current.favoriteIds), hidden = new Set(current.hiddenIds);
   const savedFilter = filters.saved ?? filters.inLibrary ?? filters.inlibrary;
   const favoriteFilter = filters.favorite ?? filters.favorites;
   const media = String(filters.media ?? filters.type ?? 'all').toLowerCase();
-  const results = list(cards, '待筛选卡片').filter(card => {
+  const candidates=cards===undefined?[]:cards;
+  if(!Array.isArray(candidates))fail('待筛选卡片应为数组');
+  const results = candidates.filter(card => {
     if (!card || typeof card.id !== 'string') return false;
     if (filters.hidden === true ? !hidden.has(card.id) : filters.includeHidden !== true && hidden.has(card.id)) return false;
     if (filters.collectionId && filters.collectionId !== 'all' && (!membership || !membership.has(card.id))) return false;
@@ -404,14 +460,14 @@ export function selectCards(cards, state, filters = {}) {
     if (filters.origin && card.origin !== filters.origin) return false;
     if (!mediaMatches(card, media)) return false;
     const annotation = current.annotations[card.id];
-    const haystack = [card.title, card.body, card.caption, card.sourceUrl, card.sourceTitle, card.author, card.documentIndex?.text, ...(Array.isArray(card.tags) ? card.tags : []), annotation?.note].filter(value => typeof value === 'string').join(' ').toLocaleLowerCase();
+    const haystack = keywordFields(card,annotation).map(([value])=>value).filter(value => typeof value === 'string').join(' ').toLocaleLowerCase();
     return terms.every(term => haystack.includes(term));
   });
   const date = value => Number.isFinite(Date.parse(value)) ? Date.parse(value) : 0;
   const sort = filters.sort ?? filters.sortBy ?? 'newest';
   if (sort === 'relevant' && terms.length) {
     const relevance = card => {
-      const fields = [[card.title,8],[card.tags?.join(' '),6],[card.sourceTitle,3],[card.author,3],[card.caption,2],[current.annotations[card.id]?.note,2],[card.body,1],[card.documentIndex?.text,1],[card.sourceUrl,0.5]];
+      const fields = keywordFields(card,current.annotations[card.id]);
       return fields.reduce((score,[value,weight]) => {
         const field = String(value || '').toLocaleLowerCase();
         for (const term of terms) {
@@ -464,8 +520,12 @@ export function parseWorkspaceBackup(value) {
 
 function backupDraftDescriptor(key, value) {
   if (!key.startsWith('window-draft:')) return {logicalKey:key, scoped:false};
-  if (!object(value) || typeof value.key !== 'string' || !own(value, 'value') || !/^(?:edit|new|collection|note|board|vault):.+$/.test(value.key)) return null;
-  try {return {logicalKey:id(value.key, '窗口草稿标识'), scoped:true};} catch {return null;}
+  if (!object(value) || typeof value.key !== 'string' || !own(value, 'value')) return null;
+  const editor = /^(?:edit|new|collection|note|board|vault):([\s\S]+)$/.exec(value.key);
+  if (!editor) return null;
+  // The editor prefix is not part of the original entity's 4096-character ID.
+  // Validate that ID without trimming or shortening the stored logical key.
+  try {id(editor[1], '窗口草稿标识'); return {logicalKey:value.key, scoped:true};} catch {return null;}
 }
 function backupRecoveryDraftKey(logicalKey, record) {
   // Stable import identity makes re-imports idempotent; it is not an integrity
@@ -473,14 +533,24 @@ function backupRecoveryDraftKey(logicalKey, record) {
   const input = JSON.stringify(record);
   let hash = 2166136261;
   for (let i = 0; i < input.length; i++) hash = Math.imul(hash ^ input.charCodeAt(i), 16777619);
-  return `window-draft:backup-recovery-${(hash >>> 0).toString(36)}:${encodeURIComponent(logicalKey)}`;
+  // Keep the display suffix within the storage-key limit, encoding whole code
+  // points. The full original identity remains in the hash input and record;
+  // lone surrogates are replaced only in this non-authoritative display label.
+  let label = '';
+  for (const character of logicalKey) {
+    const encoded = encodeURIComponent(character.length === 1 && /[\ud800-\udfff]/.test(character) ? '\ufffd' : character);
+    if (label.length + encoded.length > 4000) break;
+    label += encoded;
+  }
+  return `window-draft:backup-recovery-${(hash >>> 0).toString(36)}:${label}`;
 }
 function planWorkspaceBackupMerge(existing, incoming, context = {}) {
   if (!object(context) || Object.keys(context).some(key => !['knownCardIds', 'knownCardPaths'].includes(key))) fail('备份合并上下文格式不正确');
+  const loadedCardIds = new Set();
   const knownReferences = ['knownCardIds', 'knownCardPaths'].flatMap(field => {
     const values = context[field] ?? [];
     if (!Array.isArray(values) || values.length > 40000) fail('已载入卡片身份应为数组且不超过40000项');
-    return values.map(value => id(value, '已载入卡片身份'));
+    return values.map(value => {const normalized = id(value, '已载入卡片身份'); if (field === 'knownCardIds') loadedCardIds.add(normalized); return normalized;});
   });
   const current = normalizeWorkspaceState(existing), backup = normalizeWorkspaceState(incoming);
   const currentCardIds = new Set(current.cards.map(card => card.id));
@@ -498,7 +568,10 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     ...current.boards.flatMap(board => board.nodes.map(node => node.itemPath)),
     ...[...currentLogicalDraftKeys].flatMap(key => /^(?:edit|note|vault):(.+)$/.exec(key)?.slice(1) || []),
   ]);
-  const addedCards = backup.cards.filter(card => !currentCardIds.has(card.id));
+  // Local cards take precedence in the renderer's ID map. Do not let an old
+  // embedded card shadow a native card actually loaded in this workspace. Mere
+  // flags, notes or paths still allow an otherwise unavailable body to restore.
+  const addedCards = backup.cards.filter(card => !currentCardIds.has(card.id) && !loadedCardIds.has(card.id));
   const freshCardIds = new Set(addedCards.filter(card => !currentIdentities.has(card.id)).map(card => card.id));
   const resolvable = new Set([...currentIdentities, ...addedCards.flatMap(card => [card.id, card.path])]);
   const skippedExternal = new Set();
@@ -536,8 +609,14 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     };
   }
   const drafts = {...current.drafts};
-  let preservedDrafts = 0, skippedDrafts = 0, recoveryDrafts = 0;
+  let preservedDrafts = 0, skippedDrafts = 0, recoveryDrafts = 0, recoveredNotes = 0, mergedReaderRecords = 0;
   for (const [key, value] of Object.entries(backup.drafts)) {
+    if(key.startsWith('reader:')){
+      const merged=mergeReaderBackupState(own(current.drafts,key)?current.drafts[key]:undefined,value);
+      if(own(current.drafts,key)&&JSON.stringify(merged)===JSON.stringify(current.drafts[key]))preservedDrafts++;
+      else{drafts[key]=merged;if(own(current.drafts,key))mergedReaderRecords++;}
+      continue;
+    }
     const descriptor = backupDraftDescriptor(key, value);
     if (!descriptor) {skippedDrafts++; continue;}
     if (own(current.drafts, key) && (!descriptor.scoped || JSON.stringify(current.drafts[key]?.value) === JSON.stringify(value.value))) {preservedDrafts++; continue;}
@@ -549,14 +628,14 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
       const resolved = keepReference(cardDraft[2]);
       // Native write retry IDs belong to their original local session. Importing
       // a backup never reintroduces a saved/queued native write request.
-      if (cardDraft[1] === 'vault' || !resolved || (!scoped && !freshCardIds.has(cardDraft[2]))) {skippedDrafts++; continue;}
-    } else if (collectionDraft && collectionDraft[1] !== 'new' && (!scoped ? !addedCollectionIds.has(collectionDraft[1]) : !currentCollectionIds.has(collectionDraft[1]) && !addedCollectionIds.has(collectionDraft[1]))) {
+      if (cardDraft[1] === 'vault' || (!scoped && (!resolved || !freshCardIds.has(cardDraft[2])))) {skippedDrafts++; continue;}
+    } else if (collectionDraft && collectionDraft[1] !== 'new' && !scoped && !addedCollectionIds.has(collectionDraft[1])) {
       skippedDrafts++; continue;
-    } else if (boardDraft && (!scoped ? currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]) : !currentBoardIds.has(boardDraft[1]) && !addedBoards.some(board => board.id === boardDraft[1]))) {
+    } else if (boardDraft && !scoped && (currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]))) {
       skippedDrafts++; continue;
     }
     if (!scoped) {drafts[key] = value; continue;}
-    const recoveryOnly = !!value.recoveryOnly || currentLogicalDraftKeys.has(logicalKey) || !!cardDraft && !freshCardIds.has(cardDraft[2]) || !!collectionDraft && collectionDraft[1] !== 'new' && currentCollectionIds.has(collectionDraft[1]) || !!boardDraft && currentBoardIds.has(boardDraft[1]);
+    const recoveryOnly = !!value.recoveryOnly || currentLogicalDraftKeys.has(logicalKey) || !!cardDraft && !freshCardIds.has(cardDraft[2]) || !!collectionDraft && collectionDraft[1] !== 'new' && (currentCollectionIds.has(collectionDraft[1]) || !addedCollectionIds.has(collectionDraft[1])) || !!boardDraft && (currentBoardIds.has(boardDraft[1]) || !addedBoards.some(board => board.id === boardDraft[1]));
     // Storage revisions from another backup cannot serve as local edit bases.
     // A stale existing-entity draft stays a manual recovery copy; the session
     // forces conflicted recovery to be saved as a new card rather than overwrite.
@@ -568,6 +647,28 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     if (own(drafts, storageKey)) {preservedDrafts++; continue;}
     drafts[storageKey] = imported;
     if (recoveryOnly) recoveryDrafts++;
+  }
+  // A current (including cleared) note always wins. Keep unused backup prose
+  // available as manual recovery, even when its original native card is absent.
+  // Only exact, already-manual note copies suppress another recovery record;
+  // different privacy or extra draft fields must not discard either payload.
+  const retainedNotes = new Set(Object.entries(drafts).flatMap(([key, record]) => {
+    const descriptor = backupDraftDescriptor(key, record), value = record?.value;
+    return descriptor?.scoped && descriptor.logicalKey.startsWith('note:') && record.recoveryOnly === true && record.conflict === true && object(value) && Object.keys(value).length === 2 && typeof value.note === 'string' && typeof value.private === 'boolean'
+      ? [JSON.stringify([descriptor.logicalKey, value.note, value.private])] : [];
+  }));
+  for (const [cardId, annotation] of Object.entries(backup.annotations)) {
+    if (!annotation.note?.trim() || own(annotations, cardId) && annotations[cardId].note === annotation.note) continue;
+    const logicalKey = `note:${cardId}`, signature = JSON.stringify([logicalKey, annotation.note, annotation.private]);
+    if (retainedNotes.has(signature)) continue;
+    const imported = {key:logicalKey, value:{note:annotation.note, private:annotation.private}, base:null, adoptedFrom:null, imported:true, recoveryOnly:true, conflict:true};
+    const baseKey = backupRecoveryDraftKey(logicalKey, imported);
+    let storageKey = baseKey, suffix = 1;
+    while (own(drafts, storageKey) && JSON.stringify(drafts[storageKey]) !== JSON.stringify(imported)) storageKey = `${baseKey}:${suffix++}`;
+    if (own(drafts, storageKey)) continue;
+    drafts[storageKey] = imported;
+    retainedNotes.add(signature);
+    recoveryDrafts++; recoveredNotes++;
   }
   const backupStateIds = new Set([...backup.cards.map(card => card.id), ...backup.savedIds, ...backup.favoriteIds, ...backup.hiddenIds, ...Object.keys(backup.annotations)]);
   const state = normalizeWorkspaceState({
@@ -587,7 +688,7 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
     addedMembershipsForExistingCards:addedCollections.reduce((total, collection) => total + collection.cardIds.filter(cardId => currentIdentities.has(cardId)).length, 0),
     skippedExternalReferences:skippedExternal.size,
     addedDrafts:Object.keys(drafts).length - Object.keys(current.drafts).length,
-    preservedDrafts, skippedDrafts, recoveryDrafts,
+    preservedDrafts, skippedDrafts, recoveryDrafts, recoveredNotes, ...(mergedReaderRecords?{mergedReaderRecords}:{}),
   }};
 }
 
@@ -605,7 +706,7 @@ export function exportCards(cards, format = 'markdown') {
   // Explicit card fields prevent raw DTOs, annotations, draft state, and operation
   // metadata from entering an export. Content export is a format conversion only.
   const requested = list(cards, '导出卡片');
-  const publicCards = requested.map(card => ({id:id(card.id, '卡片标识'), title:text(card.title, '卡片标题', 1000), body:text(card.body, '卡片正文'), caption:text(card.caption, '卡片配文', 50000), sourceUrl:safeSourceUrl(card.sourceUrl), sourceTitle:text(card.sourceTitle, '来源标题', 1000), author:text(card.author, '作者', 1000), page:card.page === undefined || card.page === null ? '' : text(String(card.page), '摘录页码', 1000), sourceLocation:text(card.sourceLocation, '来源位置', 1000), date:text(card.date || card.createdAt, '来源日期', 100), type:text(card.type,'卡片类型',100), ocrText:text(card.ocrText,'已有本地OCR'), tags:Array.isArray(card.tags)?card.tags.map(tag=>text(tag,'标签',120)):[]}));
+  const publicCards = requested.map(card => ({id:id(card.id, '卡片标识'), title:text(card.title, '卡片标题', 1000), body:text(card.body, '卡片正文', card.externalSource ? 200000 : 100000), caption:text(card.caption, '卡片配文', 50000), sourceUrl:safeSourceUrl(card.sourceUrl), sourceTitle:text(card.sourceTitle, '来源标题', 1000), author:text(card.author, '作者', 1000), page:card.page === undefined || card.page === null ? '' : text(String(card.page), '摘录页码', 1000), sourceLocation:text(card.sourceLocation, '来源位置', 1000), date:text(card.date || card.createdAt, '来源日期', 100), type:text(card.type,'卡片类型',100), ocrText:text(card.ocrText,'已有本地OCR',MAX_OCR_TEXT), ...(card.documentIndex?{documentIndex:normalizeDocumentIndex(card.documentIndex)}:{}), tags:Array.isArray(card.tags)?card.tags.map(tag=>text(tag,'标签',120)):[]}));
   const fileRefs = requested.map(card => {
     const file = normalizeAttachment(card.attachment), image = safeImage(card.image);
     return {attachment:file ? {name:file.name, type:file.type, size:file.size} : null, imageReference:/^(?:data:|blob:)/i.test(image) ? '' : image};

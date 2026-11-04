@@ -2,12 +2,24 @@ import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {IconArrowLeft,IconUpload,IconCheck} from '@tabler/icons-react';
 import {attachmentBytes,fileTypeFor} from './attachmentPreview.js';
 import {MAX_ATTACHMENT_BYTES,normalizeWorkspaceAttachment} from './workspaceModel.js';
-import {buildPodcastClip,formatClipTime,MAX_TRANSCRIPT_BYTES,parseClipTime,parsePodcastLocation,parseTimedTranscript,transcriptForRange,validateClipRange} from './podcastClips.js';
+import {buildPodcastClip,formatClipTime,MAX_TRANSCRIPT_BYTES,parseClipTime,parsePodcastLocation,parseTimedTranscript,podcastAudioSha256,transcriptForRange,validateClipRange} from './podcastClips.js';
 import {samePodcastAudio} from './podcastTranscription.js';
 import './podcastClips.css';
 
 const readDataURL=file=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(Error('音频读取失败，请重新选择文件。'));reader.readAsDataURL(file);});
-const defaults={sourceId:'',attachment:null,title:'',note:'',sourceUrl:'',start:'00:00',end:'00:30',transcript:'',transcriptName:''};
+const defaults={sourceId:'',attachment:null,title:'',note:'',sourceUrl:'',start:'00:00',end:'00:30',transcript:'',transcriptName:'',sourceAudioSha256:'',audioReviewRequired:false};
+
+function useAudioFingerprint(attachment,enabled=true) {
+  const [result,setResult]=useState(null);
+  const dataUrl=attachment?.dataUrl,type=attachment?.type,size=attachment?.size,name=attachment?.name;
+  useEffect(()=>{
+    let cancelled=false;
+    if(enabled&&attachment)podcastAudioSha256(attachment).then(sha256=>{if(!cancelled)setResult({dataUrl,type,size,name,sha256,error:''});}).catch(issue=>{if(!cancelled)setResult({dataUrl,type,size,name,sha256:'',error:issue.message||'无法核验原音频。'});});
+    return()=>{cancelled=true;};
+  },[enabled,dataUrl,type,size,name]);
+  // An old successful digest must not enable a new file before its effect runs.
+  return enabled&&result&&result.dataUrl===dataUrl&&result.type===type&&result.size===size&&result.name===name?result:{sha256:'',error:''};
+}
 
 function useAudioSource(attachment) {
   const [source,setSource]=useState({url:'',error:''});
@@ -26,16 +38,28 @@ function useAudioSource(attachment) {
 
 /** The parent owns API confirmation; merely opening this editor never calls it. */
 export default function PodcastClips({cards=[],draft,onDraftChange,onSave,onCancel,transcribeAudio,transcribeLocal,getTranscriptionStatus,transcriptionDrafts=[],onRecoverTranscription,onPersistTranscription,isTranscriptionDurable,transcriptionActive=false}) {
-  const [form,setForm]=useState(()=>({...defaults,...draft})),[error,setError]=useState(''),[busy,setBusy]=useState(false),[duration,setDuration]=useState(null),[currentTime,setCurrentTime]=useState(0);
+  const [form,setForm]=useState(()=>({...defaults,...draft,...(draft&&(draft.sourceId||draft.attachment)&&!draft.sourceAudioSha256?{audioReviewRequired:true}:{})})),[error,setError]=useState(''),[busy,setBusy]=useState(false),[duration,setDuration]=useState(null),[currentTime,setCurrentTime]=useState(0);
   const [transcriptionStatus,setTranscriptionStatus]=useState(null),[statusError,setStatusError]=useState(''),[message,setMessage]=useState(''),[historyId,setHistoryId]=useState('');
   const audio=useRef(null),mounted=useRef(true),loadRun=useRef(0),playRange=useRef(null),fileRef=useRef(null),subtitleRef=useRef(null);
-  const formRef=useRef(form),operationLock=useRef(false),subtitleRead=useRef(0);formRef.current=form;
+  const formRef=useRef(form),submittedForm=useRef(draft),operationLock=useRef(false),subtitleRead=useRef(0);formRef.current=form;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;loadRun.current++;audio.current?.pause();};},[]);
   useEffect(()=>{let cancelled=false;if(!getTranscriptionStatus)return;getTranscriptionStatus().then(status=>{if(!cancelled&&mounted.current)setTranscriptionStatus(status);}).catch(issue=>{if(!cancelled&&mounted.current)setStatusError(issue.message||'转录状态读取失败');});return()=>{cancelled=true;};},[]);
   useEffect(()=>{if(draft?.transcriptionPhase==='complete'&&samePodcastAudio(draft,formRef.current)){subtitleRead.current++;setForm(previous=>({...previous,transcript:draft.transcript,transcriptName:draft.transcriptName,transcriptionRequestId:draft.transcriptionRequestId,transcriptionPhase:'complete'}));}},[draft?.transcriptionRequestId,draft?.transcriptionPhase,draft?.transcript]);
   const sources=useMemo(()=>cards.filter(card=>fileTypeFor(card.attachment)?.kind==='audio'),[cards]);
   const sourceCard=sources.find(card=>card.id===form.sourceId),attachment=form.attachment||sourceCard?.attachment;
   const attachmentRef=useRef(attachment);attachmentRef.current=attachment;
+  const boundAudio=useRef(attachment?.dataUrl);
+  const fingerprint=useAudioFingerprint(attachment);
+  const sourceChanged=!!attachment&&(form.sourceAudioSha256?!!fingerprint.sha256&&fingerprint.sha256!==form.sourceAudioSha256:boundAudio.current!==attachment.dataUrl);
+  const needsAudioReview=!!form.audioReviewRequired||sourceChanged;
+  const audioChecking=!!attachment&&!fingerprint.sha256;
+  useEffect(()=>{audio.current?.pause();playRange.current=null;setDuration(null);setCurrentTime(0);},[attachment?.dataUrl]);
+  useEffect(()=>{
+    // Passive hashing may finish after another window changes the shared draft.
+    // Keep metadata local until an explicit edit/review submits this form.
+    if(sourceChanged&&!form.audioReviewRequired)setForm(previous=>({...previous,audioReviewRequired:true}));
+    else if(!needsAudioReview&&!form.sourceAudioSha256&&fingerprint.sha256)setForm(previous=>({...previous,sourceAudioSha256:fingerprint.sha256}));
+  },[sourceChanged,needsAudioReview,form.sourceAudioSha256,fingerprint.sha256]);
   const audioSource=useAudioSource(attachment);
   const transcribeAdapter=transcribeAudio||transcribeLocal;
   const provider=transcriptionStatus?.settings?.transcriptionProvider||(transcribeAudio?'api':'local');
@@ -44,8 +68,10 @@ export default function PodcastClips({cards=[],draft,onDraftChange,onSave,onCanc
   const history=transcriptionDrafts.find(record=>record.id===historyId)||transcriptionDrafts[0];
   let cues=[],subtitleError='';try{if(form.transcript)cues=parseTimedTranscript(form.transcript);}catch(e){subtitleError=e.message;}
   let excerpt='';try{excerpt=transcriptForRange(cues,form.start,form.end);}catch{}
-  function update(patch){if(Object.prototype.hasOwnProperty.call(patch,'transcript'))subtitleRead.current++;setForm(previous=>{const next={...previous,...patch};onDraftChange?.(next);return next;});setError('');}
-  function changeAudio(patch,invalidate=true){if(invalidate)loadRun.current++;audio.current?.pause();playRange.current=null;setDuration(null);setCurrentTime(0);update({...patch,start:'00:00',end:'00:30',transcript:'',transcriptName:'',transcriptionRequestId:'',transcriptionPhase:''});}
+  function update(patch){if(Object.prototype.hasOwnProperty.call(patch,'transcript'))subtitleRead.current++;setForm(previous=>{const next={...previous,...patch};submittedForm.current=next;onDraftChange?.(next);return next;});setError('');}
+  function adoptStoredForm(value){submittedForm.current=value;setForm(value);}
+  function changeAudio(patch,invalidate=true){if(invalidate)loadRun.current++;audio.current?.pause();playRange.current=null;setDuration(null);setCurrentTime(0);boundAudio.current=(patch.attachment||sources.find(card=>card.id===patch.sourceId)?.attachment)?.dataUrl;update({...patch,start:'00:00',end:'00:30',transcript:'',transcriptName:'',transcriptionRequestId:'',transcriptionPhase:'',sourceAudioSha256:'',audioReviewRequired:false});}
+  function reviewAudio(){if(!fingerprint.sha256)return;boundAudio.current=attachment?.dataUrl;update({sourceAudioSha256:fingerprint.sha256,audioReviewRequired:false});setMessage('已按你核对的当前音频保留字幕与时间。');}
   async function chooseAudio(file){if(!file)return;const run=++loadRun.current;setBusy(true);setError('');try{
     const kind=fileTypeFor(file);if(kind?.kind!=='audio')throw Error('请选择 MP3、M4A、WAV、AAC、FLAC 或 OGG 音频。');
     if(file.size<1||file.size>MAX_ATTACHMENT_BYTES)throw Error('音频文件应为 1 字节至 64 MiB。');
@@ -53,23 +79,34 @@ export default function PodcastClips({cards=[],draft,onDraftChange,onSave,onCanc
     if(mounted.current&&run===loadRun.current)changeAudio({attachment:fileData,sourceId:''},false);
   }catch(e){if(mounted.current&&run===loadRun.current)setError(e.message);}finally{if(mounted.current&&run===loadRun.current)setBusy(false);}}
   async function chooseTranscript(file){if(!file)return;const read=++subtitleRead.current,run=loadRun.current,snapshot={sourceId:formRef.current.sourceId,attachment:attachmentRef.current};const current=()=>mounted.current&&read===subtitleRead.current&&run===loadRun.current&&samePodcastAudio(snapshot,{sourceId:formRef.current.sourceId,attachment:attachmentRef.current});setError('');try{if(!/\.(?:srt|vtt)$/i.test(file.name||''))throw Error('请选择 .srt 或 .vtt 字幕文件。');if(file.size>MAX_TRANSCRIPT_BYTES)throw Error('字幕文件不能超过 2 MiB。');const text=await file.text();parseTimedTranscript(text);if(current())update({transcript:text,transcriptName:file.name,transcriptionRequestId:'',transcriptionPhase:''});}catch(e){if(current())setError(e.message);}}
-  async function save(){setError('');setBusy(true);try{if(subtitleError)throw Error(subtitleError);await onSave(buildPodcastClip({...form,sourceCard,attachment:form.attachment,duration,cues}));}catch(e){if(mounted.current)setError(e.message||'片段保存失败，编辑内容已保留。');}finally{if(mounted.current)setBusy(false);}}
+  async function save(){if(operationLock.current)return;operationLock.current=true;setError('');setBusy(true);const snapshot=form,file=attachment,expectedDraft=submittedForm.current;try{
+    if(subtitleError)throw Error(subtitleError);
+    if(needsAudioReview)throw Error('请先核对当前音频；字幕、备注和时间标记已保留。');
+    const sha256=fingerprint.sha256||await podcastAudioSha256(file);
+    if(snapshot.sourceAudioSha256&&sha256!==snapshot.sourceAudioSha256)throw Error('原音频已变化，请核对后再保存；当前输入已保留。');
+    if(!mounted.current||attachmentRef.current?.dataUrl!==file?.dataUrl||Object.keys(snapshot).some(key=>formRef.current[key]!==snapshot[key]))throw Error('音频或草稿在核验期间变化，请重新核对后保存。');
+    await onSave(buildPodcastClip({...snapshot,sourceCard,attachment:snapshot.attachment,duration,cues,sourceAudioSha256:sha256}),{attachment:file,formSnapshot:expectedDraft});
+  }catch(e){if(mounted.current)setError(e.message||'片段保存失败，编辑内容已保留。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
   async function preview(){setError('');try{const range=validateClipRange(form.start,form.end,duration);if(!audio.current)throw Error('请先选择音频。');playRange.current=range;audio.current.currentTime=range.start;await audio.current.play();}catch(e){setError(e.message||'暂时无法播放此音频。');}}
-  async function transcribe(){if(operationLock.current||transcriptionActive)return;subtitleRead.current++;operationLock.current=true;setError('');setMessage('');setBusy(true);const snapshot=form,run=loadRun.current;try{if(transcriptionIssue)throw Error(transcriptionIssue);const result=await transcribeAdapter(attachment,{requestId:globalThis.crypto?.randomUUID?.(),provider,formSnapshot:snapshot}),transcript=typeof result==='string'?result:result?.text;if(typeof transcript!=='string')throw Error('转录器未返回 SRT 或 WebVTT 字幕。');parseTimedTranscript(transcript);if(mounted.current&&run===loadRun.current&&samePodcastAudio(snapshot,formRef.current)){if(result?.draftApplied===false)setMessage('转录结果已保留在下方的结果草稿，当前音频或字幕已变化，未覆盖。');else if(result?.draft)setForm(result.draft);else update({transcript,transcriptName:provider==='local'?'本机转录':'API 转录'});}}catch(e){if(mounted.current)setError(e.message||'转录未完成。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
-  async function recoverTranscript(){if(!history||operationLock.current)return;subtitleRead.current++;operationLock.current=true;setBusy(true);setError('');try{const restored=await onRecoverTranscription(history,{formSnapshot:form,attachment});if(mounted.current)setForm(restored);}catch(issue){if(mounted.current)setError(issue.message||'字幕未恢复，当前草稿已保留。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
+  async function transcribe(){if(operationLock.current||transcriptionActive)return;subtitleRead.current++;operationLock.current=true;setError('');setMessage('');setBusy(true);const snapshot=form,run=loadRun.current;try{if(transcriptionIssue)throw Error(transcriptionIssue);const result=await transcribeAdapter(attachment,{requestId:globalThis.crypto?.randomUUID?.(),provider,formSnapshot:snapshot}),transcript=typeof result==='string'?result:result?.text;if(typeof transcript!=='string')throw Error('转录器未返回 SRT 或 WebVTT 字幕。');parseTimedTranscript(transcript);if(mounted.current&&run===loadRun.current&&samePodcastAudio(snapshot,formRef.current)){if(result?.draftApplied===false)setMessage('转录结果已保留在下方的结果草稿，当前音频或字幕已变化，未覆盖。');else if(result?.draft)adoptStoredForm(result.draft);else update({transcript,transcriptName:provider==='local'?'本机转录':'API 转录'});}}catch(e){if(mounted.current)setError(e.message||'转录未完成。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
+  async function recoverTranscript(){if(!history||operationLock.current)return;subtitleRead.current++;operationLock.current=true;setBusy(true);setError('');try{const restored=await onRecoverTranscription(history,{formSnapshot:form,attachment});if(mounted.current)adoptStoredForm(restored);}catch(issue){if(mounted.current)setError(issue.message||'字幕未恢复，当前草稿已保留。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
   async function persistTranscript(){if(!history||operationLock.current)return;operationLock.current=true;setBusy(true);setError('');try{await onPersistTranscription(history);if(mounted.current)setMessage('转录结果草稿已保存到本机。');}catch(issue){if(mounted.current)setError(issue.message||'结果草稿仍未写入磁盘，请保留此窗口并重试。');}finally{operationLock.current=false;if(mounted.current)setBusy(false);}}
   return <main className="sublime-editor se-podcast">
-    <header className="se-heading"><h1>播客片段</h1><div><button type="button" className="se-icon-button" aria-label="返回资料库" disabled={busy} onClick={onCancel}><IconArrowLeft size={22}/></button><button type="button" className="se-save" disabled={busy||!attachment} onClick={save}>{busy?'正在处理…':'保存片段'}</button></div></header>
+    <header className="se-heading"><h1>播客片段</h1><div><button type="button" className="se-icon-button" aria-label="返回资料库" disabled={busy} onClick={onCancel}><IconArrowLeft size={22}/></button><button type="button" className="se-save" disabled={busy||!attachment||needsAudioReview||audioChecking} onClick={save}>{busy?'正在处理…':'保存片段'}</button></div></header>
     <p className="se-podcast-hint">选择音频，标记片段并保留出处。字幕可从 SRT 或 WebVTT 文件导入。</p>
     <section className="se-podcast-panel" aria-label="音频来源">
       <label>资料库音频<select aria-label="资料库音频" value={form.sourceId} disabled={busy} onChange={event=>changeAudio({sourceId:event.target.value,attachment:null})}><option value="">选择已保存的音频</option>{sources.map(card=><option key={card.id} value={card.id}>{card.title||card.attachment.name}</option>)}</select></label>
       <input ref={fileRef} className="se-sr-only" type="file" aria-label="选择本机音频" accept="audio/*,.mp3,.m4a,.m4b,.wav,.aac,.flac,.ogg,.opus" disabled={busy} onChange={event=>{chooseAudio(event.target.files?.[0]);event.target.value='';}}/>
       <button type="button" className="se-secondary" disabled={busy} onClick={()=>fileRef.current?.click()}><IconUpload size={16}/>选择本机音频</button>
       {attachment&&<><p className="se-podcast-filename">{attachment.name}</p><audio ref={audio} src={audioSource.url||undefined} controls preload="metadata" aria-label="播客音频播放器" onLoadedMetadata={event=>{const value=event.currentTarget.duration;setDuration(Number.isFinite(value)?value:null);}} onTimeUpdate={event=>{const value=event.currentTarget.currentTime;setCurrentTime(value);if(playRange.current&&value>=playRange.current.end){event.currentTarget.pause();playRange.current=null;}}} onError={()=>setError('当前播放器无法解码此音频，可换用 MP3、M4A 或 WAV 文件。')}/></>}
+      {needsAudioReview&&<p className="se-podcast-hint" role="status">{form.sourceAudioSha256||sourceChanged?'音频已变化，当前播放器使用现有来源。':'旧草稿未记录音频版本。'}字幕、备注和时间标记已保留，请先试听并核对。<button type="button" className="se-secondary" disabled={busy||!fingerprint.sha256} onClick={reviewAudio}>已核对当前音频，保留字幕与时间</button></p>}
+      {form.sourceId&&!attachment&&<p className="se-podcast-hint" role="status">来源音频已不可用，字幕、备注和时间标记已保留。</p>}
+      {audioChecking&&!fingerprint.error&&<p className="se-podcast-hint" role="status">正在核验当前音频版本…</p>}
+      {fingerprint.error&&<p className="se-error" role="alert">{fingerprint.error}</p>}
     </section>
     <section className="se-podcast-panel" aria-label="片段范围">
       <div className="se-podcast-times"><label>开始时间<input aria-label="片段开始时间" value={form.start} disabled={busy} onChange={event=>update({start:event.target.value})}/></label><label>结束时间<input aria-label="片段结束时间" value={form.end} disabled={busy} onChange={event=>update({end:event.target.value})}/></label></div>
-      <div className="se-podcast-actions"><button type="button" className="se-secondary" disabled={!attachment||busy} onClick={()=>update({start:formatClipTime(currentTime)})}>当前位置设为开始</button><button type="button" className="se-secondary" disabled={!attachment||busy} onClick={()=>update({end:formatClipTime(currentTime)})}>当前位置设为结束</button><button type="button" className="se-secondary" disabled={!audioSource.url||busy} onClick={preview}>试听片段</button></div>
+      <div className="se-podcast-actions"><button type="button" className="se-secondary" disabled={!attachment||busy} onClick={()=>update({start:formatClipTime(currentTime)})}>当前位置设为开始</button><button type="button" className="se-secondary" disabled={!attachment||busy} onClick={()=>update({end:formatClipTime(currentTime)})}>当前位置设为结束</button><button type="button" className="se-secondary" disabled={!audioSource.url||busy||needsAudioReview||audioChecking} onClick={preview}>试听片段</button></div>
       <p className="se-podcast-hint">当前 {formatClipTime(currentTime)}{duration!=null?` / ${formatClipTime(duration)}`:''} · 保存时间标记和原音频，不生成剪辑音频文件。</p>
     </section>
     <section className="se-podcast-panel" aria-label="字幕与摘录">
@@ -91,14 +128,17 @@ export default function PodcastClips({cards=[],draft,onDraftChange,onSave,onCanc
   </main>;
 }
 
-export function PodcastClipPlayback({attachment,sourceLocation}) {
+export function PodcastClipPlayback({attachment,sourceLocation,sourceAudioSha256=''}) {
   const audio=useRef(null),playingRange=useRef(false),[error,setError]=useState('');
   const range=parsePodcastLocation(sourceLocation);
-  const audioSource=useAudioSource(range?attachment:null);
-  useEffect(()=>{playingRange.current=false;setError('');return()=>{audio.current?.pause();};},[attachment?.dataUrl,sourceLocation]);
+  const fingerprint=useAudioFingerprint(attachment,!!sourceAudioSha256&&!!range);
+  const verified=!sourceAudioSha256||fingerprint.sha256===sourceAudioSha256;
+  const audioSource=useAudioSource(range&&verified?attachment:null);
+  useEffect(()=>{playingRange.current=false;setError('');return()=>{audio.current?.pause();};},[attachment?.dataUrl,sourceLocation,sourceAudioSha256]);
   if(!range)return null;
   let valid=false;try{valid=Boolean(attachment&&fileTypeFor(attachment)?.kind==='audio'&&normalizeWorkspaceAttachment(attachment));}catch{}
   if(!valid)return <p className="se-podcast-hint">原音频未找到，时间标记和摘录已保留。</p>;
+  if(!verified)return <p className="se-podcast-hint" role="status">{fingerprint.error||(!fingerprint.sha256?'正在核验原音频…':'原音频已变化，已停止片段播放。请打开来源文件核对；时间标记和摘录已保留。')}</p>;
   async function play(){setError('');try{validateClipRange(range.start,range.end,audio.current?.duration);audio.current.currentTime=range.start;playingRange.current=true;await audio.current.play();}catch(e){playingRange.current=false;setError(e.message||'片段暂时无法播放。');}}
-  return <section className="se-podcast-playback" aria-label="已保存的音频片段"><audio ref={audio} src={audioSource.url||undefined} controls preload="metadata" aria-label="片段音频播放器" onTimeUpdate={event=>{if(playingRange.current&&event.currentTarget.currentTime>=range.end){event.currentTarget.pause();playingRange.current=false;}}} onError={()=>setError('当前播放器无法解码原音频。')}/><div className="se-podcast-actions"><button type="button" className="se-secondary" disabled={!audioSource.url} onClick={play}>试听已保存片段</button><span className="se-podcast-hint">{formatClipTime(range.start)}–{formatClipTime(range.end)}</span></div>{(error||audioSource.error)&&<p className="se-error" role="alert">{error||audioSource.error}</p>}</section>;
+  return <section className="se-podcast-playback" aria-label="已保存的音频片段"><audio ref={audio} src={audioSource.url||undefined} controls preload="metadata" aria-label="片段音频播放器" onTimeUpdate={event=>{if(playingRange.current&&event.currentTarget.currentTime>=range.end){event.currentTarget.pause();playingRange.current=false;}}} onError={()=>setError('当前播放器无法解码原音频。')}/><div className="se-podcast-actions"><button type="button" className="se-secondary" disabled={!audioSource.url} onClick={play}>{sourceAudioSha256?'试听已保存片段':'试听当前来源音频（未核验）'}</button><span className="se-podcast-hint">{formatClipTime(range.start)}–{formatClipTime(range.end)}</span></div>{!sourceAudioSha256&&<p className="se-podcast-hint">当前来源音频，旧片段版本未核验。请手动试听并核对；无法据此找回已替换的原音频。</p>}{(error||audioSource.error)&&<p className="se-error" role="alert">{error||audioSource.error}</p>}</section>;
 }

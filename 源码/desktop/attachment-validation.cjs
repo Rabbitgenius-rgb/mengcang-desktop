@@ -24,6 +24,9 @@ __export(attachment_validation_entry_exports, {
 });
 module.exports = __toCommonJS(attachment_validation_entry_exports);
 
+// prototypes/desktop-workbench/src/reader/readerState.js
+var READER_SETTINGS = Object.freeze({ theme: "light", fontFamily: "serif", fontSize: 19, lineHeight: 1.9, zoom: 1, fit: "width" });
+
 // prototypes/desktop-workbench/src/sublime/workspaceModel.js
 var object = (value) => value !== null && typeof value === "object" && !Array.isArray(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 var fail = (message) => {
@@ -45,6 +48,7 @@ var WORKSPACE_FILE_TYPES = Object.freeze([
   ["image/bmp", [".bmp"], "image"],
   ["image/tiff", [".tif", ".tiff"], "image"],
   ["application/pdf", [".pdf"], "pdf"],
+  ["application/epub+zip", [".epub"], "epub"],
   ["application/msword", [".doc"], "word"],
   ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", [".docx"], "word"],
   ["image/heic", [".heic"], "heic"],
@@ -104,6 +108,27 @@ function isDocx(base64, size) {
   }
   return cursor === directory.length && names.has("[Content_Types].xml") && names.has("word/document.xml");
 }
+function isEpub(base64, size) {
+  const first = base64Bytes(base64, 0, Math.min(size, 58));
+  if (first.length < 58 || first.slice(0, 4) !== "PK" || readLittle(first, 6, 2) & 1 || readLittle(first, 8, 2) !== 0 || readLittle(first, 18, 4) !== 20 || readLittle(first, 22, 4) !== 20 || readLittle(first, 26, 2) !== 8 || readLittle(first, 28, 2) !== 0 || first.slice(30, 38) !== "mimetype" || first.slice(38, 58) !== "application/epub+zip") return false;
+  const tailStart = Math.max(0, size - 65557), tail = base64Bytes(base64, tailStart, size), end = tail.lastIndexOf("PK");
+  if (end < 0 || end + 22 > tail.length || readLittle(tail, end + 4, 2) || readLittle(tail, end + 6, 2) || end + 22 + readLittle(tail, end + 20, 2) !== tail.length) return false;
+  const entries = readLittle(tail, end + 10, 2), length = readLittle(tail, end + 12, 4), offset = readLittle(tail, end + 16, 4);
+  if (!entries || entries > 1e4 || entries !== readLittle(tail, end + 8, 2) || length > 4 * 1024 * 1024 || offset + length !== tailStart + end) return false;
+  const directory = base64Bytes(base64, offset, offset + length), names = /* @__PURE__ */ new Set();
+  let cursor = 0, totalInflated = 0, mimetype = false;
+  for (let i = 0; i < entries; i++) {
+    if (directory.slice(cursor, cursor + 4) !== "PK" || cursor + 46 > directory.length) return false;
+    const flags = readLittle(directory, cursor + 8, 2), method = readLittle(directory, cursor + 10, 2), compressed = readLittle(directory, cursor + 20, 4), uncompressed = readLittle(directory, cursor + 24, 4), nameLength = readLittle(directory, cursor + 28, 2), extra = readLittle(directory, cursor + 30, 2), comment = readLittle(directory, cursor + 32, 2), localOffset = readLittle(directory, cursor + 42, 4), name = directory.slice(cursor + 46, cursor + 46 + nameLength);
+    totalInflated += uncompressed;
+    if (flags & 1 || ![0, 8].includes(method) || totalInflated > 256 * 1024 * 1024 || compressed > size || localOffset + 30 + nameLength > offset || !name || /[\\\x00]/.test(name) || name.startsWith("/") || name.split("/").some((part) => part === ".." || part === ".") || names.has(name)) return false;
+    if (name === "mimetype") mimetype = localOffset === 0 && method === 0 && compressed === 20 && uncompressed === 20;
+    names.add(name);
+    cursor += 46 + nameLength + extra + comment;
+    if (cursor > directory.length) return false;
+  }
+  return cursor === directory.length && mimetype && names.has("META-INF/container.xml") && [...names].some((name) => /\.opf$/i.test(name));
+}
 function inspectFileDataUrl(dataUrl) {
   if (typeof dataUrl !== "string" || dataUrl.length > Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200) fail("\u9644\u4EF6\u8D85\u8FC764MiB");
   const match = /^data:([^;,]+);base64,([A-Za-z0-9+/]*={0,2})$/i.exec(dataUrl);
@@ -121,7 +146,7 @@ function inspectFileDataUrl(dataUrl) {
   }
   const riff = (kind) => header.startsWith("RIFF") && header.slice(8, 12) === kind;
   const ftyp = header.slice(4, 8) === "ftyp", brands = header.slice(8);
-  const signature = mime === "application/pdf" ? header.startsWith("%PDF-") : mime === "application/msword" ? header.startsWith("\xD0\xCF\xE0\xA1\xB1\xE1") : mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? header.startsWith("PK") && isDocx(base64, size) : ["image/heic", "image/heif"].includes(mime) ? ftyp && /heic|heix|hevc|hevx|mif1|msf1/.test(brands) : mime === "video/mp4" || mime === "audio/mp4" ? ftyp && /isom|iso[2-9]|mp4[12]|M4A |M4B |avc1|dash/.test(brands) : mime === "video/quicktime" ? ftyp ? brands.includes("qt  ") : ["moov", "mdat", "wide", "free"].includes(header.slice(4, 8)) : mime === "video/x-msvideo" ? riff("AVI ") : ["audio/ogg", "video/ogg", "application/ogg"].includes(mime) ? header.startsWith("OggS") : mime === "audio/wav" || mime === "audio/x-wav" ? riff("WAVE") : mime === "audio/flac" ? header.startsWith("fLaC") : mime === "audio/mpeg" ? header.startsWith("ID3") || header.charCodeAt(0) === 255 && (header.charCodeAt(1) & 224) === 224 : mime === "audio/aac" ? header.startsWith("ADIF") || header.charCodeAt(0) === 255 && (header.charCodeAt(1) & 246) === 240 : mime === "image/png" ? header.startsWith("\x89PNG\r\n\n") : mime === "image/jpeg" ? header.startsWith("\xFF\xD8\xFF") : mime === "image/gif" ? /^GIF8[79]a/.test(header) : mime === "image/webp" ? riff("WEBP") : mime === "image/avif" ? header.slice(4, 8) === "ftyp" && /avif|avis/.test(header.slice(8)) : mime === "image/bmp" ? header.startsWith("BM") : header.startsWith("II*\0") || header.startsWith("MM\0*");
+  const signature = mime === "application/pdf" ? header.startsWith("%PDF-") : mime === "application/epub+zip" ? isEpub(base64, size) : mime === "application/msword" ? header.startsWith("\xD0\xCF\xE0\xA1\xB1\xE1") : mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? header.startsWith("PK") && isDocx(base64, size) : ["image/heic", "image/heif"].includes(mime) ? ftyp && /heic|heix|hevc|hevx|mif1|msf1/.test(brands) : mime === "video/mp4" || mime === "audio/mp4" ? ftyp && /isom|iso[2-9]|mp4[12]|M4A |M4B |avc1|dash/.test(brands) : mime === "video/quicktime" ? ftyp ? brands.includes("qt  ") : ["moov", "mdat", "wide", "free"].includes(header.slice(4, 8)) : mime === "video/x-msvideo" ? riff("AVI ") : ["audio/ogg", "video/ogg", "application/ogg"].includes(mime) ? header.startsWith("OggS") : mime === "audio/wav" || mime === "audio/x-wav" ? riff("WAVE") : mime === "audio/flac" ? header.startsWith("fLaC") : mime === "audio/mpeg" ? header.startsWith("ID3") || header.charCodeAt(0) === 255 && (header.charCodeAt(1) & 224) === 224 : mime === "audio/aac" ? header.startsWith("ADIF") || header.charCodeAt(0) === 255 && (header.charCodeAt(1) & 246) === 240 : mime === "image/png" ? header.startsWith("\x89PNG\r\n\n") : mime === "image/jpeg" ? header.startsWith("\xFF\xD8\xFF") : mime === "image/gif" ? /^GIF8[79]a/.test(header) : mime === "image/webp" ? riff("WEBP") : mime === "image/avif" ? header.slice(4, 8) === "ftyp" && /avif|avis/.test(header.slice(8)) : mime === "image/bmp" ? header.startsWith("BM") : header.startsWith("II*\0") || header.startsWith("MM\0*");
   if (!signature) fail("\u9644\u4EF6\u6587\u4EF6\u5934\u4E0E\u7C7B\u578B\u4E0D\u5339\u914D");
   return { mime: declaredMime, size };
 }
@@ -132,11 +157,13 @@ function normalizeWorkspaceAttachment(value) {
   if (!name.trim() || /[\x00-\x1f\x7f]/.test(name)) fail("\u9644\u4EF6\u540D\u79F0\u65E0\u6548");
   if (/\.(?:html?|svg|xml|[cm]?js|exe|app|sh|command)$/i.test(name.trim())) fail("\u9644\u4EF6\u540D\u79F0\u4E0D\u80FD\u4F7F\u7528\u53EF\u6267\u884C\u7F51\u9875\u6216\u7A0B\u5E8F\u6269\u5C55\u540D");
   const type = text(value.type, "\u9644\u4EF6\u7C7B\u578B", 100);
+  if (type.trim().toLowerCase() === "application/epub+zip" && !/\.epub$/i.test(name.trim())) fail("EPUB \u539F\u4EF6\u9700\u8981\u4F7F\u7528 .epub \u6269\u5C55\u540D");
   const dataUrl = text(value.dataUrl, "\u9644\u4EF6\u5185\u5BB9", Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200);
   const inspected = inspectFileDataUrl(dataUrl);
   if (canonicalMime(type.trim().toLowerCase()) !== canonicalMime(inspected.mime) || !supportedMime.has(type.trim().toLowerCase()) || !Number.isSafeInteger(value.size) || value.size !== inspected.size) fail("\u9644\u4EF6\u7C7B\u578B\u6216\u5B57\u8282\u6570\u4E0E\u5185\u5BB9\u4E0D\u5339\u914D");
   return { name, type, size: value.size, dataUrl };
 }
+var typeAliases = Object.freeze(Object.assign(/* @__PURE__ */ Object.create(null), { images: "image", photos: "image", photo: "image", articles: "article", links: "link", websites: "link", web: "link", highlights: "highlight", quotes: "quote", texts: "text", notes: "text", note: "text", videos: "video", audios: "audio", books: "book", files: "file", pdf: "file", socials: "social", instagram: "social", twitter: "social", x: "social", "social media": "social" }));
 var AI_MODES = Object.freeze(["The Gist", "Explain Like I\u2019m 5", "Contrarian Take", "Analogy", "Hot Take"]);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

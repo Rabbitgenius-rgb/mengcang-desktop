@@ -78,3 +78,79 @@ test('Readwise Location remains a location, physical Page stays separate, and le
   assert.equal(locationOnly.fingerprint,importFingerprint(legacy));
   assert.notEqual(importFingerprint({...parsed,page:'8'}),parsed.fingerprint);
 });
+
+test('workspace exports preserve an explicitly empty source title and existing import identity', async () => {
+  const {normalizeWorkspaceState, exportCards} = await import('../src/sublime/workspaceModel.js');
+  const cards = normalizeWorkspaceState({cards:[{id:'local', title:'My own note', body:'Original words', sourceTitle:''}]}).cards;
+  for (const format of ['json','csv','markdown']) {
+    const [record] = parseImportText(exportCards(cards,format),format);
+    assert.equal(record.sourceTitle,'',format);
+    assert.equal(record.fingerprint,importFingerprint(cards[0]),format);
+    assert.equal(dedupeImports([record],cards).duplicates,1,format);
+  }
+});
+
+test('source-title inference remains available for legacy records that omit the field', () => {
+  assert.equal(parseImportText('[{"title":"Legacy book","body":"Quote"}]','json')[0].sourceTitle,'Legacy book');
+  assert.equal(parseImportText('[{"title":"Card title","sourceTitle":"Explicit book","body":"Quote"}]','json')[0].sourceTitle,'Explicit book');
+  assert.equal(parseImportText('{"books":[{"title":"Parent book","highlights":[{"text":"Quote"}]}]}','json')[0].sourceTitle,'Parent book');
+});
+
+for (const separator of ['\u2028','\u2029']) test(`workspace Markdown metadata retains Unicode separator U+${separator.charCodeAt(0).toString(16)}`, async () => {
+  const {normalizeWorkspaceState, exportCards} = await import('../src/sublime/workspaceModel.js');
+  for (const field of ['title','sourceTitle','author','page','sourceLocation','date','type','tags']) {
+    const value=`before${separator}after`;
+    const cards = normalizeWorkspaceState({cards:[{id:'first',title:'First',body:'Original first', [field]:field==='tags'?[value]:value},{id:'second',title:'Second',body:'Original second'}]}).cards;
+    const parsed = parseImportText(exportCards(cards,'markdown'),'markdown');
+    assert.equal(parsed.length,2,field);
+    assert.deepEqual(parsed[0][field],cards[0][field],field);
+    assert.equal(parsed[0].body,cards[0].body,field);
+    assert.equal(parsed[1].body,cards[1].body,field);
+  }
+});
+
+test('bodyless workspace cards retain their saved OCR and caption in each ordinary import format', async () => {
+  const {normalizeWorkspaceState, serializeWorkspace, exportCards} = await import('../src/sublime/workspaceModel.js');
+  const png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8/x8AAusB9Wl6rN8AAAAASUVORK5CYII=';
+  const attachment={name:'synthetic.png',type:'image/png',size:Buffer.from(png,'base64').length,dataUrl:`data:image/png;base64,${png}`};
+  const state=normalizeWorkspaceState({cards:[
+    {id:'ocr',title:'OCR image',type:'image',body:'',sourceUrl:'',ocrText:'Stored OCR\r\n完整尾字',caption:'Original caption',attachment},
+    {id:'caption',title:'Caption-only image',type:'image',body:'',caption:'Caption text only',attachment},
+    {id:'normal',title:'Normal',body:'Usual body'},
+  ]});
+  const cards=normalizeWorkspaceState(JSON.parse(serializeWorkspace(state))).cards;
+  for(const format of ['json','csv','markdown']) {
+    const parsed=parseImportText(exportCards(cards,format),format);
+    assert.equal(parsed.length,3,format);
+    for(let i=0;i<cards.length;i++) for(const key of ['title','body','caption','ocrText','sourceTitle']) assert.equal(parsed[i][key],cards[i][key],`${format} ${i} ${key}`);
+    assert.equal(dedupeImports(parsed,cards).duplicates,3,format);
+  }
+});
+
+test('newly supported text-only payloads have distinct identities without changing ordinary highlight identities', () => {
+  const first={title:'Image',body:'',sourceUrl:'',ocrText:'First OCR',caption:'First caption'};
+  const variants=[first,{...first,title:'Second image',ocrText:'Second OCR'},{...first,caption:'Second caption'},{...first,ocrText:'',caption:'Standalone note'}];
+  assert.equal(dedupeImports(variants).items.length,4);
+  assert.equal(dedupeImports(variants.slice(1),[first]).items.length,3);
+  assert.equal(dedupeImports([{...first,title:'Renamed',date:'2026-10-05'}],[first]).duplicates,1);
+  for(const ordinary of [{body:'Quote',caption:'Note',ocrText:'OCR'},{body:'',sourceUrl:'https://example.test/item',caption:'Note',ocrText:'OCR'}]) {
+    assert.equal(importFingerprint(ordinary),importFingerprint({...ordinary,caption:'Changed note',ocrText:'Changed OCR',date:'Changed date'}));
+  }
+  assert.equal(parseImportText('[{"caption":"Only note"}]','json')[0].type,'text');
+  assert.equal(parseImportText('[{"ocrText":"Only OCR"}]','json')[0].type,'text');
+  assert.throws(()=>parseImportText('[{"title":"Empty","caption":"  ","ocrText":"\\n"}]','json'),/没有可导入/);
+});
+
+test('comment cleanup cannot expose genuine management sections by creating or removing a code fence', () => {
+  const examples=[
+    'Visible\n```md\n<!-- comment start\n```\ncomment end -->\n## 整理说明\nPRIVATE_MANAGEMENT\n## Visible\nTail',
+    'Visible\n``<!-- comment -->`md\n## 整理说明\nPRIVATE_MANAGEMENT\n```\n## Visible\nTail',
+    'Visible\n```md\n<!-- mengcang-relations:start -->\n```\n<!-- mengcang-relations:end -->\n## 整理说明\nPRIVATE_MANAGEMENT\n## Visible\nTail',
+  ];
+  for(const body of examples) for(const format of ['json','csv','markdown']) {
+    const output=exportSelectedItems([{id:'safe',title:'Synthetic safety sample',body}],['safe'],format);
+    assert.ok(!output.includes('PRIVATE_MANAGEMENT'),format);
+    assert.ok(!output.includes('comment start'),format);
+    assert.ok(!output.includes('mengcang-relations'),format);
+  }
+});

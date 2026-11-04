@@ -29,7 +29,7 @@ test('OCR saves the exact analyzed source snapshot after another window refreshe
 });
 test('classification application retains source version and does not substitute refreshed tags',async()=>{
  let received;const form=panel({mode:'Classification',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{tags:['建议标签'],collectionIds:[],reason:'合成结果'}})},onApplyClassification:async(card,result)=>{received={card,result};}});
- await form.button('准备调用并确认').props.onClick();form.render({cards:[{...source,tags:['另一窗口的新标签'],updatedAt:'2026-10-04T01:00:00Z'}]});
+ await form.button('开始分析').props.onClick();form.render({cards:[{...source,tags:['另一窗口的新标签'],updatedAt:'2026-10-04T01:00:00Z'}]});
  await form.button('采用所选建议').props.onClick();assert.deepEqual(received.card.tags,source.tags);assert.equal(received.card.updatedAt,source.updatedAt);assert.deepEqual([...received.result.tags],['建议标签']);
 });
 test('a reference outside the saved library is analyzed as an anchor without importing it',async()=>{
@@ -69,9 +69,9 @@ test('local image preview sends the exact original for both vision modes and sav
  const form=panel({mode:'Image description',card:imageSource,cards:[imageSource],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async input=>{inputs.push(input);return {ok:true,data:{text:'合成图片解读',engine:'stub'}};}},onSaveInsight:async(source,mode,result)=>{saved={source,mode,note:helpers.generatedInsightCard(source,mode,result,{id:'new',now:'2026-10-04'})};}});
  await form.ready();assert.equal(inputs.length,0);
  assert.equal(form.find(node=>node.type==='img').props.src,attachment.dataUrl);assert.ok(form.text().includes('预览仅在本机准备'));
- await form.button('准备调用并确认').props.onClick();form.render();assert.equal(inputs[0].mode,'Image description');assert.deepEqual(inputs[0].image,attachment);
+ await form.button('开始分析').props.onClick();form.render();assert.equal(inputs[0].mode,'Image description');assert.deepEqual(inputs[0].image,attachment);
  form.find(node=>node.props?.['aria-label']==='解读方式').props.onChange({target:{value:'Visual analysis'}});form.render();assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果'),null);assert.equal(form.find(node=>node.type==='img'),null);
- await form.ready();await form.button('准备调用并确认').props.onClick();form.render();assert.equal(inputs[1].mode,'Visual analysis');assert.deepEqual(inputs[1].image,attachment);
+ await form.ready();await form.button('开始分析').props.onClick();form.render();assert.equal(inputs[1].mode,'Visual analysis');assert.deepEqual(inputs[1].image,attachment);
  form.render({cards:[{...imageSource,title:'另一窗口新题',body:'另一窗口新正文',updatedAt:'later'}]});await form.button('另存为解读笔记').props.onClick();
  assert.equal(saved.source.body,source.body);assert.equal(saved.mode,'Visual analysis');assert.equal(saved.note.sourceCardId,source.id);assert.equal(saved.note.image,undefined);assert.equal(saved.note.attachment,undefined);assert.equal(JSON.stringify(saved.note).includes('base64'),false);
 });
@@ -79,48 +79,49 @@ test('Vault preview reads note-linked original files and ignores a stale asynchr
  const first={...source,id:'vault-first',path:'01_sources/cards/images/first.md',origin:'vault',type:'image',originalPath:'01_sources/cards/images/originals/first.png',originalMime:'image/png',image:'mengcang-asset://thumbnail/first'};
  const second={...first,id:'vault-second',path:'01_sources/cards/images/second.md',title:'第二张图',body:'第二张图的文字',originalPath:'01_sources/cards/images/originals/second.png'};
  const reads=[],pending=[],inputs=[];const api={intelligenceStatus:async()=>({ok:true,data:status}),readAttachment:path=>{reads.push(path);return new Promise(resolve=>pending.push(resolve));},intelligenceRequest:async input=>{inputs.push(input);return {ok:true,data:{text:'合成结果'}};}};
- const form=panel({mode:'Visual analysis',card:first,cards:[first,second],api});await form.ready();assert.deepEqual(reads,[first.path]);assert.equal(form.button('准备调用并确认').props.disabled,true);
+ const form=panel({mode:'Visual analysis',card:first,cards:[first,second],api});await form.ready();assert.deepEqual(reads,[first.path]);assert.equal(form.button('开始分析').props.disabled,true);
  form.find(node=>node.props?.['aria-label']==='参考素材').props.onChange({target:{value:second.id}});form.render();await form.ready();assert.deepEqual(reads,[first.path,second.path]);
  pending[0]({ok:true,data:{...attachment,name:'stale-first.png'}});await form.ready();assert.equal(form.find(node=>node.type==='img'),null);assert.equal(inputs.length,0);
  const secondAttachment={...attachment,name:'current-second.png'};pending[1]({ok:true,data:secondAttachment});await form.ready();assert.ok(form.text().includes(secondAttachment.name));assert.equal(form.text().includes('stale-first.png'),false);
- await form.button('准备调用并确认').props.onClick();form.render();assert.deepEqual(inputs[0].image,secondAttachment);assert.equal(inputs[0].text,helpers.intelligenceText(second));assert.equal(inputs[0].text.includes('mengcang-asset'),false);
+ await form.button('开始分析').props.onClick();form.render();assert.deepEqual(inputs[0].image,secondAttachment);assert.equal(inputs[0].text,helpers.insightText(second));assert.equal(inputs[0].text.includes('mengcang-asset'),false);
 });
 test('image metadata updates replace the pending preview while the request uses current text and classification retains its original source',async()=>{
  let input,applied;const form=panel({mode:'Classification',card:imageSource,cards:[imageSource],collections:[{id:'collection',title:'测试收藏集'}],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async value=>{input=value;return {ok:true,data:{tags:['图片建议'],collectionIds:['collection'],reason:'合成建议'}};}},onApplyClassification:async(source,result)=>{applied={source,result};}});
  await form.ready();const updated={...imageSource,body:'当前正文',attachment:{...attachment,name:'renamed.png'}};form.render({cards:[updated]});assert.equal(form.find(node=>node.type==='img'),null);await form.ready();assert.ok(form.text().includes('renamed.png'));
- await form.button('准备调用并确认').props.onClick();form.render();assert.equal(input.action,'classify');assert.equal(input.image.name,'renamed.png');assert.equal(input.text,helpers.intelligenceText(updated));
+ await form.button('开始分析').props.onClick();form.render();assert.equal(input.action,'classify');assert.equal(input.image.name,'renamed.png');assert.equal(input.text,helpers.intelligenceText(updated));
  form.render({cards:[{...updated,body:'之后的正文',tags:['之后标签'],updatedAt:'later'}]});await form.button('采用所选建议').props.onClick();assert.equal(applied.source.body,'当前正文');assert.deepEqual([...applied.result.tags],['图片建议']);assert.deepEqual([...applied.result.collectionIds],['collection']);
 });
 test('applying Vault image classification preserves the exact analyzed original for the local copy and later image requests',async()=>{
  const vaultSource={...source,id:'vault-classify',path:'01_sources/cards/images/classify.md',origin:'vault',type:'image',originalPath:'01_sources/cards/images/originals/classify.png',originalMime:'image/png'};
  let requestInput,savedSource,localCopy;const form=panel({mode:'Classification',card:vaultSource,cards:[vaultSource],api:{intelligenceStatus:async()=>({ok:true,data:status}),readAttachment:async path=>{assert.equal(path,vaultSource.path);return {ok:true,data:attachment};},intelligenceRequest:async input=>{requestInput=input;return {ok:true,data:{tags:['图片建议'],collectionIds:[],reason:'合成建议'}};}},onApplyClassification:async(source,result)=>{savedSource=source;localCopy={...source,id:'local-copy',path:'local-copy',origin:'local',tags:result.tags};}});
- await form.ready();await form.button('准备调用并确认').props.onClick();form.render();await form.button('采用所选建议').props.onClick();
+ await form.ready();await form.button('开始分析').props.onClick();form.render();await form.button('采用所选建议').props.onClick();
  assert.deepEqual(savedSource.attachment,requestInput.image);assert.deepEqual(localCopy.attachment,attachment);assert.equal(vaultSource.attachment,undefined);
  const subsequent=[];const localForm=panel({mode:'Image description',card:localCopy,cards:[localCopy],api:{intelligenceStatus:async()=>({ok:true,data:status}),readAttachment:async()=>{throw Error('local copy must use its stored original');},intelligenceRequest:async input=>{subsequent.push(input);return {ok:true,data:{text:'再次解读'}};}}});
- await localForm.ready();await localForm.button('准备调用并确认').props.onClick();assert.deepEqual(subsequent[0].image,attachment);
+ await localForm.ready();await localForm.button('开始分析').props.onClick();assert.deepEqual(subsequent[0].image,attachment);
  const note=helpers.generatedInsightCard(savedSource,'Visual analysis',{text:'纯文字解读'},{id:'note',now:'2026-10-04'});assert.equal(note.attachment,undefined);assert.equal(note.image,undefined);assert.equal(JSON.stringify(note).includes('base64'),false);
 });
 test('vision modes reject missing or remote originals and incompatible providers without a request',async()=>{
  for(const testCase of [{card:source,status},{card:{...source,type:'image',image:'https://example.test/remote.png'},status},{card:imageSource,status:{...status,settings:{...status.settings,provider:'cli'}}},{card:imageSource,status:{...status,settings:{...status.settings,endpoint:'https://api.deepseek.com/v1',model:'deepseek-v4-pro'}}}]){
-  let calls=0;const form=panel({mode:'Visual analysis',card:testCase.card,cards:[testCase.card],api:{intelligenceStatus:async()=>({ok:true,data:testCase.status}),intelligenceRequest:async()=>{calls++;throw Error('unexpected request');}}});await form.ready();assert.equal(form.button('准备调用并确认').props.disabled,true);await form.button('准备调用并确认').props.onClick();form.render();assert.equal(calls,0);assert.ok(form.find(node=>node.props?.role==='alert'));
+  let calls=0;const form=panel({mode:'Visual analysis',card:testCase.card,cards:[testCase.card],api:{intelligenceStatus:async()=>({ok:true,data:testCase.status}),intelligenceRequest:async()=>{calls++;throw Error('unexpected request');}}});await form.ready();assert.equal(form.button('开始分析').props.disabled,true);await form.button('开始分析').props.onClick();form.render();assert.equal(calls,0);assert.ok(form.find(node=>node.props?.role==='alert'));
  }
  for(const model of ['deepseek-flash','deepseek-v4-flash','deepseek-v4-flash-vision-exp']){
-  const form=panel({mode:'Visual analysis',card:imageSource,cards:[imageSource],api:{intelligenceStatus:async()=>({ok:true,data:{...status,settings:{...status.settings,endpoint:'https://api.deepseek.com/v1',model}}})}});await form.ready();assert.equal(form.button('准备调用并确认').props.disabled,false);
+  const form=panel({mode:'Visual analysis',card:imageSource,cards:[imageSource],api:{intelligenceStatus:async()=>({ok:true,data:{...status,settings:{...status.settings,endpoint:'https://api.deepseek.com/v1',model}}})}});await form.ready();assert.equal(form.button('开始分析').props.disabled,false);
  }
 });
 test('busy guard prevents repeated generation before a rerender and text modes keep text-only requests',async()=>{
  let calls=0,finish;const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:input=>{assert.equal(input.image,undefined);calls++;return new Promise(resolve=>finish=()=>resolve({ok:true,data:{text:'合成结果'}}));}}});
- await form.ready();const click=form.button('准备调用并确认').props.onClick,first=click();await click();await form.ready();assert.equal(calls,1);finish();await first;form.render();
- for(const mode of ['Explain Like I’m 5','Contrarian Take','Analogy','Hot Take']){form.find(node=>node.props?.['aria-label']==='解读方式').props.onChange({target:{value:mode}});form.render();const operation=form.button('准备调用并确认').props.onClick();await form.ready();finish();await operation;form.render();}assert.equal(calls,5);
+ await form.ready();const click=form.button('开始分析').props.onClick,first=click();await click();await form.ready();assert.equal(calls,1);finish();await first;form.render();
+ for(const mode of ['Explain Like I’m 5','Contrarian Take','Analogy','Hot Take']){form.find(node=>node.props?.['aria-label']==='解读方式').props.onChange({target:{value:mode}});form.render();const operation=form.button('开始分析').props.onClick();await form.ready();finish();await operation;form.render();}assert.equal(calls,5);
 });
 function completeRecord({mode='The Gist',result={text:'历史解读'},sourceSnapshot=source,createdAt='2026-10-04T01:00:00Z',...options}={}){
  return draftHelpers.normalizeAiRecord({id:crypto.randomUUID(),mode,phase:'complete',sourceSnapshot,result,createdAt,updatedAt:createdAt,savedCardId:'',error:'',...options});
 }
 test('pending persists before sending and an unmounted image request still records its completed text and hash without binary',async()=>{
- const records=[],inFlight=new Set();let permitPending,finishModel,calls=0;
+ const records=[],inFlight=new Set();let permitPending,finishModel,calls=0,pendingSaved;
+ const pendingReady=new Promise(resolve=>pendingSaved=resolve);
  const api={intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{calls++;return new Promise(resolve=>finishModel=()=>resolve({ok:true,data:{mode:'Image description',text:'卸载后返回的合成解读'}}));}};
- const form=panel({mode:'Image description',card:imageSource,cards:[imageSource],api,onResultDraft:async record=>{records.push(structuredClone(record));if(record.phase==='pending')await new Promise(resolve=>permitPending=resolve);},requestIsActive:id=>inFlight.has(id),registerRequest:(id,active)=>active?inFlight.add(id):inFlight.delete(id)});
- await form.ready();const operation=form.button('准备调用并确认').props.onClick();await form.ready();assert.equal(calls,0);assert.equal(records[0].phase,'pending');assert.ok(records[0].sourceSnapshot.attachmentMeta.sha256);assert.equal(JSON.stringify(records[0]).includes('base64'),false);
+ const form=panel({mode:'Image description',card:imageSource,cards:[imageSource],api,onResultDraft:async record=>{records.push(structuredClone(record));if(record.phase==='pending'){pendingSaved();await new Promise(resolve=>permitPending=resolve);}},requestIsActive:id=>inFlight.has(id),registerRequest:(id,active)=>active?inFlight.add(id):inFlight.delete(id)});
+ await form.ready();const operation=form.button('开始分析').props.onClick();await pendingReady;await form.ready();assert.equal(calls,0);assert.equal(records[0].phase,'pending');assert.ok(records[0].sourceSnapshot.attachmentMeta.sha256);assert.equal(JSON.stringify(records[0]).includes('base64'),false);
  permitPending();await form.ready();assert.equal(calls,1);assert.equal(inFlight.size,1);form.unmount();finishModel();await operation;
  assert.equal(records.length,2);assert.equal(records[1].id,records[0].id);assert.equal(records[1].phase,'complete');assert.equal(records[1].result.text,'卸载后返回的合成解读');assert.equal(JSON.stringify(records[1]).includes('base64'),false);assert.equal(inFlight.size,0);
 });
@@ -149,11 +150,28 @@ test('restart pending records are honest and never retry automatically, while a 
 });
 test('native cancellation and cancelled bridge results persist failed records instead of empty successes',async()=>{
  for(const response of ['throw','cancelled']){
-  const records=[];const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{if(response==='throw')return {ok:false,error:{code:'AI_CONFIRMATION_REQUIRED',message:'未获确认'}};return {ok:true,data:{cancelled:true}};}},onResultDraft:async record=>{records.push(record);}});await form.ready();await form.button('准备调用并确认').props.onClick();form.render();assert.equal(records[1].phase,'failed');assert.ok(records[1].error.includes('已取消'));assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果'),null);
+  const records=[];const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{if(response==='throw')return {ok:false,error:{code:'AI_CONFIRMATION_REQUIRED',message:'未获确认'}};return {ok:true,data:{cancelled:true}};}},onResultDraft:async record=>{records.push(record);}});await form.ready();await form.button('开始分析').props.onClick();form.render();assert.equal(records[1].phase,'failed');assert.ok(records[1].error.includes('已取消'));assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果'),null);
  }
 });
 test('completed persistence failure keeps returned text for manual saving and does not claim it is stored',async()=>{
- const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:'不可丢失的合成结果'}})},onResultDraft:async record=>{if(record.phase==='complete')throw Error('合成持久化失败');}});await form.ready();await form.button('准备调用并确认').props.onClick();form.render();assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,'不可丢失的合成结果');assert.ok(form.text().includes('请先另存笔记'));assert.equal(form.text().includes('结果已保存在本机草稿'),false);
+ const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:'不可丢失的合成结果'}})},onResultDraft:async record=>{if(record.phase==='complete')throw Error('合成持久化失败');}});await form.ready();await form.button('开始分析').props.onClick();form.render();assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,'不可丢失的合成结果');assert.ok(form.text().includes('请先另存笔记'));assert.equal(form.text().includes('结果已保存在本机草稿'),false);
+});
+
+test('a returned prose data URL is saved exactly instead of losing a successful response',async()=>{
+ const content='编码示例：data:image/png;base64,eA==',records=[];
+ const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:content}})},onResultDraft:async record=>records.push(record)});
+ await form.ready();await form.button('开始分析').props.onClick();form.render();
+ assert.equal(records.at(-1).phase,'complete');assert.equal(records.at(-1).result.text,content);
+ assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,content);
+});
+
+test('normalization failure terminates pending and preserves returned text for copying',async()=>{
+ const content='需核对的返回内容\0完整原文',records=[];
+ const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'The Gist',text:content}})},onResultDraft:async record=>records.push(record)});
+ await form.ready();await form.button('开始分析').props.onClick();form.render();
+ assert.equal(records.at(-1).phase,'failed');assert.equal(records.at(-1).recoveryText,content);
+ assert.equal(form.find(node=>node.props?.['aria-label']==='待核对的返回原文').props.value,content);
+ assert.equal(form.button('另存为解读笔记'),null);
 });
 test('a historical result whose source is absent can still be selected and saved as text without sending a missing material',async()=>{
  const record=completeRecord({sourceSnapshot:{...source,id:'removed-source',title:'已移除原素材'}});let calls=0,savedSource;
@@ -161,5 +179,57 @@ test('a historical result whose source is absent can still be selected and saved
 });
 test('volatile recovered results do not claim disk persistence and a mismatched response mode is not accepted as success',async()=>{
  const record=completeRecord(),volatile=panel({mode:'The Gist',card:source,cards:[source],resultDrafts:[record],onResultDraft:async()=>{},isResultDurable:()=>false,api:{intelligenceStatus:async()=>({ok:true,data:status})}});await volatile.ready();assert.equal(volatile.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,record.result.text);assert.equal(volatile.text().includes('结果已保存在本机草稿'),false);assert.ok(volatile.text().includes('尚未保存到磁盘，请复制或另存笔记'));
- const records=[];const mismatch=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'Hot Take',text:'错误方式的结果'}})},onResultDraft:async record=>records.push(record)});await mismatch.ready();await mismatch.button('准备调用并确认').props.onClick();mismatch.render();assert.equal(records[1].phase,'failed');assert.ok(records[1].error.includes('解读方式与本次请求不一致'));assert.equal(mismatch.find(node=>node.props?.['aria-label']==='智能工具结果'),null);
+ const records=[];const mismatch=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>({ok:true,data:{mode:'Hot Take',text:'错误方式的结果'}})},onResultDraft:async record=>records.push(record)});await mismatch.ready();await mismatch.button('开始分析').props.onClick();mismatch.render();assert.equal(records[1].phase,'failed');assert.ok(records[1].error.includes('解读方式与本次请求不一致'));assert.equal(mismatch.find(node=>node.props?.['aria-label']==='智能工具结果'),null);
+});
+
+test('local related search uses readable text, omits its identical copy and shows a clean note preview',async()=>{
+ const anchor={...source,body:'# 原题\n原始正文。'},copy={...anchor,id:'copy',sourceCardId:anchor.id},neighbor={id:'neighbor',title:'相关素材',body:'# 相关素材\n## 原始截图\n![[01_sources/image.png]]\n另一段正文。',caption:'这是已有的个人备注。'};
+ const inputs=[];const form=panel({mode:'Related',card:anchor,cards:[anchor,copy,neighbor],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async input=>{inputs.push(input);return {ok:true,data:{embeddings:input.texts.map(item=>({id:item.id,model:'synthetic',language:'zh',vector:[1,0]})),missingIds:[]}};}},onOpen:()=>{}});
+ await form.button('在本机查找').props.onClick();form.render();
+ assert.equal(inputs.every(input=>input.action==='embed'),true);
+ assert.equal(inputs.some(input=>input.texts.some(item=>item.text.includes('![[01_sources'))),false);
+ const match=form.find(node=>node.props?.className==='si-match');assert.equal(text(match).includes(neighbor.caption),true);assert.equal(text(match).includes('另一段正文'),false);assert.equal(text(match).includes('原题'),false);
+});
+
+test('an old Start handler after instant completion cannot send again, but explicit regeneration can',async()=>{
+ let calls=0,saves=0;const form=panel({mode:'The Gist',card:source,cards:[source],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{calls++;return {ok:true,data:{text:'模拟解读'}};}},onSaveInsight:async()=>{saves++;return 'saved';}});
+ await form.ready();const staleStart=form.button('开始分析').props.onClick;
+ await staleStart();await staleStart();await form.ready();assert.equal(calls,1);assert.equal(form.button('开始分析'),null);assert.equal(form.button('已有解读').props.disabled,true);
+ await form.button('另存为解读笔记').props.onClick();await form.ready();assert.equal(calls,1);assert.equal(saves,1);
+ await form.button('重新生成解读').props.onClick();await form.ready();assert.equal(calls,2);
+});
+test('reopened matching results block sending from the disabled primary handler and preserve historical wording',async()=>{
+ const record=completeRecord({sourceSnapshot:{...source,capturedAt:'2026-09-13T00:56:04+08:00'}});let calls=0;
+ const form=panel({mode:'The Gist',card:record.sourceSnapshot,cards:[record.sourceSnapshot],resultDrafts:[record],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:async()=>{calls++;return {ok:true,data:{text:'must not call'}};}}});
+ await form.ready();assert.equal(form.button('已有解读').props.disabled,true);await form.button('已有解读').props.onClick();assert.equal(calls,0);assert.match(form.text(),/收录时间：2026-09-13/);
+});
+test('a changed source version is allowed to generate while rapid repeated regeneration stays single flight',async()=>{
+ let calls=0,finish;const old=completeRecord(),changed={...source,body:'新的正文',updatedAt:'2026-10-14T00:00:00Z'};
+ const form=panel({mode:'The Gist',card:changed,cards:[changed],resultDrafts:[old],api:{intelligenceStatus:async()=>({ok:true,data:status}),intelligenceRequest:()=>{calls++;return new Promise(resolve=>finish=()=>resolve({ok:true,data:{text:'新结果'}}));}}});
+ await form.ready();const start=form.button('已有解读').props.onClick;const first=start();await start();await form.ready();assert.equal(calls,1);finish();await first;await form.ready();
+ const again=form.button('重新生成解读').props.onClick,second=again();await again();await form.ready();assert.equal(calls,2);finish();await second;assert.equal(calls,2);
+});
+
+for(const mode of Object.keys(helpers.INSIGHT_LABELS))test(`Vault image completed and reopened handlers do not resend, while explicit regeneration stays single flight: ${mode}`,async()=>{
+ const card={...source,id:'vault-original',path:'01_sources/cards/images/original.md',origin:'vault',type:'image',originalPath:'01_sources/originals/image.png',originalMime:'image/png'};
+ const records=[];let calls=0;
+ const api={intelligenceStatus:async()=>({ok:true,data:status}),readAttachment:async()=>({ok:true,data:attachment}),intelligenceRequest:async input=>{calls++;assert.deepEqual(input.image,attachment);return {ok:true,data:{mode,text:'原图的模拟解读'}};}};
+ const form=panel({mode,card,cards:[card],api,onResultDraft:async record=>records.push(structuredClone(record))});
+ await form.ready();const oldStart=form.button('开始分析').props.onClick;
+ await Promise.all([oldStart(),oldStart()]);await form.ready();await oldStart();await form.ready();assert.equal(calls,1);
+ assert.equal(form.find(node=>node.props?.['aria-label']==='智能工具结果').props.value,'原图的模拟解读');assert.equal(form.button('已有解读').props.disabled,true);
+ const complete=records.find(record=>record.phase==='complete');assert.ok(complete.sourceSnapshot.attachmentMeta.sha256);assert.equal(JSON.stringify(complete).includes('base64'),false);
+ const reopened=panel({mode,card,cards:[card],api,resultDrafts:[complete]});await reopened.ready();await reopened.button('已有解读').props.onClick();assert.equal(calls,1);
+ const regenerate=reopened.button('重新生成解读').props.onClick;await Promise.all([regenerate(),regenerate()]);await reopened.ready();assert.equal(calls,2);
+});
+
+for(const mode of helpers.IMAGE_INSIGHT_MODES)test(`a replaced Vault original is distinguished by bytes even when all attachment metadata matches: ${mode}`,async()=>{
+ const bytes=Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64'),changedBytes=Buffer.from(bytes);changedBytes[13]=1;
+ const original={name:'same.gif',type:'image/gif',size:bytes.length,dataUrl:`data:image/gif;base64,${bytes.toString('base64')}`},changed={...original,dataUrl:`data:image/gif;base64,${changedBytes.toString('base64')}`};
+ const card={...source,id:'vault-changing-image',path:'01_sources/cards/images/changing.md',origin:'vault',type:'image',originalPath:'01_sources/originals/same.gif',originalMime:'image/gif'};
+ const captured=await draftHelpers.captureAiSource({...card,attachment:original}),record=completeRecord({mode,sourceSnapshot:captured});let calls=0;
+ const form=panel({mode,card,cards:[card],resultDrafts:[record],api:{intelligenceStatus:async()=>({ok:true,data:status}),readAttachment:async()=>({ok:true,data:changed}),intelligenceRequest:async input=>{calls++;assert.deepEqual(input.image,changed);return {ok:true,data:{mode,text:'更换原图后的模拟结果'}};}}});
+ await form.ready();assert.equal(calls,0);const start=form.button('已有解读').props.onClick;await start();await form.ready();await start();assert.equal(calls,1);
+ assert.equal(helpers.sameImageReference({...card,attachment:original},{...card,attachment:changed}),false);assert.notEqual((await draftHelpers.captureAiSource({...card,attachment:changed})).attachmentMeta.sha256,captured.attachmentMeta.sha256);
+ assert.deepEqual(record.sourceSnapshot,captured);
 });

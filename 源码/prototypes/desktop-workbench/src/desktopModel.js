@@ -61,6 +61,13 @@ function imagePath(value) {
   if (!relative || /^(?:[a-z][a-z\d+.-]*:|\/)/i.test(relative) || /[\\\x00-\x1f]/.test(relative) || relative.split('/').some(part => !part || part === '.' || part === '..')) return '';
   return /\.(?:png|jpe?g|gif|webp|svg|avif|bmp|tiff?)$/i.test(relative) ? relative : '';
 }
+export function standaloneRecords(snapshot = {}, api) {
+  const projects = snapshot.projects || [], seen = new Set();
+  return [...(snapshot.entries || []), ...(snapshot.materials || []), ...(snapshot.books || []), ...projects, ...(snapshot.documents || [])]
+    .filter(record => { const key = record.path || record.id; if (!key || seen.has(key)) return false; seen.add(key); return true; })
+    .map(record => normalizeRecord(record, api, projects));
+}
+
 export function normalizeRecord(record, api, projects = []) {
   const fields = record.fields || {};
   const attachment = [record.coverPath, fields.cover, record.attachmentPath, fields.snapshot_path, fields.original_file].map(imagePath).find(Boolean) || '';

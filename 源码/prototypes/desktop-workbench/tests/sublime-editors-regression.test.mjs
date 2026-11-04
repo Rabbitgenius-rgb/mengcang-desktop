@@ -17,7 +17,7 @@ function editor(name,props,services={}){
   const react={Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,children}}),isValidElement:value=>Boolean(value&&value.props),useEffect:()=>{},useMemo:factory=>factory(),useRef:value=>{const index=cursor++;return slots[index]??(slots[index]={current:value});},useState:initial=>{const index=cursor++;if(!slots[index])slots[index]={value:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
   const icons=new Proxy({},{get:(_,name)=>function Icon(){return react.createElement('svg',{'data-icon':String(name)});}});
   const module={exports:{}};
-  const context={module,exports:module.exports,Blob,URL,Error,crypto:globalThis.crypto,console,setTimeout,clearTimeout,require:path=>path==='react'?react:path==='@tabler/icons-react'?icons:path==='../discoveryModel.js'?discovery:path==='./workspaceModel.js'?model:path==='./attachmentPreview.js'?attachments:path==='./webCapture.js'?{captureWebPage:services.captureWebPage||(()=>{throw Error('Unexpected web request');})}:path==='./AttachmentPreview.jsx'?{default:()=>null}:path.endsWith('.css')?{}:(()=>{throw Error('Unexpected import '+path);})()};
+  const context={module,exports:module.exports,Blob,URL,Error,crypto:globalThis.crypto,console,setTimeout,clearTimeout,require:path=>path==='react'?react:path==='@tabler/icons-react'?icons:path==='../discoveryModel.js'?discovery:path==='./workspaceModel.js'?model:path==='./attachmentPreview.js'?attachments:path==='./webCapture.js'?{captureWebPage:services.captureWebPage||(()=>{throw Error('Unexpected web request');})}:path==='./BookCoverEditor.jsx'?{default:()=>null}:path==='./bookCover.js'?{defaultBookCover:async()=>''}:path==='./AttachmentPreview.jsx'?{default:()=>null}:path.endsWith('.css')?{}:(()=>{throw Error('Unexpected import '+path);})()};
   vm.runInNewContext(compiled,context);
   function render(){cursor=0;tree=module.exports[name](props);return tree;}
   render();
@@ -108,4 +108,18 @@ test('clicking a canvas card gives it keyboard focus and persists arrow movement
   node.props.onPointerDown({button:0,target:{closest:()=>({tagName:'A'})},currentTarget:element,preventDefault(){prevented=true;}});
   assert.equal(focused,false);
   assert.equal(prevented,false);
+});
+
+test('every canvas mutation reaches workspace persistence synchronously even while an earlier save is pending',async()=>{
+ const updates=[],waits=[];
+ const board={id:'canvas',title:'Draft',nodes:[{id:'node',itemPath:'card',x:0,y:0}],edges:[]};
+ const form=editor('CanvasEditor',{board,hasDraft:true,items:[],onChange:value=>{updates.push(value);return new Promise(resolve=>waits.push(resolve));},onBack:()=>{}});
+ assert.match(text(form.render()),/未保存的草稿/);
+ const element={};
+ function move(){form.find(value=>value.type==='article').props.onKeyDown({key:'ArrowRight',target:element,currentTarget:element,preventDefault(){},stopPropagation(){}});form.render();}
+ move();move();
+ assert.equal(updates.length,2,'the second mutation must be registered before navigation or quit can happen');
+ assert.deepEqual(updates.map(value=>value.nodes[0].x),[10,20]);
+ waits[0]();await Promise.resolve();await Promise.resolve();form.render();assert.match(text(form.render()),/正在保存/);
+ waits[1]();await Promise.resolve();await Promise.resolve();form.render();assert.doesNotMatch(text(form.render()),/未保存的草稿|正在保存/);
 });

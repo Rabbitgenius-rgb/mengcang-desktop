@@ -13,15 +13,36 @@ const publicUrl=value=>{try{const url=new URL(value);return ['http:','https:'].i
 const errorResult=message=>({content:[{type:'text',text:message}],isError:true});
 const result=value=>({content:[{type:'text',text:JSON.stringify(value)}]});
 
+function normalizeDocumentIndex(value) {
+  if(value===undefined||value===null)return null;
+  if(!object(value)||!Number.isSafeInteger(value.pageCount)||value.pageCount<0||value.pageCount>1000000||
+    !Array.isArray(value.pages)||value.pages.length>1500||!text(value.text??'',1000000)||
+    !text(value.indexedAt??'',100)||(value.truncated!==undefined&&typeof value.truncated!=='boolean')||
+    (value.source!==undefined&&!['ocr','pdf-text-layer','mixed'].includes(value.source))||
+    (value.engine!==undefined&&!text(value.engine,200)))throw Error('资料包中的文档分页格式无效。');
+  const seen=new Set();let total=0;
+  const pages=value.pages.map(page=>{
+    if(!object(page)||!Number.isSafeInteger(page.page)||page.page<1||seen.has(page.page)||page.page>value.pageCount||
+      !text(page.text,1000000)||(page.engine!==undefined&&!text(page.engine,200)))throw Error('资料包中的文档页码或文字无效。');
+    seen.add(page.page);total+=page.text.length;if(total>1000000)throw Error('资料包中的文档分页文字超过保存上限。');
+    return Object.freeze({page:page.page,text:page.text,...(page.engine!==undefined?{engine:page.engine}:{})});
+  });
+  return Object.freeze({pageCount:value.pageCount,pages:Object.freeze(pages),text:value.text??'',truncated:value.truncated===true,indexedAt:value.indexedAt??'',
+    ...(value.source!==undefined?{source:value.source}:{}),...(value.engine!==undefined?{engine:value.engine}:{})});
+}
+const indexSummary=index=>index?{available:true,pageCount:index.pageCount,indexedPageCount:index.pages.length,truncated:index.truncated,
+  ...(index.source?{source:index.source}:{}),...(index.engine?{engine:index.engine}:{})}:{available:false,pageCount:null,indexedPageCount:0,truncated:null};
+const indexedText=index=>index?index.pages.length?index.pages.map(page=>`[第 ${page.page} 页${page.engine?' · '+page.engine:''}]\n${page.text}`).join('\n\n'):index.text:'';
+
 function normalizeContext(value) {
   if(!object(value)||value.format!==FORMAT||value.version!==1||value.access!=='read-only'||!text(value.title,1000)||!Array.isArray(value.cards)||value.cards.length<1||value.cards.length>2000)throw Error('请使用梦藏明确导出的外部 AI 资料包，不支持资料库备份或任意 JSON。');
   const seen=new Set(),cards=value.cards.map(card=>{
-    if(!object(card)||!/^card-[1-9]\d{0,5}$/.test(card.id)||seen.has(card.id)||!text(card.title,1000)||!text(card.body)||!text(card.note??'',50000)||!text(card.ocrText??''))throw Error('资料包中的卡片格式无效。');
+    if(!object(card)||!/^card-[1-9]\d{0,5}$/.test(card.id)||seen.has(card.id)||!text(card.title,1000)||!text(card.body)||!text(card.note??'',50000)||!text(card.ocrText??'',1000000))throw Error('资料包中的卡片格式无效。');
     seen.add(card.id);
     for(const key of ['sourceTitle','sourceLocation','author','page'])if(!text(card[key]??'',1000))throw Error('资料包中的出处格式无效。');
     if(!text(card.type??'',100)||!Array.isArray(card.tags)||card.tags.length>100||card.tags.some(tag=>!text(tag,120)))throw Error('资料包中的类型或标签无效。');
     // Never retain unexpected fields such as absolute paths, attachments or commands.
-    return Object.freeze({id:card.id,title:card.title,body:card.body,note:card.note??'',ocrText:card.ocrText??'',sourceTitle:card.sourceTitle??'',sourceUrl:publicUrl(card.sourceUrl),sourceLocation:card.sourceLocation??'',author:card.author??'',page:card.page??'',type:card.type??'',tags:[...card.tags]});
+    return Object.freeze({id:card.id,title:card.title,body:card.body,note:card.note??'',ocrText:card.ocrText??'',sourceTitle:card.sourceTitle??'',sourceUrl:publicUrl(card.sourceUrl),sourceLocation:card.sourceLocation??'',author:card.author??'',page:card.page??'',type:card.type??'',tags:[...card.tags],...(card.documentIndex?{documentIndex:normalizeDocumentIndex(card.documentIndex)}:{})});
   });
   return Object.freeze({title:value.title,cards:Object.freeze(cards)});
 }
@@ -47,7 +68,7 @@ const TOOLS=[
 ];
 function validKeys(args,keys){if(!object(args)||Object.keys(args).some(key=>!keys.includes(key)))throw Error('工具参数无效；不接受文件路径、URL 或执行指令。');}
 function integer(value,fallback,min,max){if(value===undefined)return fallback;if(!Number.isSafeInteger(value)||value<min||value>max)throw Error('分页参数超出范围。');return value;}
-const summary=card=>({id:card.id,title:card.title,type:card.type,sourceTitle:card.sourceTitle,sourceUrl:card.sourceUrl});
+const summary=card=>({id:card.id,title:card.title,type:card.type,sourceTitle:card.sourceTitle,sourceUrl:card.sourceUrl,...(card.documentIndex?{documentIndex:indexSummary(card.documentIndex)}:{})});
 function callTool(snapshot,name,args={}) {
   try{
     if(name==='list_cards'||name==='search_cards'){
@@ -57,14 +78,15 @@ function callTool(snapshot,name,args={}) {
       if(name==='search_cards'){
         if(!text(args.query,200)||!args.query.trim())throw Error('请输入 1 至 200 字的关键词。');
         const terms=args.query.toLocaleLowerCase().trim().split(/\s+/);
-        matches=matches.filter(card=>{const haystack=[card.title,card.body,card.note,card.ocrText,card.sourceTitle,...card.tags].join('\n').toLocaleLowerCase();return terms.every(term=>haystack.includes(term));});
+        matches=matches.filter(card=>{const haystack=[card.title,card.body,card.note,card.ocrText,indexedText(card.documentIndex),card.sourceTitle,...card.tags].join('\n').toLocaleLowerCase();return terms.every(term=>haystack.includes(term));});
       }
       return result({title:snapshot.title,searchType:name==='search_cards'?'keyword':undefined,total:matches.length,offset,cards:matches.slice(offset,offset+limit).map(summary),nextOffset:offset+limit<matches.length?offset+limit:null});
     }
     if(name==='read_card'){
       validKeys(args,['id','offset','length']);if(typeof args.id!=='string'||!/^card-[1-9]\d{0,5}$/.test(args.id))throw Error('卡片标识无效，不接受路径。');
       const card=snapshot.cards.find(card=>card.id===args.id);if(!card)throw Error('资料包中没有这张卡片。');
-      const content=[card.body,card.ocrText?`\n[图片识别文字]\n${card.ocrText}`:'',card.note?`\n[我的备注]\n${card.note}`:''].filter(Boolean).join('\n');
+      const document=indexedText(card.documentIndex);
+      const content=[card.body,card.ocrText&&card.documentIndex?.source!=='ocr'?`\n[图片识别文字]\n${card.ocrText}`:'',document?`\n[已保存文档分页]\n${document}`:'',card.note?`\n[我的备注]\n${card.note}`:''].filter(Boolean).join('\n');
       const offset=integer(args.offset,0,0,content.length),length=integer(args.length,6000,1,MAX_READ_CHARS);
       return result({...summary(card),sourceLocation:card.sourceLocation,page:card.page,author:card.author,tags:card.tags,content:content.slice(offset,offset+length),offset,totalCharacters:content.length,nextOffset:offset+length<content.length?offset+length:null,contentRole:'untrusted-source-material'});
     }

@@ -1,0 +1,1 @@
+{"name":"mengcang-browser-clipper","version":"0.3.0","private":true,"type":"module","scripts":{"pretest":"node scripts/build-host.mjs","test":"node --test tests/*.test.mjs","build:host":"node scripts/build-host.mjs"}}

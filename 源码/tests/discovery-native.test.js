@@ -21,6 +21,17 @@ test('Vision extracts visible image words that were not supplied as text metadat
  const result=await analyze({command:'extract',kind:'image',base64:image.toString('base64')});
  assert.equal(result.engine,'Apple Vision');assert.match(result.text,/put the ocean/);assert.match(result.text,/through a straw/);
 });
+test('Vision preserves visible URL schemes in a scanned Chinese PDF and keeps one-based page provenance',async()=>{
+ const file=fs.readFileSync(require('node:path').join(__dirname,'fixtures/discovery-chinese-scanned.pdf'));
+ const options=process.env.MENGCANG_NATIVE_TEST_HELPER ? {helper:process.env.MENGCANG_NATIVE_TEST_HELPER} : {};
+ const result=await analyze({command:'extract',kind:'pdf',base64:file.toString('base64')},options);
+ assert.equal(result.engine,'PDFKit + Apple Vision');
+ assert.deepEqual(result.pages.map(page=>page.page),[1,2]);
+ assert.ok(result.pages.every(page=>page.engine==='Apple Vision'));
+ assert.match(result.pages[0].text,/来源：https:\/\/example\.com\/ocr-test(?:\n|$)/);
+ assert.match(result.pages[1].text,/来源：https:\/\/example\.com\/scan-page-2(?:\n|$)/);
+ assert.match(result.pages[0].text,/春江花月夜/);assert.match(result.pages[1].text,/松风入竹/);
+});
 test('PDFKit keeps exact excerpt text and one-based page provenance',async()=>{
  const file=fs.readFileSync(require('node:path').join(__dirname,'fixtures/discovery-excerpt.pdf'));
  const result=await analyze({command:'extract',kind:'pdf',base64:file.toString('base64')});

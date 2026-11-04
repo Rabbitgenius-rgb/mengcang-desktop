@@ -1,0 +1,114 @@
+.mc-star-field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  color: #f1f3f6;
+  -webkit-tap-highlight-color: transparent;
+}
+.mc-star-field[data-dragging="true"] { cursor: grabbing; }
+.mc-star-field[data-paused="true"] { cursor: default; }
+.mc-star-field:focus { outline: none; }
+.mc-star-field:focus-visible { outline: 1px solid rgba(192, 211, 236, .55); outline-offset: -5px; }
+.mc-star-field__canvas,
+.mc-star-field__targets,
+.mc-star-field__topics { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mc-star-field__canvas { pointer-events: none; }
+.mc-star-field__targets,
+.mc-star-field__topics { pointer-events: none; }
+.mc-star-field:not([data-ready="true"]) .mc-star-field__targets,
+.mc-star-field:not([data-ready="true"]) .mc-star-field__topics { visibility: hidden; }
+.mc-star-field .mc-star-field__hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  font: inherit;
+  text-align: left;
+}
+.mc-star-field .mc-star-field__hit:hover,
+.mc-star-field .mc-star-field__hit:active { background: transparent; box-shadow: none; }
+.mc-star-field .mc-star-field__hit:focus { outline: none; }
+.mc-star-field .mc-star-field__hit:focus-visible { outline: 1px solid rgba(225, 235, 251, .8); outline-offset: 3px; }
+.mc-star-field__label {
+  position: absolute;
+  top: 28px;
+  left: 22px;
+  width: max-content;
+  max-width: min(170px, var(--star-label-width, 170px));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  visibility: hidden;
+  opacity: 0;
+  color: #959da8;
+  font: 400 11px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  letter-spacing: .025em;
+  text-shadow: 0 1px 4px #030408, 0 0 9px #030408;
+  pointer-events: none;
+}
+.mc-star-field__hit[data-label-side="left"] .mc-star-field__label { left: auto; right: 22px; text-align: right; }
+.mc-star-field__hit[data-label-top="true"] .mc-star-field__label { top: auto; bottom: 28px; }
+.mc-star-field__hit[data-labelled="true"] .mc-star-field__label { visibility: visible; opacity: .8; }
+.mc-star-field__hit[data-emphasis="true"] .mc-star-field__label,
+.mc-star-field__hit:focus-visible .mc-star-field__label {
+  visibility: visible;
+  opacity: 1;
+  color: #f1f3f6;
+  font-size: 12px;
+  max-width: min(230px, var(--star-label-width, 230px));
+}
+.mc-star-field__hit[data-dim="true"] .mc-star-field__label { visibility: hidden; }
+.mc-star-field__hit[data-dim="true"][data-emphasis="true"] .mc-star-field__label,
+.mc-star-field__hit[data-dim="true"]:focus-visible .mc-star-field__label { visibility: visible; }
+.mc-star-field__topic {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  width: 150px;
+  max-height: 38px;
+  overflow: hidden;
+  text-align: center;
+  overflow-wrap: anywhere;
+  color: #74808e;
+  font: 400 10px/1.65 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  letter-spacing: .13em;
+  opacity: .55;
+  text-shadow: 0 1px 8px #000;
+}
+.mc-star-field[data-searching="true"] .mc-star-field__topic { opacity: .3; }
+.mc-star-field__instructions {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mc-star-field *, .mc-star-field *::before, .mc-star-field *::after { animation: none !important; transition: none !important; }
+}

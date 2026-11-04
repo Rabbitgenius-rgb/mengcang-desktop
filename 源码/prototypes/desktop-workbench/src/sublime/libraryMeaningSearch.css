@@ -1,0 +1,30 @@
+.sublime-workspace .ms-empty{margin-top:64px}
+.ms-empty>svg{color:var(--sw-icon)}
+.sublime-workspace .ms-modes {
+  display:inline-flex; flex:none; align-items:center; gap:2px; padding:3px;
+  margin:0 8px; border-radius:999px; background:var(--sw-active);
+}
+.ms-modes button {
+  border:0; border-radius:999px; background:transparent; color:var(--sw-muted);
+  padding:7px 12px; white-space:nowrap; font:inherit; font-size:13px; line-height:1.45; cursor:pointer;
+}
+.ms-modes button[aria-pressed="true"] { background:var(--sw-bg); color:var(--sw-white); }
+.ms-modes button:not(:disabled):hover { color:var(--sw-white); }
+.ms-modes button:disabled { opacity:.45; cursor:default; }
+.ms-modes button:focus-visible { outline:2px solid var(--sw-white); outline-offset:1px; }
+.ms-search-status { width:min(890px,calc(100% - 60px)); margin:32px auto 0; color:var(--sw-text); }
+.ms-search-status small,.ms-no-source { font-size:12px; color:var(--sw-muted); }
+.ms-search-status h2 { margin:4px 0; font-size:25px; color:var(--sw-white); }
+.ms-search-status p { margin:6px 0; font-size:14px; overflow-wrap:anywhere; }
+.ms-search-status button { border:0; border-radius:16px; background:var(--sw-active); color:var(--sw-text); padding:6px 12px; margin:4px 8px 0 0; cursor:pointer; }
+@media(max-width:1100px) {
+  .sublime-workspace .sw-library-header .sw-actions:has(.ms-modes) .sw-search { width:clamp(155px,20vw,240px); }
+  .ms-modes button { padding:6px 9px; }
+}
+@media(max-width:650px) {
+  .sublime-workspace .sw-library-header .sw-actions:has(.ms-modes) { width:100%; flex-wrap:wrap; row-gap:8px; }
+  .sublime-workspace .sw-library-header .sw-actions:has(.ms-modes) .sw-search { flex:1 1 130px; min-width:0; }
+}
+.sublime-workspace .ms-source{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:2px 0;background:none;border:0;color:var(--sw-text);text-align:start;font:inherit;font-size:12.5px;line-height:1.5;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere;cursor:pointer}
+.ms-source svg{flex-shrink:0}
+.ms-source:focus-visible{outline:2px solid currentColor;outline-offset:3px}

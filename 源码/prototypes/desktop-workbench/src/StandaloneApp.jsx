@@ -1,6 +1,6 @@
 import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import SublimeWorkspace from './sublime/SublimeWorkspace.jsx';
-import {valueOf,normalizeRecord} from './desktopModel.js';
+import {valueOf,standaloneRecords} from './desktopModel.js';
 import './standalone.css';
 
 export default function StandaloneApp(){
@@ -24,8 +24,8 @@ export default function StandaloneApp(){
   discoveryStateGet:()=>api.discoveryStateGet(identity?.id||'unpaired'),
   discoveryStateSet:value=>api.discoveryStateSet(value,identity?.id||'unpaired'),
  }),[api,data?.snapshot.capabilities?.capture,data?.snapshot.capabilities?.captureAttachment,identity?.id]);
- const items=useMemo(()=>[...(data?.snapshot.entries||[]),...(data?.snapshot.materials||[]),...(data?.snapshot.books||[])].map(note=>normalizeRecord(note,api)),[data?.snapshot,api]);
+ const items=useMemo(()=>standaloneRecords(data?.snapshot,api),[data?.snapshot,api]);
  const ready=useCallback(()=>{void api.rendererReady();},[api]);
  if(!data)return <main className="standalone-loading" role="status">正在打开梦藏资料库…</main>;
- return <><SublimeWorkspace standalone items={items} api={workspaceApi} identity={identity} connected={data.status.connected} onRefresh={refresh} onReady={ready}/><div className="standalone-drag" aria-hidden="true"/>{issue&&<div className="standalone-status" role="status">{issue}<button onClick={refresh}>重新读取</button><button aria-label="关闭资料提示" onClick={()=>setIssue('')}>×</button></div>}</>;
+ return <><SublimeWorkspace standalone items={items} api={workspaceApi} identity={identity} connected={data.status.connected} onRefresh={refresh} onReady={ready}/><div className="standalone-drag" aria-hidden="true"/>{issue&&<div className="standalone-status" role="status">{issue}<button onClick={refresh}>重新读取</button><button aria-label="关闭资料提示" onClick={()=>setIssue('')}>×</button>{data.snapshot?.errors?.length>0&&<details><summary>读取详情</summary>{data.snapshot.errors.map((entry,index)=><p key={index}>{entry.path}：{entry.message||entry.error}</p>)}</details>}</div>}</>;
 }

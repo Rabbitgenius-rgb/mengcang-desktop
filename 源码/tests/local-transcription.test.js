@@ -178,3 +178,9 @@ test('SRT timestamps remain genuine and unordered, missing or empty speech resul
   assert.throws(() => parseSrt(''), {code: 'LOCAL_TRANSCRIPTION_NO_SPEECH'});
   assert.throws(() => parseSrt('1\n00:00:01,000 --> 00:00:00,500\nwrong'), {code: 'LOCAL_TRANSCRIPTION_INVALID'});
 });
+
+test('a later kill error does not replace the original local transcription timeout',async t=>{
+ const f=fixture(t),calls=[],base=spawnMock(calls,{neverExit:true});
+ const service=createIntelligenceService(serviceOptions(f,{localTranscriptionTimeoutMs:20,localTranscriptionSpawnImpl:(...args)=>{const child=base(...args),stop=child.kill;child.kill=signal=>{child.emit('error',Error('synthetic kill error'));return stop(signal);};return child;}}));
+ await assert.rejects(service.request({action:'transcribe',attachment:attachment()}),{code:'LOCAL_TRANSCRIPTION_TIMEOUT'});assertNoRuntimeLeft(f,service,calls);
+});

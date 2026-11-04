@@ -19,11 +19,16 @@ export function createWorkspaceNavigation({history,location,identity,snapshot,re
   const next={...current,...structuredClone(overrides),route,selected:[],selectionMode:false,scrollTop:0,scrollLeft:0,hash,canGoBack:true};
   history.pushState({...history.state,[stateKey]:next},'',hash);restore(next);
  }
+ function replace(route,overrides={}){
+  const current=record(),hash=workspaceRouteHash(route);
+  const next={...current,...structuredClone(overrides),route,selected:[],selectionMode:false,scrollTop:0,scrollLeft:0,hash};
+  history.replaceState({...history.state,[stateKey]:next},'',hash);restore(next);
+ }
  function restoreCurrent(){
   const foreign=history.state?.[stateKey];
   if(foreign?.identity&&foreign.identity!==identity){const safe={...safeFallback(),identity,scrollTop:0,scrollLeft:0,canGoBack:false};safe.hash=workspaceRouteHash(safe.route);history.replaceState({...history.state,[stateKey]:safe},'',safe.hash);restore(safe);return;}
   const entry=readWorkspaceNavigation(history.state,identity,location.hash);restore(entry||{...snapshot(),route:fallback(),selected:[],selectionMode:false,scrollTop:0,scrollLeft:0,canGoBack:false});
  }
- function back(){const current=record();if(current.canGoBack)history.back();else open({page:'library',id:'',sourcePage:1});}
- return {record,open,back,restoreCurrent};
+ function back(){const current=record();if(current.canGoBack)history.back();else replace({page:'library',id:'',sourcePage:1});}
+ return {record,open,replace,back,restoreCurrent};
 }

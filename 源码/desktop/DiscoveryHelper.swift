@@ -25,6 +25,31 @@ func imageOCR(_ data:Data) throws -> String {
     guard let source=CGImageSourceCreateWithData(data as CFData,nil), let image=CGImageSourceCreateImageAtIndex(source,0,nil) else { try fail("无法识别图片格式") }
     return try recognize(image)
 }
+func rasterizeForOCR(_ page:PDFPage) throws -> CGImage {
+    guard let pdfPage=page.pageRef else { try fail("无法读取PDF页面") }
+    let bounds=pdfPage.getBoxRect(.mediaBox)
+    guard bounds.origin.x.isFinite,bounds.origin.y.isFinite,bounds.width.isFinite,bounds.height.isFinite,bounds.width>0,bounds.height>0 else { try fail("PDF页面尺寸无效") }
+    let rotated=abs(pdfPage.rotationAngle % 180)==90
+    let pageWidth=rotated ? bounds.height : bounds.width,pageHeight=rotated ? bounds.width : bounds.height
+    // Preview thumbnails can soften small Latin characters inside Chinese text.
+    // Render the original page at 300 DPI, bounded by the same pixel limit as
+    // image OCR and a maximum dimension to keep unusual page sizes affordable.
+    let scale=min(300.0/72.0,sqrt(25_000_000.0/(pageWidth*pageHeight)),8192.0/max(pageWidth,pageHeight))
+    guard scale.isFinite,scale>0 else { try fail("PDF页面尺寸无效") }
+    let width=max(1,Int(floor(pageWidth*scale))),height=max(1,Int(floor(pageHeight*scale)))
+    guard let context=CGContext(data:nil,width:width,height:height,bitsPerComponent:8,bytesPerRow:0,
+        space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.noneSkipLast.rawValue) else { try fail("无法渲染PDF页面") }
+    context.setFillColor(CGColor(gray:1,alpha:1))
+    context.fill(CGRect(x:0,y:0,width:width,height:height))
+    context.interpolationQuality = .high
+    // CGPDFPage's drawing transform does not upscale by itself. Apply the
+    // raster scale first, then let Quartz handle the box origin and rotation.
+    context.scaleBy(x:scale,y:scale)
+    context.concatenate(pdfPage.getDrawingTransform(.mediaBox,rect:CGRect(x:0,y:0,width:Double(width)/scale,height:Double(height)/scale),rotate:0,preserveAspectRatio:true))
+    context.drawPDFPage(pdfPage)
+    guard let image=context.makeImage() else { try fail("无法渲染PDF页面") }
+    return image
+}
 func extract(_ request:[String:Any]) throws -> [String:Any] {
     let kind=request["kind"] as? String ?? "image"
     let data=try decode(request["base64"],max:kind=="pdf" ? 20*1024*1024 : 8*1024*1024)
@@ -37,8 +62,7 @@ func extract(_ request:[String:Any]) throws -> [String:Any] {
         var text=page.string ?? ""
         var engine="PDFKit"
         if text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty {
-            let thumb=page.thumbnail(of:NSSize(width:1600,height:2000),for:.mediaBox)
-            if let cg=thumb.cgImage(forProposedRect:nil,context:nil,hints:nil) { text=try recognize(cg);engine="Apple Vision" }
+            text=try recognize(rasterizeForOCR(page));engine="Apple Vision"
         }
         guard text.utf8.count<=200_000 else { try fail("单页文字过长，请拆分后导入") }
         pages.append(["page":index+1,"text":text,"engine":engine])

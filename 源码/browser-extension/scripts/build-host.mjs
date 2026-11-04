@@ -1,0 +1,12 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const require = createRequire(path.join(root, 'package.json'));
+const {build} = require('esbuild');
+const target = path.join(root, 'browser-extension/native/clipper-host.cjs');
+await fs.mkdir(path.dirname(target), {recursive: true});
+await build({entryPoints: [path.join(root, 'scripts/clipper-native-host.cjs')], outfile: target, bundle: true, platform: 'node', format: 'cjs', target: 'node22'});
+await build({entryPoints: [path.join(root, 'browser-extension/content-highlights-entry.js')], outfile: path.join(root, 'browser-extension/content-highlights.js'), bundle: true, platform: 'browser', format: 'iife', target: 'chrome120'});
+console.log('Native host bundled. No personal settings or credentials were included.');

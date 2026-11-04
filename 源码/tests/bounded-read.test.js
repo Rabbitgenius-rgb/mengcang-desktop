@@ -1,0 +1,8 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {readBoundedFile}=require('../desktop/bounded-read.cjs');
+function file(data,{size=data.length,chunk=Infinity,regular=true}={}){let offset=0,reads=0;return {stat:async()=>({size,isFile:()=>regular}),read:async(buffer,start,length)=>{reads++;const bytesRead=Math.min(length,chunk,data.length-offset);data.copy(buffer,start,offset,offset+bytesRead);offset+=bytesRead;return {bytesRead};},get readBytes(){return offset;},get reads(){return reads;}};}
+test('declared oversized files reject without reading their body',async()=>{const f=file(Buffer.from('body'),{size:100});await assert.rejects(readBoundedFile(f,{maxBytes:3}),{code:'FILE_TOO_LARGE'});assert.equal(f.reads,0);});
+test('growth after stat is bounded to the limit plus one byte',async()=>{const f=file(Buffer.alloc(100000),{size:0});await assert.rejects(readBoundedFile(f,{maxBytes:65536}),{code:'FILE_TOO_LARGE'});assert.equal(f.readBytes,65537);});
+test('short reads retain exact bytes and the exact boundary succeeds',async()=>{const input=Buffer.from('original 原文 🧪'),f=file(input,{chunk:2});assert.deepEqual(await readBoundedFile(f,{maxBytes:input.length}),input);assert.ok(f.reads>2);});
+test('empty regular files work but directories and invalid limits reject',async()=>{assert.deepEqual(await readBoundedFile(file(Buffer.alloc(0)),{maxBytes:0}),Buffer.alloc(0));await assert.rejects(readBoundedFile(file(Buffer.alloc(0),{regular:false}),{maxBytes:10}),{code:'NOT_A_FILE'});for(const maxBytes of [-1,Infinity,1.5])await assert.rejects(readBoundedFile(file(Buffer.alloc(0)),{maxBytes}),TypeError);});

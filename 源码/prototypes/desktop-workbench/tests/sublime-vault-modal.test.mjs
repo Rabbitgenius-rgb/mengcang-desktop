@@ -1,3 +1,4 @@
+import * as rendererQuit from '../src/sublime/rendererQuit.js';
 import * as podcastTranscription from '../src/sublime/podcastTranscription.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,6 +11,7 @@ import * as discovery from '../src/discoveryModel.js';
 import * as desktop from '../src/desktopModel.js';
 import * as intelligence from '../src/sublime/intelligenceHelpers.js';
 import * as intelligenceDrafts from '../src/sublime/intelligenceDrafts.js';
+import * as readerState from '../src/reader/readerState.js';
 
 const compiled=(await transform(await readFile(new URL('../src/sublime/SublimeWorkspace.jsx',import.meta.url),'utf8'),{loader:'jsx',format:'cjs',jsx:'transform'})).code;
 const offlineMessage='连接已断开，重新连接后可再次保存；卡片、笔记和原文件仍在本机。';
@@ -35,9 +37,9 @@ function workspace({cards=[structuredClone(card)],items=[],hash='#/library',open
  const module={exports:{}};
  const history={state:{},replaceState(){},pushState(){}};
  const location={hash,href:'mengcang://app/'};
- const sameRealmModel={...model,workspaceReducer:(state,action)=>model.workspaceReducer(state,structuredClone(action)),selectCards:(cards,state,options)=>model.selectCards(structuredClone(cards),structuredClone(state),structuredClone(options))};
+ const sameRealmModel={...model,workspaceReducer:(state,action)=>model.workspaceReducer(state,structuredClone(action)),selectCards:(cards,state,options,readOnlySavedIds)=>model.selectCards(structuredClone(cards),structuredClone(state),structuredClone(options),structuredClone(readOnlySavedIds))};
  const sameRealmView={...view,selectWorkspaceCards:(cards,state,options)=>view.selectWorkspaceCards(structuredClone(cards),structuredClone(state),structuredClone(options)),cardCapturePayload:(card,options)=>view.cardCapturePayload(structuredClone(card),structuredClone(options))};
- const context={module,exports:module.exports,Error,URL,URLSearchParams,Blob,crypto:globalThis.crypto,structuredClone,console,window:{history,location,matchMedia:()=>({matches:false})},history,location,setTimeout:()=>0,clearTimeout:()=>{},require:specifier=>specifier==='react'?react:specifier==='@tabler/icons-react'?icons:specifier==='./podcastTranscription.js'?podcastTranscription:specifier==='./workspaceModel.js'?sameRealmModel:specifier==='./workspaceView.js'?sameRealmView:specifier==='../discoveryModel.js'?discovery:specifier==='../desktopModel.js'?desktop:specifier==='./workspaceStore.js'?{createWorkspaceStore:()=>({})}:specifier==='./workspacePersistence.js'?{createWorkspaceSession:()=>session}:specifier==='./workspaceNavigation.js'?{createWorkspaceNavigation:()=>({open:(...args)=>navigations.push(structuredClone(args))})}:specifier==='./referenceCards.js'?{listeningCard:{id:'unused-reference'}}:specifier==='./SublimeEditors.jsx'?{CardEditor:()=>null,CollectionEditor:()=>null,CanvasEditor:()=>null,ImportEditor:()=>null,SafeRichBody:()=>null}:specifier==='./VaultAttachmentPreview.jsx'?{default:()=>null}:specifier==='./AttachmentPreview.jsx'?{default:()=>null}:['./IntelligencePanel.jsx','./SourceFeeds.jsx','./PodcastClips.jsx'].includes(specifier)?{default:()=>null,PodcastClipPlayback:()=>null}:specifier==='./intelligenceHelpers.js'?intelligence:specifier==='./intelligenceDrafts.js'?{...intelligenceDrafts,compactAiSource:value=>intelligenceDrafts.compactAiSource(structuredClone(value)),captureAiSource:value=>intelligenceDrafts.captureAiSource(structuredClone(value))}:['./externalContext.js','./publishableCollection.js'].includes(specifier)?{}:specifier==='./workspaceDownload.js'?{requestWorkspaceDownload:()=>{throw Error('Unexpected download');}}:specifier.endsWith('.css')?{}:(()=>{throw Error('Unexpected import '+specifier);})()};
+ const context={module,exports:module.exports,Error,URL,URLSearchParams,Blob,crypto:globalThis.crypto,structuredClone,console,window:{history,location,matchMedia:()=>({matches:false})},history,location,setTimeout:()=>0,clearTimeout:()=>{},require:specifier=>specifier==='../reader/readerState.js'?readerState:specifier==='../reader/BookReader.jsx'?{default:()=>null}:specifier==='./rendererQuit.js'?rendererQuit:specifier==='react'?react:specifier==='@tabler/icons-react'?icons:specifier==='./podcastTranscription.js'?podcastTranscription:specifier==='./workspaceModel.js'?sameRealmModel:specifier==='./workspaceView.js'?sameRealmView:specifier==='../discoveryModel.js'?discovery:specifier==='../desktopModel.js'?desktop:specifier==='./workspaceStore.js'?{createWorkspaceStore:()=>({})}:specifier==='./workspacePersistence.js'?{createWorkspaceSession:()=>session}:specifier==='./workspaceNavigation.js'?{createWorkspaceNavigation:()=>({open:(...args)=>navigations.push(structuredClone(args))})}:specifier==='./referenceCards.js'?{listeningCard:{id:'unused-reference'}}:specifier==='./SublimeEditors.jsx'?{CardEditor:()=>null,CollectionEditor:()=>null,CanvasEditor:()=>null,ImportEditor:()=>null,SafeRichBody:()=>null}:specifier==='./VaultAttachmentPreview.jsx'?{default:()=>null}:specifier==='./BookCoverEditor.jsx'?{default:()=>null}:specifier==='./bookCover.js'?{applyBookCover:(current,expected,image)=>({...current,image})}:specifier==='./AttachmentPreview.jsx'?{default:()=>null}:['./IntelligencePanel.jsx','./SourceFeeds.jsx','./PodcastClips.jsx'].includes(specifier)?{default:()=>null,PodcastClipPlayback:()=>null}:specifier==='./intelligenceHelpers.js'?intelligence:specifier==='./intelligenceDrafts.js'?{...intelligenceDrafts,compactAiSource:value=>intelligenceDrafts.compactAiSource(structuredClone(value)),captureAiSource:value=>intelligenceDrafts.captureAiSource(structuredClone(value))}:['./externalContext.js','./publishableCollection.js'].includes(specifier)?{}:specifier==='./workspaceDownload.js'?{requestWorkspaceDownload:()=>{throw Error('Unexpected download');}}:specifier.endsWith('.css')?{}:(()=>{throw Error('Unexpected import '+specifier);})()};
  vm.runInNewContext(compiled,context);
  function render(patch={}){props={...props,...patch};stateCursor=0;refCursor=0;tree=module.exports.default(props);return tree;}
  const button=label=>find(tree,node=>node.type==='button'&&text(node)===label);
@@ -123,4 +125,16 @@ test('real classification save keeps the analyzed original when an attachment-le
  assert.equal(form.commits(),1);assert.equal(form.captures().length,0);
  const saved=form.state().cards.find(item=>item.origin==='local');assert.ok(saved);assert.notEqual(saved.id,cached.id);assert.equal(saved.sourceCardId,cached.id);assert.equal(saved.body,snapshot.body);assert.deepEqual(saved.attachment,attachment);assert.deepEqual(intelligence.visionImagePayload(saved.attachment),attachment);
  assert.equal(form.state().cards.find(item=>item.id===cached.id).attachment,null);assert.equal(form.state().cards.find(item=>item.id===cached.id).body,cached.body);
+});
+
+test('note reference opens a unique visible card without any write; duplicate names require selection',()=>{
+ const note={id:'note',title:'合成笔记',body:'[[book|书籍]]'},book={id:'book',title:'原书',body:'原文'};
+ const form=workspace({cards:[note,book],hash:'#/card/note',openCapture:false});
+ const links=form.find(node=>node.type?.name==='NoteLinkArea');
+ assert.ok(links);const panel=links.type(links.props),link=find(panel,node=>node.type==='button'&&text(node).includes('书籍'));
+ link.props.onClick();assert.equal(form.navigations()[0][0].id,'book');assert.equal(form.commits(),0);
+ const ambiguous=workspace({cards:[note,{...book,id:'a/book.md',title:'book'},{...book,id:'b/book.md',title:'book'}],hash:'#/card/note',openCapture:false});
+ ambiguous.find(node=>node.type?.name==='NoteLinkArea').props.onReference('book');ambiguous.render();
+ assert.equal(ambiguous.navigations().length,0);assert.match(ambiguous.text(),/有多份同名资料/);
+ const choice=ambiguous.find(node=>node.type==='button'&&text(node).includes('b/book.md'));choice.props.onClick();assert.equal(ambiguous.navigations()[0][0].id,'b/book.md');assert.equal(ambiguous.commits(),0);
 });

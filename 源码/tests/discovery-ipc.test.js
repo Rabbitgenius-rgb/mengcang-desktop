@@ -12,19 +12,11 @@ const {draftName, jsonValue, atomicPrivate, createPrivateWriteQueue, fail} = req
 function harness(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mengcang-discovery-ipc-'));
   t.after(() => fs.rmSync(root, {recursive: true, force: true}));
-  const source = fs.readFileSync(path.join(__dirname, '../desktop/main.cjs'), 'utf8');
-  const lines = source.split('\n');
-  const start = lines.findIndex(line => line.includes('const discoveryFile='));
-  const end = lines.findIndex((line, index) => index > start && line.includes("handle('scheduleSave',"));
-  assert.ok(start > 0 && end > start, 'Production discovery handlers must be present');
   const handlers = new Map(), queue = createPrivateWriteQueue();
-  let identity = {id: 'synthetic-vault-A'}, writable = true;
-  vm.runInNewContext(lines.slice(start, end).join('\n'), {
-    userData: root, path, draftName, jsonValue, fail, privateWrites: queue,
-    gateway: {status: () => ({identity})},
-    handle: (name, callback) => handlers.set(name, callback),
-    readPrivate: async (file, fallback) => {try {return JSON.parse(await fs.promises.readFile(file, 'utf8'));} catch (error) {if (error.code === 'ENOENT') return fallback; throw error;}},
-    atomicPrivate: async (file, contents) => {if (!writable) throw Object.assign(new Error('Synthetic disk full'), {code: 'ENOSPC'}); return atomicPrivate(file, contents);},
+  let identity = {id:'synthetic-vault-A'},writable=true;
+  require('../desktop/discovery-state.cjs').registerDiscoveryState({userData:root,writes:queue,
+    gateway:{get identity(){return identity;}},handle:(name,callback)=>handlers.set(name,callback),
+    save:async(file,contents)=>{if(!writable)throw Object.assign(new Error('Synthetic disk full'),{code:'ENOSPC'});return atomicPrivate(file,contents);},
   });
   return {root, queue, get: handlers.get('discoveryStateGet'), set: handlers.get('discoveryStateSet'),
     file: id => path.join(root, 'discovery', draftName(id)),

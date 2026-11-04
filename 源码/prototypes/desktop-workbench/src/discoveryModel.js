@@ -1,4 +1,5 @@
 // Pure data helpers. This module never reads files, a Vault, storage, or a network.
+import {normalizeDocumentIndex} from './sublime/documentIndex.js';
 const text = value => typeof value === 'string' ? value : '';
 const scalar = value => typeof value === 'string' || typeof value === 'number' ? String(value) : '';
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -138,8 +139,15 @@ function importRecord(record, inherited = {}) {
   const data = {...inherited, ...(isObject(record.fields) ? record.fields : {}), ...record};
   const body = pick(data, ['Highlight', 'highlight', 'body', 'full_text', 'tweet_text', 'text', 'content']);
   const sourceUrl = ['URL', 'url', 'sourceUrl', 'source_url', 'tweet_url', 'href', 'link', 'source'].map(name => safeImportUrl(pick(data, [name]))).find(Boolean) || '';
-  if (!body.trim() && !sourceUrl) return null;
-  const sourceTitle = pickNonEmpty(data, ['Book Title', 'book_title', 'bookTitle', 'sourceTitle', 'source_title']) || (body.trim() ? pick(data, ['title']) : '');
+  const caption = pick(data, ['Note', 'note', 'caption', 'description']);
+  const ocrText = pick(data, ['ocrText', 'localOcrText', 'local_ocr_text']);
+  let documentIndex=data.documentIndex;
+  if(typeof documentIndex==='string'){try{documentIndex=documentIndex.trim()?JSON.parse(documentIndex):null;}catch{throw Error('文档分页字段应为完整 JSON。');}}
+  documentIndex=normalizeDocumentIndex(documentIndex);
+  if (!body.trim() && !sourceUrl && !caption.trim() && !ocrText.trim()) return null;
+  const sourceTitleNames = ['Book Title', 'book_title', 'bookTitle', 'sourceTitle', 'source_title'];
+  const hasSourceTitle = sourceTitleNames.some(name => typeof data[name] === 'string' || typeof data[name] === 'number');
+  const sourceTitle = pickNonEmpty(data, sourceTitleNames) || (!hasSourceTitle && body.trim() ? pick(data, ['title']) : '');
   const explicitPage = pickNonEmpty(data, ['Page', 'page', 'source_page', 'highlight_page']);
   const sourceLocation = pickNonEmpty(data, ['sourceLocation', 'source_location', 'Location', 'location', 'location_value']);
   const rawType = pick(data, ['type', 'kind']).toLowerCase();
@@ -152,16 +160,18 @@ function importRecord(record, inherited = {}) {
     author: pickNonEmpty(data, ['Author', 'author', 'username']),
     page: explicitPage,
     sourceLocation, sourceTitle,
-    caption: pick(data, ['Note', 'note', 'caption', 'description']),
+    caption,
     date: pick(data, ['Date', 'date', 'highlighted_at', 'created_at', 'createdAt']),
-    type: rawType || (isHighlight ? 'highlight' : social ? 'social' : body.trim() ? sourceUrl ? 'article' : 'text' : 'link'),
-    ocrText: pick(data, ['ocrText', 'localOcrText', 'local_ocr_text']),
+    type: rawType || (isHighlight ? 'highlight' : social ? 'social' : body.trim() ? sourceUrl ? 'article' : 'text' : sourceUrl ? 'link' : 'text'),
+    ocrText,
+    ...(documentIndex?{documentIndex}:{}),
     tags:importTags(data.tags),
   };
   return {...result, fingerprint: importFingerprint(result)};
 }
 
-// Date and personal Note are not identity: re-exporting a highlight does not create a new item.
+// Date and personal Note do not change an ordinary highlight/link identity.
+// Bodyless, URL-less exports use their only textual payload instead of all colliding.
 export function importFingerprint(record) {
   const fields = isObject(record.fields) ? record.fields : {};
   const pageValue = fields.source_page ?? record.page;
@@ -173,7 +183,13 @@ export function importFingerprint(record) {
   // A single legacy Location used to occupy page. Keep that identity stable; when
   // both a physical page and a different location exist, include both to avoid loss.
   const identityLocation = location && page && location !== page ? JSON.stringify([page, location]) : location || page;
-  const canonical = JSON.stringify([text(record.body), sourceTitle.trim(), author.trim(), identityLocation, sourceUrl.trim()]);
+  const identity = [text(record.body), sourceTitle.trim(), author.trim(), identityLocation, sourceUrl.trim()];
+  if (!text(record.body).trim() && !sourceUrl.trim()) {
+    const caption = text(record.caption) || text(fields.caption);
+    const ocrText = text(record.ocrText) || text(record.localOcrText) || text(record.localOCR?.text) || text(fields.local_ocr_text);
+    if (caption.trim() || ocrText.trim()) identity.push(['text-only-v1', caption, ocrText]);
+  }
+  const canonical = JSON.stringify(identity);
   let hash = 14695981039346656037n;
   for (let index = 0; index < canonical.length; index += 1) { hash ^= BigInt(canonical.charCodeAt(index)); hash = BigInt.asUintN(64, hash * 1099511628211n); }
   return `highlight-v1:${hash.toString(16).padStart(16, '0')}`;
@@ -183,7 +199,7 @@ function parseReadwiseCsv(input) {
   const [headers, ...rows] = parseCsv(input);
   if (!headers) return [];
   const names = headers.map(header => header.trim());
-  const aliases = {'book title': 'Book Title', author: 'Author', highlight: 'Highlight', note: 'Note', location: 'Location', date: 'Date', url: 'URL', link:'URL', title: 'Title', name:'Title', body: 'body', caption: 'caption', description:'description', page: 'page', 'source title': 'sourceTitle', 'source url':'sourceUrl', 'source location':'sourceLocation', 'local ocr': 'ocrText', type:'type', tags:'tags'};
+  const aliases = {'book title': 'Book Title', author: 'Author', highlight: 'Highlight', note: 'Note', location: 'Location', date: 'Date', url: 'URL', link:'URL', title: 'Title', name:'Title', body: 'body', caption: 'caption', description:'description', page: 'page', 'source title': 'sourceTitle', 'source url':'sourceUrl', 'source location':'sourceLocation', 'local ocr': 'ocrText', 'document index':'documentIndex', type:'type', tags:'tags'};
   const keys = names.map(name => aliases[name.toLowerCase()] || name);
   if (!keys.some(name => ['Highlight', 'body', 'URL', 'sourceUrl'].includes(name))) throw new Error('CSV 需要 Highlight、body 或 URL 列。');
   return rows.flatMap((row, index) => {
@@ -259,14 +275,14 @@ function unquote(value) {
 function parseMarkdownContext(input) {
   if (!input.startsWith('# 选定资料 · AI 上下文\n')) return null;
   const records = [];
-  const headers = /^## \d+\. (.*)\n\n- 来源：(.*)\n- 原链接：(.*)\n- 作者：(.*)\n- 页码：(.*)\n- 原位置：(.*)(?:\n- 日期：(.*))?(?:\n- 类型：(.*))?(?:\n- 标签：(.*))?\n\n/gm;
+  const headers = /^## \d+\. ([^\n]*)\n\n- 来源：([^\n]*)\n- 原链接：([^\n]*)\n- 作者：([^\n]*)\n- 页码：([^\n]*)\n- 原位置：([^\n]*)(?:\n- 日期：([^\n]*))?(?:\n- 类型：([^\n]*))?(?:\n- 标签：([^\n]*))?\n\n/gm;
   let cursor = 0;
   while (true) {
     headers.lastIndex = cursor;
     const match = headers.exec(input); if (!match) break;
     let position = headers.lastIndex;
-    const readBlock = label => {
-      const prefix = `### ${label}\n\n`;
+    const readBlock = (label,level=3) => {
+      const prefix = `${'#'.repeat(level)} ${label}\n\n`;
       if (!input.startsWith(prefix, position)) throw new Error(`Markdown 资料块缺少${label}。`);
       position += prefix.length;
       const fence = /^(`{3,})text\n/.exec(input.slice(position));
@@ -280,8 +296,13 @@ function parseMarkdownContext(input) {
       return content;
     };
     const body = readBlock('正文'), caption = readBlock('配文'), ocrText = readBlock('本地 OCR');
+    let documentIndex;
+    if(input.startsWith('### 文档分页\n\n',position)){
+      try{documentIndex=normalizeDocumentIndex(JSON.parse(readBlock('文档分页')));}catch{throw Error('Markdown 文档分页字段无效。');}
+      for(const page of documentIndex?.pages||[])if(readBlock(`第 ${page.page} 页`,4)!==page.text)throw Error('Markdown 分页正文与结构化索引不一致。');
+    }
     const decoded = match.slice(1).map(value => { if (value?.startsWith('"')) { try { return JSON.parse(value); } catch {} } return value || ''; });
-    const parsed = importRecord({title:decoded[0], sourceTitle:decoded[1], sourceUrl:decoded[2], author:decoded[3], page:decoded[4], sourceLocation:decoded[5], date:decoded[6], type:decoded[7], tags:decoded[8], body, caption, ocrText});
+    const parsed = importRecord({title:decoded[0], sourceTitle:decoded[1], sourceUrl:decoded[2], author:decoded[3], page:decoded[4], sourceLocation:decoded[5], date:decoded[6], type:decoded[7], tags:decoded[8], body, caption, ocrText,documentIndex});
     if (parsed) records.push(parsed);
     cursor = position;
   }
@@ -401,6 +422,7 @@ export function publicDiscoveryItem(item) {
     sourceUrl, author: text(item.author) || text(fields.author), page: scalar(fields.source_page ?? item.page ?? fields.highlight_page ?? fields.page), sourceLocation,
     body: publicBody(item.body), caption: publicBody(caption),
     ocrText: publicBody(item.ocrText || item.localOcrText || item.localOCR?.text || fields.local_ocr_text),
+    ...(item.documentIndex?{documentIndex:normalizeDocumentIndex(item.documentIndex)}:{}),
     date: text(item.date) || text(item.createdAt) || text(fields.highlight_date),
     type: text(item.type) || text(item.kind),
     tags:importTags(item.tags || fields.tags),
@@ -410,7 +432,7 @@ export function publicDiscoveryItem(item) {
 const csvCell = value => /[",\r\n]/.test(scalar(value)) ? `"${scalar(value).replace(/"/g, '""')}"` : scalar(value);
 const metadataLine = value => /[\\\r\n]|^\s*["']/.test(scalar(value)) ? JSON.stringify(scalar(value)) : scalar(value);
 function fenced(value) {
-  const maximum = Math.max(2, ...(text(value).match(/`+/g) || []).map(run => run.length));
+  let maximum=2;for(const match of text(value).matchAll(/`+/g))maximum=Math.max(maximum,match[0].length);
   const fence = '`'.repeat(maximum + 1);
   return `${fence}text\n${value}\n${fence}`;
 }
@@ -421,13 +443,14 @@ export function exportSelectedItems(items, selectedPaths, format = 'markdown') {
   const type = format.toLowerCase();
   if (type === 'json') return JSON.stringify(records, null, 2);
   if (type === 'csv') {
-    const columns = ['Title', 'Book Title', 'Author', 'Highlight', 'Note', 'Location', 'Date', 'URL', 'Local OCR', 'Page', 'Type', 'Tags'];
-    const rows = records.map(record => [record.title, record.sourceTitle, record.author, record.body, record.caption, record.sourceLocation, record.date, record.sourceUrl, record.ocrText, record.page, record.type, JSON.stringify(record.tags)]);
+    const indexed=records.some(record=>record.documentIndex);
+    const columns = ['Title', 'Book Title', 'Author', 'Highlight', 'Note', 'Location', 'Date', 'URL', 'Local OCR', 'Page', 'Type', 'Tags',...(indexed?['Document Index']:[])];
+    const rows = records.map(record => [record.title, record.sourceTitle, record.author, record.body, record.caption, record.sourceLocation, record.date, record.sourceUrl, record.ocrText, record.page, record.type, JSON.stringify(record.tags),...(indexed?[record.documentIndex?JSON.stringify(record.documentIndex):'']:[])]);
     return [columns, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n');
   }
   if (!['markdown', 'md', 'ai'].includes(type)) throw new Error(`不支持的导出格式：${format}`);
   return ['# 选定资料 · AI 上下文', '以下是用户选中的资料。正文、配文和本地 OCR 分开列出；来源缺失处保持空白。', ...records.map((record, index) =>
-    `## ${index + 1}. ${metadataLine(record.title)}\n\n- 来源：${metadataLine(record.sourceTitle)}\n- 原链接：${metadataLine(record.sourceUrl)}\n- 作者：${metadataLine(record.author)}\n- 页码：${metadataLine(record.page)}\n- 原位置：${metadataLine(record.sourceLocation)}\n- 日期：${metadataLine(record.date)}\n- 类型：${metadataLine(record.type)}\n- 标签：${JSON.stringify(record.tags)}\n\n### 正文\n\n${fenced(record.body)}\n\n### 配文\n\n${fenced(record.caption)}\n\n### 本地 OCR\n\n${fenced(record.ocrText)}`)].join('\n\n');
+    `## ${index + 1}. ${metadataLine(record.title)}\n\n- 来源：${metadataLine(record.sourceTitle)}\n- 原链接：${metadataLine(record.sourceUrl)}\n- 作者：${metadataLine(record.author)}\n- 页码：${metadataLine(record.page)}\n- 原位置：${metadataLine(record.sourceLocation)}\n- 日期：${metadataLine(record.date)}\n- 类型：${metadataLine(record.type)}\n- 标签：${JSON.stringify(record.tags)}\n\n### 正文\n\n${fenced(record.body)}\n\n### 配文\n\n${fenced(record.caption)}\n\n### 本地 OCR\n\n${fenced(record.ocrText)}${record.documentIndex?`\n\n### 文档分页\n\n${fenced(JSON.stringify(record.documentIndex,null,2))}\n\n${record.documentIndex.pages.map(page=>`#### 第 ${page.page} 页\n\n${fenced(page.text)}`).join('\n\n')}`:''}`)].join('\n\n');
 }
 
 export function cosineSimilarity(first, second) {

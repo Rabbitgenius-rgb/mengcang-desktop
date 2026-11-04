@@ -1,0 +1,22 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {packager} from '@electron/packager';
+import {spawnSync} from 'node:child_process';
+import {electronCache} from './electron-cache.mjs';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const output=path.join(root,'verification/standalone-replacement-20261004');
+const vault=path.join(output,'synthetic-vault'),dir=path.join(output,'candidate-resources');
+const name='梦藏独立验收-20261004',bundle='com.rabbit.mengcang.standalonecheck.20261004';
+await fs.mkdir(path.join(vault,'01_sources/cards/text'),{recursive:true});
+await fs.mkdir(path.join(vault,'01_sources/books'),{recursive:true});
+await fs.mkdir(path.join(vault,'01_sources/_originals'),{recursive:true});
+await fs.writeFile(path.join(vault,'01_sources/cards/text/source.md'),'---\ntype: material\ntitle: 独立软件验收 · 只读来源\ncaption: 原资料保持不变\n---\n这是合成验收资料，不是用户笔记。\n');
+await fs.copyFile(path.join(root,'tests/fixtures/discovery-excerpt.pdf'),path.join(vault,'01_sources/_originals/验收文档.pdf'));
+await fs.writeFile(path.join(vault,'01_sources/books/book.md'),'---\ntype: book\ntitle: 独立软件验收 · PDF\npdf: 01_sources/_originals/验收文档.pdf\n---\n这是文件预览验收用的合成图书。\n');
+await fs.cp(path.join(root,'desktop/build/app'),dir,{recursive:true});
+await fs.writeFile(path.join(dir,'candidate-config.json'),JSON.stringify({name,vaultPath:vault}));
+const pkg=JSON.parse(await fs.readFile(path.join(dir,'package.json'),'utf8'));pkg.productName=name;await fs.writeFile(path.join(dir,'package.json'),JSON.stringify(pkg));
+const version=JSON.parse(await fs.readFile(path.join(root,'node_modules/electron/package.json'),'utf8')).version;
+const results=await packager({dir,out:path.join(output,'packages'),name,platform:'darwin',arch:'arm64',electronVersion:version,electronZipDir:await electronCache(version),appBundleId:bundle,asar:true,overwrite:true,prune:false});
+for(const result of results){const app=path.join(result,name+'.app');for(const args of [['--force','--deep','--sign','-',app],['--verify','--deep','--strict',app]]){const sign=spawnSync('/usr/bin/codesign',args,{stdio:'inherit'});if(sign.status!==0)process.exit(sign.status||1);}await fs.writeFile(path.join(output,'candidate.json'),JSON.stringify({app,bundle,vault,name,profileIsolated:true,pluginRequired:false},null,2));console.log(app);}

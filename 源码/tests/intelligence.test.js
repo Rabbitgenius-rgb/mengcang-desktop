@@ -382,3 +382,31 @@ test('transcription without actual timestamps cannot masquerade as an aligned tr
     await assert.rejects(service.request({action: 'transcribe', attachment: audioAttachment()}), {code: 'INVALID_RESPONSE'});
   }
 });
+
+test('excerpt translation confirms before reading credentials and sends only the selected text', async () => {
+  const excerpt = '我们把圆圈称为节点，把箭头称为链接。';
+  const request = {action: 'translatePosition', text: excerpt};
+  const events = [];
+  let approved = false;
+  const service = api({
+    confirmRequest: async (info) => {events.push(info.action); return approved;},
+    getApiKey: async () => {events.push('key'); return 'synthetic';},
+    fetchImpl: async (url, options) => {
+      events.push('request');
+      assert.ok(url.endsWith('/chat/completions'));
+      const {messages} = JSON.parse(options.body);
+      assert.deepEqual(JSON.parse(messages[1].content), {excerpt});
+      assert.equal(messages.length, 2);
+      return response('We call circles nodes and arrows links.');
+    },
+  });
+  await assert.rejects(service.request({...request, sourceUrl:'https://example.org/'}));
+  await assert.rejects(service.request({...request, text:'字'.repeat(2001)}));
+  assert.deepEqual(events, []);
+  await assert.rejects(service.request(request), {code:'AI_CONFIRMATION_REQUIRED'});
+  assert.deepEqual(events, ['translatePosition']);
+  approved = true;
+  assert.match((await service.request(request)).text, /circles nodes/);
+  assert.deepEqual(events, ['translatePosition','translatePosition','key','request']);
+  assert.equal(service.status().usage.generationRequests, 1);
+});

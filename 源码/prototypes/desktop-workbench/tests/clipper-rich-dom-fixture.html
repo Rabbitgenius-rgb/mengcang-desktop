@@ -1,0 +1,12 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>梦藏图文与高亮隔离验收</title><meta name="author" content="合成测试作者"><meta name="description" content="只包含合成文字的浏览器 DOM 验收页"><style>body{font:16px/1.8 system-ui,sans-serif;max-width:860px;margin:40px auto;padding:0 24px;color:#28372e}button{font:inherit;margin:8px;padding:8px 14px}output{display:block;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto;font:12px/1.6 monospace;background:#eff3eb;padding:18px;border-radius:10px}img{max-width:420px}::highlight(mengcang-fixture){background:#dceaca}</style></head><body>
+<header><p>隔离验收页，不会连接或写入真实梦藏。</p></header>
+<article><h1>让收集的内容继续被阅读</h1><p id="selection-paragraph">第一段合成文字：<strong>保留真正重要的句子</strong>，并在稍后回到原文。</p><h2>标题、链接与图片</h2><p>第二段有一个<a href="https://example.com/reference">普通来源链接</a>，以及<em>需要保留的强调</em>。<a href="javascript:void(0)">这个不安全地址只保留文字</a>。</p><figure><img alt="万维网提案中的公开关系图" src="https://www.w3.org/History/1989/Image1.gif"><figcaption>公开 GIF，作为真实图文下载验收的小文件。</figcaption></figure><p hidden>这一行不可见，不能进入正文。</p><form><label>不读取的表单<input value="SYNTHETIC-PRIVATE-FORM"></label></form><p>最后一段用于核对正文没有被截断。</p></article>
+<section data-mengcang-ui><h2>验证操作</h2><button id="capture">提取图文模型</button><button id="select">选中示例跨节点文字</button><button id="anchor">读取并重现高亮</button><output id="result">等待验证操作。</output></section>
+<script type="module">
+import {capturePage} from '../../../browser-extension/capture.js';
+import {anchorFromSelection,rangeForAnchor} from '../../../src/clipper/anchors.mjs';
+const out=document.getElementById('result');
+document.getElementById('capture').onclick=()=>{out.textContent=JSON.stringify(capturePage('article','',location.href),null,2);};
+document.getElementById('select').onclick=()=>{const p=document.getElementById('selection-paragraph'),r=document.createRange();r.setStart(p.firstChild,7);r.setEnd(p.lastChild,p.lastChild.textContent.length);const s=getSelection();s.removeAllRanges();s.addRange(r);out.textContent='已选择：'+s.toString();};
+document.getElementById('anchor').onclick=()=>{try{const anchor=anchorFromSelection(document.body,getSelection()),range=anchor&&rangeForAnchor(document.body,anchor);if(range)CSS.highlights.set('mengcang-fixture',new Highlight(range));out.textContent=JSON.stringify({anchor,restored:!!range,rangeText:range?.toString()},null,2);}catch(e){out.textContent=e.message;}};
+</script></body></html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>合成原网页 · 图文阅读验收</title>
+  <style>
+    body{font:18px/1.9 system-ui;color:#344039;max-width:760px;margin:70px auto;padding:0 24px}
+    aside{background:#edf3e7;padding:15px;font-size:13px;border-radius:12px}h1{font-size:34px}h2{font-size:25px}p{margin:1.3em 0}a{color:#587646}
+    blockquote{border-left:3px solid #b1ca95;margin:2em 0;padding-left:24px}figure{margin:34px 0}figure img{display:block;max-width:100%;height:auto;border-radius:10px}
+    figcaption{color:#7b8874;font-size:12px;line-height:1.6;text-align:center;margin-top:12px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border:1px solid #bdcdb3}th{background:#edf3e7}::target-text{background:#ffe17b;color:#26302a}
+  </style>
+</head>
+<body>
+  <aside>这是隔离验收专用原网页，内容为合成样本，不读取用户资料。</aside>
+  <header><h1>让阅读留下线索</h1></header>
+  <!-- Image captions participate in quote context, just as they do in the
+       Reader's seed AST. The article intentionally preserves the same order. -->
+  <article>
+    <h2>保存之后，还能继续阅读</h2>
+    <p>这一句用来验证高亮保存与原文定位。 高亮不只是摘下一段文字，还应保留它从哪里来。再次打开文章时，文字与想法可以重新接续。</p>
+    <figure>
+      <img id="qa-source-diagram" alt="阅读、高亮与回看的合成流程图" width="960" height="460">
+      <figcaption>这是明确标注的合成图示，不读取真实用户素材。</figcaption>
+    </figure>
+    <p><strong>保留原文的位置，才能在再次阅读时接上之前的思考。</strong></p>
+    <p>这是一条安全的来源链接：<a href="https://example.org/">Example Domain</a></p>
+    <blockquote><em>收藏不等于结束。让留下的材料，成为下一次思考的开端。</em></blockquote>
+    <figure><img src="https://example.org/not-downloaded.png" alt="未下载原图"></figure>
+    <h2>编号、表格与长文</h2>
+    <ol start="3"><li>先保留可核对的原文<ol type="a"><li>记录来源与上下文</li></ol></li><li value="7">再次阅读时整理自己的想法</li></ol>
+    <table><tbody>
+      <tr><th rowspan="2">材料</th><th colspan="2">保留内容</th></tr>
+      <tr><th>原文</th><th>我的想法</th></tr>
+      <tr><td>网页</td><td><a href="https://example.org/">来源链接</a></td><td></td></tr>
+      <tr><td>文章</td><td>正文与图文</td><td>可在阅读中留下备注</td></tr>
+    </tbody></table>
+    <figure><img id="qa-table-diagram" alt="表内合成流程图" width="960" height="460"><figcaption>表内合成图片按原顺序单独展示。</figcaption></figure>
+    <ul><li>旧版未记录编号的列表仍显示圆点</li></ul>
+  </article>
+  <script>
+    // The same local synthetic pixels used by the Reader fixture.
+    const canvas=document.createElement('canvas');canvas.width=960;canvas.height=460;const c=canvas.getContext('2d');
+    c.fillStyle='#e8eee1';c.fillRect(0,0,960,460);c.strokeStyle='#8eab77';c.lineWidth=3;c.beginPath();c.moveTo(270,230);c.lineTo(690,230);c.stroke();
+    for(const [x,label,sub] of [[130,'阅读','遇见一段文字'],[410,'高亮','保留来源位置'],[690,'回看','重新连接想法']]){c.fillStyle='#fff';c.beginPath();c.roundRect(x-50,140,230,180,24);c.fill();c.fillStyle='#33412e';c.font='34px sans-serif';c.fillText(label,x+10,215);c.fillStyle='#7b8874';c.font='19px sans-serif';c.fillText(sub,x-13,265);}
+    c.fillStyle='#7b8874';c.font='16px sans-serif';c.fillText('合成图示 · 仅供隔离阅读验收',40,420);
+    document.getElementById('qa-source-diagram').src=canvas.toDataURL('image/png');
+    document.getElementById('qa-table-diagram').src=canvas.toDataURL('image/png');
+    for(let index=0;index<80;index++){const paragraph=document.createElement('p');paragraph.textContent=`合成长文第 ${index+1} 段。`+'阅读不必一次完成，留下的线索能帮助下一次接续思考。'.repeat(12);document.querySelector('article').append(paragraph);}
+  </script>
+</body>
+</html>

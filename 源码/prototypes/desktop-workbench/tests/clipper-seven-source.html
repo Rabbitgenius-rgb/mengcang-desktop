@@ -1,0 +1,14 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>梦藏 0.2.2 七项修复验收</title><meta name="description" content="明确标注的本机合成验收素材，用于网页、图文文章、图片和高亮保存测试。"><style>body{font:17px/1.8 system-ui,sans-serif;max-width:850px;margin:40px auto;padding:0 24px;color:#303a31}header.site{background:#edf1e9}table{border-collapse:collapse;width:100%}th,td{border:1px solid #a6b79d;padding:10px;text-align:left}img{max-width:100%}small{color:#71806c}h1{line-height:1.4}</style></head><body>
+<header class="site"><nav>合成站点导航，不应收录</nav></header>
+<article hidden><h1>隐藏响应式副本，不应收录</h1><p>这份副本仅用于验证寻找可见文章。</p></article>
+<article>
+ <header><h1>把线索保存下来，再回来阅读</h1><p>这段导语位于文章内部的 header，应该完整保留下来。</p></header>
+ <p id="quote">这里是用于检验重选后备注保留的第一段文字。</p>
+ <p>这是一份明确标注的合成验收文章。它只用于验证本机保存与阅读，不读取旧资料，也不发起 AI 请求。</p>
+ <h2>编号必须保留</h2><ol start="3"><li>先备份已有资料。</li><li>再验证新的保存结果。<ol type="a" start="2"><li>核对原句。</li><li>核对备注。</li></ol></li><li value="8">最后保留回看入口。</li></ol>
+ <h2>表格必须保留行列</h2><table><caption>本轮验收字段</caption><thead><tr><th>项目</th><th>数量</th><th>状态</th></tr></thead><tbody><tr><td>网页</td><td>12</td><td>合成示例</td></tr><tr><td>图片</td><td>3</td><td>保留原图</td></tr></tbody></table>
+ <h2>公开图片原文件</h2><figure><img src="https://www.w3.org/History/1989/Image1.gif" alt="W3 1989 年提案的概念图"><figcaption>公开来源：W3 1989 年提案。保存时应保留可取得的原图。</figcaption></figure>
+ <h2>长文中的保存入口</h2><div id="long-content"></div>
+ <p>合成验收文章结束。即使从文章开头选择文字，也应立即看到保存入口。</p>
+</article><script>document.getElementById('long-content').replaceChildren(...Array.from({length:45},(_,i)=>{const p=document.createElement('p');p.textContent=`合成段落 ${i+1}：保存素材之后，标题、段落、表格、编号与图片共同帮助我们重新理解原文。这里增加阅读长度，检查高亮保存入口是否仍然可见。`;return p;}));</script>
+</body></html>

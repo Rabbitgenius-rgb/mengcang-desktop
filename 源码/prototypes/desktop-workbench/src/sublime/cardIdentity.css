@@ -1,0 +1,27 @@
+.sublime-workspace .sw-card-identity {
+ display:inline-flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:5px 8px;
+ max-width:100%;
+ color:var(--sw-muted);
+ font-size:12px;
+ line-height:18px;
+ letter-spacing:0;
+}
+.sublime-workspace .sw-card-identity-origin,
+.sublime-workspace .sw-card-identity-recognition {
+ padding:2px 7px;
+ border:1px solid var(--sw-panel);
+ border-radius:6px;
+}
+.sublime-workspace .sw-card-identity-recognition { color:var(--sw-text); }
+.sublime-workspace .sw-card-identity-duplicate {
+ flex-basis:100%;
+ overflow-wrap:anywhere;
+ color:var(--sw-muted);
+ font-variant-numeric:tabular-nums;
+}
+.sublime-workspace .sw-origin .sw-card-identity-duplicate { display:block; font-size:12px; line-height:18px; }
+.sublime-workspace .sw-detail-cluster > .sw-card-identity-duplicate { margin:0 0 8px; font-size:12px; line-height:18px; }
+.sublime-workspace .sw-tile > .sw-card-identity { margin:9px 10px 10px; }

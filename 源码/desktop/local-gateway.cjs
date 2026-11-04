@@ -4,11 +4,26 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { randomUUID } = require('node:crypto');
+const {readBoundedFile}=require('./bounded-read.cjs');
+const {createLegacyLibrary}=require('./legacy-library.cjs');
+const {fileVersion,fingerprint}=require('./reader-source.cjs');
 const { toNote } = require('../src/desktop-connector/note-dto.js');
 const { hash, frontmatterOf, ConnectorError } = require('../src/desktop-connector/notes.js');
 const { ATTACHMENT_TYPES, capturePaths, validateCaptureInput, assertCaptureLocation, hasCaptureOperation, createCapture } = require('../src/desktop-connector/capture.js');
 const MIME={...ATTACHMENT_TYPES,jpeg:'image/jpeg',jpe:'image/jpeg',tif:'image/tiff'};
 const ROOTS = ['01_sources/cards/images/', '01_sources/cards/text/', '01_sources/cards/web/', '01_sources/books/'];
+// The Chinese traditional-colour archive is intentionally outside the desktop
+// library. Keep its source files intact and do not re-import it on refresh.
+const TRADITIONAL_COLOR_ROOT='01_sources/cards/images/patterns/色韵/';
+const TRADITIONAL_COLOR_ATLAS='01_sources/cards/images/patterns/atlases/色韵色卡图鉴.md';
+const excludedSourcePath=value=>value===TRADITIONAL_COLOR_ATLAS||value===TRADITIONAL_COLOR_ROOT.slice(0,-1)||value.startsWith(TRADITIONAL_COLOR_ROOT);
+function excludedSourceRecord(note){
+  if(excludedSourcePath(note.path))return true;
+  const fields=note.fields||{};
+  if(fields.collection_kind!=='color-palette')return false;
+  if(fields.pattern_family==='色韵')return true;
+  try{return new URL(fields.source_url).hostname==='cncolor.art';}catch{return false;}
+}
 const fail = (code,message) => { throw new ConnectorError(code,message); };
 const safeRelative = value => {
   if(typeof value!=='string'||!value||value.startsWith('/')||/[\\\x00-\x1f]/.test(value)||value.split('/').some(bit=>!bit||bit==='.'||bit==='..'))fail('PATH_FORBIDDEN','文件路径无效');
@@ -27,6 +42,7 @@ class LocalVaultGateway extends EventEmitter {
         if(identity?.path===this.vaultPath&&/^[\w-]{8,200}$/.test(identity.id||''))id=identity.id;}
     }catch{/* New installations use the existing unpaired local workspace. */}
     this.identity={id,name:path.basename(this.vaultPath),path:this.vaultPath,storage:'local-files',protocolVersion:1};
+    this.legacy=createLegacyLibrary({vaultPath:this.vaultPath,cachePath,locate:(...args)=>this.locate(...args)});
   }
   checkRoot(){
     const stat=fs.lstatSync(this.vaultPath);
@@ -43,9 +59,11 @@ class LocalVaultGateway extends EventEmitter {
   async readFile(relative){
     this.locate(relative,false,true);
     const file=await fs.promises.open(path.join(this.vaultPath,relative),fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW);
-    try{const stat=await file.stat();if(!stat.isFile())fail('PATH_FORBIDDEN','此路径不是文件');const value=await file.readFile();this.locate(relative,false,true);return value;}finally{await file.close();}
+    try{const note=relative.endsWith('.md'),value=await readBoundedFile(file,{maxBytes:note?4*1024*1024:64*1024*1024,code:note?'NOTE_TOO_LARGE':'ATTACHMENT_TOO_LARGE',message:note?'笔记过大，请打开原文件阅读':'单个附件预览上限为 64 MiB，可打开原文件阅读'});this.locate(relative,false,true);return value;}
+    finally{await file.close();}
   }
-  notePath(value){safeRelative(value);if(!value.endsWith('.md')||!ROOTS.some(root=>value.startsWith(root)))fail('PATH_FORBIDDEN','此笔记不在资料范围内');return value;}
+  notePath(value){safeRelative(value);if(!value.endsWith('.md')||!ROOTS.some(root=>value.startsWith(root))&&!this.legacy.isProjectPath(value))fail('PATH_FORBIDDEN','此笔记不在资料范围内');return value;}
+  isApprovedProjectDocumentPath(value){return this.legacy.isApprovedProjectDocumentPath(value);}
   attachmentPath(value,sourcePath){
     let raw=unwrapped(value);if(!raw)return '';
     if(path.isAbsolute(raw)){if(!raw.startsWith(this.vaultPath+path.sep))return '';raw=path.relative(this.vaultPath,raw);}
@@ -59,14 +77,18 @@ class LocalVaultGateway extends EventEmitter {
     const extension=path.extname(original).slice(1).toLowerCase();
     result.originalPath='';
     if(original&&MIME[extension]){result.originalPath=original;result.originalMime=MIME[extension];result.originalName=String(result.fields.original_name||path.basename(original));}
+    result.originalAvailable=!!result.originalPath;
+    if(result.originalPath)result.originalKind='vault-file';
+    if(!result.originalPath&&this.legacy.externalBook(result))Object.assign(result,{originalAvailable:true,originalKind:'legacy-external-pdf',originalName:path.basename(unwrapped(result.fields.source_file||result.fields.pdf)),originalMime:'application/pdf'});
     return result;
   }
-  async readNote(relative){this.notePath(relative);const bytes=await this.readFile(relative);if(bytes.length>4*1024*1024)fail('NOTE_TOO_LARGE','笔记过大，请打开原文件阅读');return this.toNote(relative,bytes.toString('utf8'));}
+  async readNote(relative){this.notePath(relative);if(excludedSourcePath(relative))fail('SOURCE_EXCLUDED','中国传统色素材已移出梦藏收录范围，原文件仍保留');const document=this.legacy.isApprovedProjectDocumentPath(relative)?this.legacy.document(relative):null;const project=!document&&this.legacy.isProjectPath(relative)?await this.legacy.project(relative):null;const bytes=await this.readFile(relative);if(bytes.length>4*1024*1024)fail('NOTE_TOO_LARGE','笔记过大，请打开原文件阅读');const note=this.toNote(relative,bytes.toString('utf8'));if(excludedSourceRecord(note))fail('SOURCE_EXCLUDED','中国传统色素材已移出梦藏收录范围，原文件仍保留');return document?this.legacy.documentNote(note):project?this.legacy.projectNote(note,project):note;}
   async snapshot(){
-    const entries=[],materials=[],books=[],errors=[];
-    if(!this.status().connected)return {identity:this.identity,entries,materials,books,projects:[],errors:[],capabilities:{capture:false,captureAttachment:false}};
+    const entries=[],materials=[],books=[],projects=[],documents=[],errors=[];
+    if(!this.status().connected)return {identity:this.identity,entries,materials,books,projects,documents,errors,capabilities:{capture:false,captureAttachment:false}};
     const files=[];
     const walk=async relative=>{
+      if(excludedSourcePath(relative))return;
       if(!this.locate(relative,true))return;
       for(const entry of await fs.promises.readdir(path.join(this.vaultPath,relative),{withFileTypes:true})){
         if(entry.name.startsWith('.')||entry.isSymbolicLink())continue;
@@ -78,9 +100,13 @@ class LocalVaultGateway extends EventEmitter {
     for(const relative of files){
       try{const note=await this.readNote(relative);if(note.fields.type!=='material'&&note.fields.type!=='book'&&note.fields.record_type!=='inspiration')continue;
         (note.kind==='book'?books:note.kind==='entry'?entries:materials).push(note);
-      }catch(error){errors.push({path:relative,message:error.message});}
+      }catch(error){if(error.code!=='SOURCE_EXCLUDED')errors.push({path:relative,message:error.message});}
     }
-    return {identity:this.identity,entries,materials,books,projects:[],errors,capabilities:{capture:true,captureAttachment:true},revision:Date.now()};
+    let registrations=[];
+    try{registrations=await this.legacy.registrations();}catch(error){errors.push({path:'_meta/projects.json',message:error.message});}
+    for(const registration of registrations){if(this.legacy.isApprovedProjectDocumentPath(registration.path))continue;try{projects.push(await this.readNote(registration.path));}catch(error){errors.push({path:registration.path,message:error.message});}}
+    for(const relative of this.legacy.documentPaths){try{if(this.legacy.document(relative,true))documents.push(await this.readNote(relative));}catch(error){errors.push({path:relative,message:error.message});}}
+    return {identity:this.identity,entries,materials,books,projects,documents,errors,capabilities:{capture:true,captureAttachment:true},revision:Date.now()};
   }
   async attachment(relative){
     safeRelative(relative);if(!relative.startsWith('01_sources/'))fail('PATH_FORBIDDEN','附件不在资料范围内');
@@ -89,7 +115,33 @@ class LocalVaultGateway extends EventEmitter {
     return {data:await this.readFile(relative),contentType:type};
   }
   async readAttachment(notePath){const note=await this.readNote(notePath);if(!note.originalPath)fail('ORIGINAL_MISSING','笔记没有可读取的本地原文件');const original=await this.attachment(note.originalPath);return {name:note.originalName,type:original.contentType,size:original.data.length,dataUrl:`data:${original.contentType};base64,${original.data.toString('base64')}`};}
-  async original(relative){const note=await this.readNote(relative);if(note.originalPath){this.locate(note.originalPath,false,true);return {kind:'file',path:path.join(this.vaultPath,note.originalPath)};}if(note.url)return {kind:'url',url:note.url};fail('ORIGINAL_MISSING','没有可用的原文件或来源链接');}
+  async readingFile(relative){
+    // This internal descriptor never crosses IPC. Only a saved note can select
+    // an associated original; the renderer cannot request a pathname.
+    const note=await this.readNote(relative),fields=note.fields||{};
+    if([note,fields].some(value=>value.hidden===true||value.deleted===true||value.archived===true||value.draft===true||/^(?:archived?|trash|deleted|draft)$/i.test(String(value.status||''))))fail('READER_SOURCE_UNAVAILABLE','此资料已归档、隐藏或尚未保存，不能打开阅读器');
+    const type=note.originalMime;
+    if(!['application/pdf','application/epub+zip'].includes(type))fail('READER_FORMAT_UNSUPPORTED','请选择已保存的 PDF 或 EPUB 原件');
+    let file;
+    if(note.originalPath){this.locate(note.originalPath,false,true);file=path.join(this.vaultPath,note.originalPath);}
+    else if(type==='application/pdf')file=this.legacy.externalBook(note);
+    if(!file)fail('READER_SOURCE_UNAVAILABLE','图书没有可读取的本机原件');
+    const extension=path.extname(file).toLowerCase();
+    if(type==='application/pdf'?extension!=='.pdf':extension!=='.epub')fail('READER_FORMAT_UNSUPPORTED','原件格式与资料记录不匹配');
+    const opened=await fs.promises.open(file,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW);
+    try{
+      const stat=await opened.stat({bigint:true});
+      if(!stat.isFile()||stat.size<1n||stat.size>BigInt(Number.MAX_SAFE_INTEGER))fail('READER_SOURCE_UNAVAILABLE','图书原件为空或过大');
+      const buffer=Buffer.alloc(80),{bytesRead}=await opened.read(buffer,0,buffer.length,0),header=buffer.subarray(0,bytesRead);
+      const valid=type==='application/pdf'?header.subarray(0,5).toString()==='%PDF-':header.length>=58&&header.subarray(0,4).equals(Buffer.from([80,75,3,4]))&&header.readUInt16LE(8)===0&&header.readUInt16LE(26)===8&&header.readUInt16LE(28)===0&&header.subarray(30,38).toString()==='mimetype'&&header.subarray(38,58).toString()==='application/epub+zip';
+      if(!valid)fail('READER_FORMAT_UNSUPPORTED','原件文件头与 PDF 或 EPUB 格式不匹配');
+      if(note.originalPath)this.locate(note.originalPath,false,true);else if(this.legacy.externalBook(note)!==file)fail('READER_SOURCE_UNAVAILABLE','图书原件关联已更改');
+      const current=await fs.promises.stat(file,{bigint:true}),version=fingerprint(fileVersion(stat));
+      if(version!==fingerprint(fileVersion(current)))fail('READER_SOURCE_UNAVAILABLE','图书原件已更改，请重新打开');
+      return {file,note,noteVersion:note.hash,name:path.basename(note.originalName||file),type,size:Number(stat.size),fileVersion:version,sourceKey:fingerprint([relative,type,version])};
+    }finally{await opened.close();}
+  }
+  async original(relative){const note=await this.readNote(relative);if(note.kind==='project-document'){this.legacy.document(relative);return {kind:'file',path:path.join(this.vaultPath,relative)};}if(note.kind==='project'){await this.legacy.project(relative);return {kind:'file',path:path.join(this.vaultPath,relative)};}if(note.originalPath){this.locate(note.originalPath,false,true);return {kind:'file',path:path.join(this.vaultPath,note.originalPath)};}const externalBook=this.legacy.externalBook(note);if(externalBook)return {kind:'file',path:externalBook};if(note.url)return {kind:'url',url:note.url};fail('ORIGINAL_MISSING','没有可用的原文件或来源链接');}
   async related(){return {candidates:[],confirmed:[]};}
   async ensureFolder(relative){
     safeRelative(relative);let parent='';

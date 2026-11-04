@@ -1,7 +1,7 @@
 {
   "name": "mengcang-obsidian",
   "private": true,
-  "version": "0.8.6",
+  "version": "0.9.0",
   "description": "Local-first Obsidian material archive and human-confirmed relation explorer.",
   "scripts": {
     "build": "node scripts/build-attachment-validation.mjs && node scripts/build-fusion-style.mjs && esbuild src/main.js --bundle --external:obsidian --external:playwright --platform=node --format=cjs --outfile=main.js",

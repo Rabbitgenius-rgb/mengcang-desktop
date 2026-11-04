@@ -103,10 +103,34 @@ test('pending, complete, failed and classification results roundtrip with exact 
   assert.equal(complete().result.text, result.text);
   assert.equal(complete({result:{...result, mode:'The Gist'}}).result.mode, 'The Gist');
   assert.throws(() => complete({result:{...result, mode:'Visual analysis'}}), /响应方式与请求不一致/);
-  for (const changes of [{apiKey:'secret'}, {result:{...result, key:'secret'}}, {result:{text:attachment.dataUrl}}, {result:{...result, text:'x'.repeat(100001)}}, {result:{...result, usage:{total_tokens:NaN}}}, {sourceSnapshot:{...source, body:new Date()}}, {updatedAt:'not a date'}, {mode:'Settings'}, {phase:'pending'}]) {
+  for (const changes of [{apiKey:'secret'}, {result:{...result, key:'secret'}}, {result:{...result, attachment}}, {result:{...result, text:'x'.repeat(100001)}}, {result:{...result, usage:{total_tokens:NaN}}}, {sourceSnapshot:{...source, body:new Date()}}, {updatedAt:'not a date'}, {mode:'Settings'}, {phase:'pending'}]) {
     assert.throws(() => complete(changes), /AI 结果草稿无效/);
   }
   assert.throws(() => normalizeAiRecord(Object.assign(Object.create({}), complete())), /JSON/);
+});
+
+test('quoted data URLs remain ordinary text while raw attachment fields stay excluded', () => {
+  const prose = 'HTML 示例：data:image/png;base64,iVBORw0KGgo=；这里只是在说明编码格式。';
+  const record = complete({sourceSnapshot:{...source, body:prose}, result:{...result, text:prose}});
+  const reopened = listAiRecords(roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record})).drafts)[0];
+  assert.equal(reopened.result.text, prose);
+  assert.equal(reopened.sourceSnapshot.body, prose);
+  assert.throws(() => complete({result:{...result, dataUrl:attachment.dataUrl}}), /未允许/);
+});
+
+test('schema-invalid returned text is retained as copy-only recovery through restart', () => {
+  const recoveryText = '服务返回原文\0需人工核对';
+  const record = complete({phase:'failed', result:null, error:'校验未完成', recoveryText});
+  const state = roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record}));
+  assert.equal(listAiRecords(state.drafts)[0].recoveryText, recoveryText);
+  assert.throws(() => insightSaveActions(state, record), /只有已完成/);
+});
+
+test('older oversized OCR drafts remain readable instead of disappearing after the limit alignment', () => {
+  const text = '旧'.repeat(1000001);
+  const record = complete({mode:'OCR', result:{text, local:true, pages:[]}});
+  const state = roundtrip(workspaceReducer(createWorkspaceState(), {type:'draft.set', key:aiResultKey(record.id), value:record}));
+  assert.equal(listAiRecords(state.drafts)[0].result.text, text);
 });
 
 test('a completed image insight atomically creates one text note and its saved receipt through reducer and serialization', async () => {
@@ -115,7 +139,7 @@ test('a completed image insight atomically creates one text note and its saved r
   const operation = insightSaveActions(initial, record, {now:savedAt});
   assert.equal(operation.created, true); assert.equal(operation.cardId, `ai-insight:${requestId}`); assert.deepEqual(operation.actions.map(action => action.type), ['card.upsert', 'card.save', 'draft.set']);
   const persisted = roundtrip(apply(initial, operation)), note = persisted.cards[0];
-  assert.equal(note.body, result.text); assert.equal(note.sourceCardId, source.id); assert.equal(note.type, 'text'); assert.equal(note.attachment, null); assert.equal(note.image, '');
+  assert.ok(note.body.endsWith(result.text));assert.match(note.body,/状态表述仅指这份材料的记载/); assert.equal(note.sourceCardId, source.id); assert.equal(note.type, 'text'); assert.equal(note.attachment, null); assert.equal(note.image, '');
   assert.deepEqual(persisted.savedIds, [operation.cardId]); assert.equal(persisted.drafts[aiResultKey(record.id)].savedCardId, note.id);
   assert.equal(serializeWorkspace(persisted).includes('base64'), false); assert.equal(initial.cards.length, 0);
 });
@@ -153,4 +177,13 @@ test('an aborted save transaction leaves no partial card or receipt, and retry t
   await one.update(state => apply(state, insightSaveActions(state, record, {now:savedAt})));
   const recovered = await two.load(); assert.equal(recovered.cards.length, 1); assert.equal(recovered.drafts[aiResultKey(record.id)].savedCardId, recovered.cards[0].id);
   one.close(); two.close();
+});
+
+test('capture time and program-owned source links survive result draft and backup roundtrips',async()=>{
+ const historical={...source,capturedAt:'2026-09-13T00:56:04+08:00',body:'旧状态。\n[第一处](https://example.test/one)\n[第二处](https://example.test/two)'};
+ const record=complete({sourceSnapshot:await captureAiSource(historical)});
+ const state=roundtrip(apply(createWorkspaceState(),insightSaveActions(createWorkspaceState(),record,{now:savedAt})));
+ assert.equal(state.drafts[aiResultKey(record.id)].sourceSnapshot.capturedAt,historical.capturedAt);
+ assert.match(state.cards[0].body,/收录时间：2026-09-13/);assert.match(state.cards[0].body,/https:\/\/example.test\/one/);assert.match(state.cards[0].body,/https:\/\/example.test\/two/);
+ assert.equal(state.drafts[aiResultKey(record.id)].result.text,result.text);
 });

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>保存到梦藏</title><link rel="stylesheet" href="popup.css"></head>
+<body><header><span class="mark" aria-hidden="true">藏</span><div><h1>保存到梦藏</h1><p id="connection" role="status">正在连接本机资料库…</p></div></header>
+<main>
+<div class="actions"><button id="save-page" class="primary" type="button"><strong>保存网页</strong><span>网址、标题与简介</span></button><button id="save-article" type="button"><strong>保存图文文章</strong><span>正文、标题层级、链接与可下载图片</span></button><button id="save-selection" class="compact-action" type="button">保存选中文字为高亮</button>
+<div class="shot-actions"><button id="save-screenshot" type="button"><strong>保存网页截图</strong><span>当前可见区域，保留出处</span></button><button id="crop-screenshot" type="button">框选截图</button></div></div>
+<section id="crop-panel" class="crop-panel" aria-label="框选网页截图" hidden><h2>框选要保存的画面</h2><p class="field-help">在预览上拖动框选；也可以用方向键移动，按住 Shift 调整大小。</p>
+<div id="crop-stage" class="crop-stage" tabindex="0" role="group" aria-label="截图选区"><img id="crop-image" alt="网页截图预览" draggable="false"><span id="crop-box" hidden></span></div>
+<p id="crop-info" class="field-help" role="status"></p><div class="crop-actions"><button id="commit-crop" type="button">保存选区</button><button id="cancel-crop" type="button">取消</button></div></section>
+<p id="message" class="message" role="status" aria-live="polite"></p>
+<section id="related-panel" class="related-panel" aria-label="我库里的相关资料" hidden><div class="related-heading"><h2>我库里的相关资料</h2><span>仅本机</span></div><p id="related-for" class="related-for"></p><div id="related-items" aria-live="polite"></div></section>
+<details class="organize" open><summary>收录到哪里</summary><div class="organize-fields">
+<fieldset><legend>收藏集 <span id="collection-count"></span></legend><div id="collection-list" class="collection-options"></div><p id="collection-error" class="field-help" role="status"></p><button id="more-collections" class="text-button" type="button" hidden>加载更多收藏集</button></fieldset>
+<label class="note-label" for="note">我的备注</label><textarea id="note" rows="2" maxlength="50000" placeholder="记下为什么要留下这条内容"></textarea>
+<label class="favorite-label"><input id="favorite" type="checkbox"> 同时标星</label>
+<p class="field-help">收藏集和标星也用于右键保存；备注仅用于当前网页，保存后清空。</p>
+</div></details>
+<p class="hint">保存网页中的原图：右键图片，选择「保存图片到梦藏」。</p>
+<section aria-label="本页高亮"><div class="section-title"><h2>本页高亮 <span id="highlight-count"></span></h2><button class="text-button" id="restore-highlights" type="button">重新显示</button></div><p id="highlight-state" class="field-help" role="status"></p><div id="highlights"></div><button id="auto-site" class="site-button" type="button" disabled>开启此网站自动高亮</button><p class="field-help">默认点开扩展才显示。可单独允许此域名在重开网页时显示已存高亮。</p></section>
+<section aria-label="最近收录"><div class="section-title"><h2>最近收录</h2><button class="text-button" id="refresh" type="button">刷新</button></div><div id="jobs"></div></section>
+</main><footer>内容保存到本机 · 请保持梦藏打开</footer><script src="popup.js" type="module"></script></body></html>

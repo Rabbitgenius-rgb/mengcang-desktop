@@ -23,6 +23,12 @@ function entities(state){
  const result=new Map();
  for(const [field,type] of [['cards','card'],['collections','collection'],['boards','board']])for(const item of state[field])result.set(`${type}:${item.id}`,item);
  for(const [id,value] of Object.entries(state.annotations))result.set(`note:${id}`,value);
+ // The card editor writes metadata as well as the card body. Keep a separate
+ // version domain so narrow card updates retain their existing semantics.
+ const memberships=new Map();
+ for(const collection of state.collections)for(const id of collection.cardIds){if(!memberships.has(id))memberships.set(id,[]);memberships.get(id).push(collection.id);}
+ const saved=new Set(state.savedIds),favorites=new Set(state.favoriteIds),hidden=new Set(state.hiddenIds);
+ for(const id of new Set([...state.cards.map(card=>card.id),...Object.keys(state.annotations),...saved,...favorites,...hidden,...memberships.keys()]))result.set(`card-editor:${id}`,{annotation:Object.hasOwn(state.annotations,id)?state.annotations[id]:null,saved:saved.has(id),favorite:favorites.has(id),hidden:hidden.has(id),collectionIds:(memberships.get(id)||[]).sort()});
  for(const [key,value] of Object.entries(state.drafts))result.set(`draft:${key}`,value);
  return result;
 }
@@ -50,9 +56,12 @@ export function createWorkspaceStore(identity='browser-preview',{openDatabase=da
     const tx=db.transaction('workspaces','readwrite'),objectStore=tx.objectStore('workspaces'),request=objectStore.get(key);let failure,result;
     request.onsuccess=()=>{try{
      const current=snapshot(request.result),changedState=updater(current.state,current);
+     if(changedState==null)throw Error('更新操作未返回资料库状态，原内容未更改。');
      if(changedState&&typeof changedState.then==='function')throw Error('资料库事务更新必须同步完成。');
      const safe=JSON.parse(serializeWorkspace(changedState)),state=normalizeWorkspaceState(safe),revision=current.revision+1,entityVersions={...current.entityVersions},before=entities(current.state),after=entities(state);
-     for(const name of new Set([...before.keys(),...after.keys()]))if(!equal(before.get(name),after.get(name)))entityVersions[name]=revision;
+     for(const name of new Set([...before.keys(),...after.keys()]))if(!equal(before.get(name),after.get(name))){entityVersions[name]=revision;if(name.startsWith('card:'))entityVersions[`card-editor:${name.slice(5)}`]=revision;}
+     // Raw card comparison above also advances the editor domain, without
+     // serializing attachments a second time in the metadata aggregate.
      result={state,revision,entityVersions};objectStore.put({format:FORMAT,...result},key);
     }catch(error){failure=error;tx.abort();}};
     request.onerror=()=>{failure=request.error;};

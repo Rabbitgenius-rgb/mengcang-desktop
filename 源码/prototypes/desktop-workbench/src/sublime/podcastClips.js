@@ -1,8 +1,9 @@
 import {normalizeWorkspaceAttachment,safeSourceUrl} from './workspaceModel.js';
 import {fileTypeFor} from './attachmentPreview.js';
+import {fingerprintWorkspaceAttachment} from './attachmentFingerprint.js';
 
 export const MAX_TRANSCRIPT_BYTES=2*1024*1024;
-export const MAX_TRANSCRIPT_CUES=10000;
+export const MAX_TRANSCRIPT_CUES=20000;
 export function parseClipTime(value) {
   if(typeof value==='number')return Number.isFinite(value)&&value>=0?value:NaN;
   const text=String(value??'').trim().replace(',','.');
@@ -52,7 +53,7 @@ export function parseTimedTranscript(input) {
     // Strip real markup first, then decode once so escaped literal tags remain text.
     const text=decodeSubtitleEntities(lines.slice(timingIndex+1).join('\n').replace(/<[^>]*>/g,'')).trim();
     if(text)cues.push({...range,text});
-    if(cues.length>MAX_TRANSCRIPT_CUES)throw Error('字幕条目超过 10000 条，请分段导入。');
+    if(cues.length>MAX_TRANSCRIPT_CUES)throw Error('字幕条目超过 20000 条，请分段导入。');
   }
   if(!cues.length)throw Error('没有读到带时间的字幕，请选择 SRT 或 WebVTT 文件。');
   return cues.sort((a,b)=>a.start-b.start||a.end-b.end);
@@ -61,7 +62,13 @@ export function transcriptForRange(cues,start,end) {
   const range=validateClipRange(start,end);
   return cues.filter(cue=>cue.start<range.end&&cue.end>range.start).map(cue=>cue.text).join('\n');
 }
-export function buildPodcastClip({title='',note='',sourceCard,attachment,start,end,duration,cues=[],sourceUrl=''}={}) {
+// Reuse the byte-based digest used by transcription. Names, dates and card IDs
+// are not audio versions, and the digest never embeds a second copy of a file.
+export async function podcastAudioSha256(attachment) {
+  if(!attachment||fileTypeFor(attachment)?.kind!=='audio')throw Error('请先选择可核验的音频附件。');
+  return (await fingerprintWorkspaceAttachment(attachment)).sha256;
+}
+export function buildPodcastClip({title='',note='',sourceCard,attachment,start,end,duration,cues=[],sourceUrl='',sourceAudioSha256=''}={}) {
   const file=attachment||sourceCard?.attachment;
   if(!file||fileTypeFor(file)?.kind!=='audio')throw Error('请先选择本机音频或资料库中的音频附件。');
   normalizeWorkspaceAttachment(file);
@@ -70,9 +77,12 @@ export function buildPodcastClip({title='',note='',sourceCard,attachment,start,e
   if(transcript.length>99000)throw Error('所选字幕过长，请缩短片段。');
   if(typeof note!=='string'||note.length>50000)throw Error('片段备注不能超过 50000 字。');
   if(sourceUrl&&!safeSourceUrl(sourceUrl))throw Error('来源链接应为有效的 http 或 https 地址。');
+  if(sourceAudioSha256&&!/^[a-f\d]{64}$/i.test(sourceAudioSha256))throw Error('音频来源指纹无效，请重新核对原文件。');
   const sourceTitle=sourceCard?.title||file.name;
-  return {title:String(title).trim().slice(0,1000)||`${sourceTitle} · ${location}`,type:'audio',body:transcript||`音频片段 · ${location}`,caption:note,
+  const suffix=` · ${location}`,truncate=(text,limit)=>text.slice(0,limit).replace(/[\uD800-\uDBFF]$/,'');
+  return {title:truncate(String(title).trim(),1000)||`${truncate(sourceTitle,1000-suffix.length)}${suffix}`,type:'audio',body:transcript||`音频片段 · ${location}`,caption:note,
     sourceTitle,sourceUrl:safeSourceUrl(sourceUrl||sourceCard?.sourceUrl||''),sourceLocation:`音频片段 ${location}`,
     ...(sourceCard?.id?{sourceCardId:sourceCard.id}:{attachment:file}),
+    ...(sourceAudioSha256?{sourceAudioSha256:sourceAudioSha256.toLowerCase()}:{}),
     tags:['播客片段'],collectionIds:[],favorite:false,private:false};
 }

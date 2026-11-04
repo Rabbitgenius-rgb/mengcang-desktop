@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "梦藏 · 网页收录",
+  "description": "保存网页、文章、高亮、图片和网页截图；在面板中查看个人库的相关资料。",
+  "version": "0.3.0",
+  "minimum_chrome_version": "120",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjxP3sDa6Gyq+fdDfbq94WKE2obBpWeD+J2AVClZlvvBHveyIphEVJU6NZ2pl7FvArr2ohMJEgYQshruSXHf6k6+/8G6InTnWtHkx87am1mcD+MY0uRK+O0nz8lF8nWGUp+eHcMCAw/smyrnAoxA0FdZCpS+vEfJOadzEZ8KLjk+h7ieys1peFq+zBjnrB1NYC8F9iNP0SaTwVFNDGC/wXnVA80g4AkVTZfX+UnsOSdzsI6o1ydpENv0aA84wsbQQSEUWO39z+PI6SZkCJ6YlV3MbSG1TQOksjTzt2nhqUNadJfmKEuWuX1/xAQxCbN5l8cBeY2oUhL3D5P6/xpnY5wIDAQAB",
+  "permissions": ["activeTab", "scripting", "contextMenus", "nativeMessaging", "storage"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {"service_worker": "background.js", "type": "module"},
+  "action": {"default_title": "保存到梦藏", "default_popup": "popup.html"},
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"}
+}

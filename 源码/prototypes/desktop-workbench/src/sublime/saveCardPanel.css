@@ -1,0 +1,45 @@
+.sublime-workspace .sw-save-panel{position:fixed;z-index:35;box-sizing:border-box;padding:14px;border:1px solid var(--sw-line,#8883);border-radius:13px;background:var(--sw-card);color:var(--sw-text);box-shadow:0 14px 35px #0005;overflow:auto;font-family:inherit;font-size:13px;line-height:1.5}
+.sw-save-panel header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:11px;color:var(--sw-muted)}
+.sw-save-panel header button{display:grid;place-items:center;padding:2px;border:0;background:transparent;color:var(--sw-icon);cursor:pointer}
+.sublime-workspace .sw-save-panel textarea{display:block;box-sizing:border-box;width:100%;min-height:85px;resize:vertical;border:1px solid transparent;border-radius:9px;padding:11px;background:var(--sw-bg);color:var(--sw-text);font-family:inherit;font-size:14px;line-height:1.6}
+.sw-save-panel textarea:focus{outline:1px solid var(--sw-icon)}
+.sw-save-panel button{cursor:pointer}
+.sw-save-panel .sp-collections-toggle{display:flex;align-items:center;gap:6px;width:100%;padding:7px 9px;margin:10px 0;border:0;border-radius:18px;background:var(--sw-bg);color:var(--sw-text);font-family:inherit;font-size:13px;line-height:1.5}
+.sp-collections-toggle span{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-options{display:flex;gap:8px}
+.sp-options button{display:flex;align-items:center;gap:5px;flex:1;min-width:0;border:0;border-radius:18px;padding:6px 8px;background:var(--sw-bg);color:var(--sw-muted);font-family:inherit;font-size:12px;line-height:1.4}
+.sp-options i{position:relative;display:block;margin-left:auto;flex-shrink:0;width:28px;height:16px;border:1px solid var(--sw-line,#8885);border-radius:10px;background:var(--sw-panel)}
+.sp-options i:after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--sw-icon);transition:transform .12s}
+.sp-options [aria-checked="true"]{color:var(--sw-white)}.sp-options [aria-checked="true"] i{background:var(--sw-icon)}.sp-options [aria-checked="true"] i:after{transform:translateX(12px);background:var(--sw-bg)}
+.sp-collections{padding:0 3px 11px}.sp-collections>input{box-sizing:border-box;width:100%;padding:8px;border:1px solid var(--sw-line,#8884);border-radius:7px;background:var(--sw-bg);color:var(--sw-text);font-family:inherit;font-size:13px;line-height:1.5}
+.sp-collection-list{max-height:140px;overflow:auto;margin:7px 0}.sp-collection-list label{display:flex;gap:7px;align-items:center;padding:6px 2px;font-size:13px;cursor:pointer}.sp-collection-list input{width:15px;height:15px;margin:0;accent-color:var(--sw-icon)}.sp-collection-list p{font-size:12px;color:var(--sw-muted)}
+.sp-new{display:flex;gap:6px;align-items:center;padding:4px 0;border:0;background:none;color:var(--sw-text);font-family:inherit;font-size:12px;line-height:1.5}
+.sw-save-panel footer{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:13px}
+.sw-save-panel footer small{display:flex;align-items:center;gap:3px;color:var(--sw-muted);font-size:10px}
+.sublime-workspace .sp-submit{display:flex;align-items:center;gap:8px;border:0;border-radius:7px;padding:8px 12px;background:var(--sw-white);color:var(--sw-bg);font-family:inherit;font-size:13px;line-height:1.5}
+.sw-save-panel .sp-error{margin:10px 0 0;font-size:12px;color:#bc5050;white-space:pre-wrap}
+.sw-save-panel :disabled{cursor:wait;opacity:.65}
+.sw-card-return{display:flex;align-items:center;gap:10px}
+.sw-current-preview{display:block;width:46px;height:46px;flex-shrink:0;border:1px solid var(--sw-line,#8883);border-radius:7px;padding:0;overflow:hidden;background:var(--sw-card);color:var(--sw-text);cursor:pointer}
+.sw-current-preview img{display:block;width:100%;height:100%;object-fit:cover}.sw-current-preview span{display:block;padding:5px;font-size:7px;line-height:1.25;text-align:left;overflow:hidden;max-height:40px}
+@media(prefers-reduced-motion:reduce){.sp-options i:after{transition:none}}
+
+/* Compact, anchored saving surface shared by detail and related cards. */
+.sublime-workspace .sw-save-panel{padding:14px;border:0;border-radius:11px;background:var(--sw-panel);box-shadow:0 10px 25px #0004}
+.sw-save-panel header{height:0;margin:0}
+.sw-save-panel header button{position:absolute;right:20px;top:19px;padding:3px;z-index:1}
+.sp-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sublime-workspace .sw-save-panel textarea{min-height:74px;padding:10px 30px 10px 12px;background:var(--sw-card);border-radius:9px;font-size:14px;line-height:1.5}
+.sw-save-panel .sp-collections-toggle{margin:10px 0;padding:5px 8px;background:var(--sw-card)}
+.sw-save-panel .sp-options button{padding:5px 8px;background:var(--sw-card)}
+.sw-save-panel footer{margin-top:12px}
+.sublime-workspace .sp-submit{padding:6px 12px;border-radius:6px}
+.sw-save-panel .sp-collection-list label{align-items:flex-start;overflow-wrap:anywhere}
+.sw-save-panel .sp-collection-list p{margin:8px 0}
+.sw-save-panel :focus-visible{outline:2px solid #00aaff;outline-offset:2px}
+
+.sw-save-panel .sp-note-label{display:grid;gap:6px;margin:0;color:var(--sw-text);font-size:13px;font-weight:550}
+.sw-save-panel .sp-options{display:flex}
+.sw-save-panel .sp-options button{width:100%}
+.sw-save-panel .sp-more{display:inline-flex;align-items:center;gap:4px;background:none;border:0;color:var(--sw-muted);font-size:13px;padding:6px 2px;margin-top:4px}
+.sw-save-panel .sp-more[aria-expanded=true] svg{transform:rotate(180deg)}

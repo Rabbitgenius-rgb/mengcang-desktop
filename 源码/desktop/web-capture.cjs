@@ -170,4 +170,4 @@ function createWebCapture({lookup=dns.lookup.bind(dns), request=requestPage, tru
     } finally { clearTimeout(timer); }
   };
 }
-module.exports = {captureWebPage:createWebCapture(),createWebCapture,validatePublicUrl,isPublicAddress,extractPage,requestPage,MAX_BYTES,MAX_TEXT};
+module.exports = {captureWebPage:createWebCapture(),createWebCapture,validatePublicUrl,isPublicAddress,resolvePublic,extractPage,requestPage,MAX_BYTES,MAX_TEXT};

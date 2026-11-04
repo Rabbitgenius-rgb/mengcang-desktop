@@ -1,0 +1,26 @@
+.se-rich-preview {
+  padding: 1rem;
+  min-height: 5rem;
+  overflow-wrap: anywhere;
+}
+.se-rich-editable[hidden] {
+  display: none;
+}
+.se-safe-rich pre {
+  max-width: 100%;
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid var(--sw-border, #64707d);
+  border-radius: 8px;
+  background: var(--sw-card, #222830);
+  color: inherit;
+  white-space: pre;
+}
+.se-safe-rich pre code {
+  padding: 0;
+  background: transparent;
+  white-space: inherit;
+}
+.se-safe-rich ol {
+  padding-left: 1.5em;
+}

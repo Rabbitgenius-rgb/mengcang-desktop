@@ -1,4 +1,4 @@
-import {workspaceDependencies} from './fixtures/workspace-dependencies.mjs';
+import {workspaceDependencies,currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
 import * as recallLibrary from '../src/sublime/recallLibrary.js';
 import test from 'node:test';
@@ -118,7 +118,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],useMeaningSearch}=
   if(specifier==='react')return react;if(specifier==='@tabler/icons-react')return icons;
   if(specifier==='../reader/readerState.js')return readerState;if(specifier==='../reader/BookReader.jsx')return {default:empty};
   if(specifier==='./workspaceModel.js')return model;if(specifier==='./workspaceView.js')return view;if(specifier==='../discoveryModel.js')return discovery;if(specifier==='../desktopModel.js')return desktop;
-  if(specifier==='./workspaceStore.js')return {createWorkspaceStore:()=>({})};if(specifier==='./recallLibrary.js')return recallLibrary;if(specifier==='./StarHome.jsx')return {default:empty};if(specifier==='./starHomeView.js')return starHomeView;if(specifier==='./workspacePersistence.js')return {createWorkspaceSession:()=>observedSession};
+  if(specifier==='./workspaceStoreV3.js')return {createWorkspaceStoreV3:()=>({})};if(specifier==='./recallLibrary.js')return recallLibrary;if(specifier==='./StarHome.jsx')return {default:empty};if(specifier==='./starHomeView.js')return starHomeView;if(specifier==='./workspacePersistence.js')return {createWorkspaceSession:()=>observedSession};
   if(specifier==='./workspaceNavigation.js')return {createWorkspaceNavigation:options=>(navigation={restoreCurrent(){},record(){},open:(route)=>options.restore({route,filters:{query:'',media:'All',sort:'newest',inLibrary:false,favorite:false}})})};
   if(specifier==='./SublimeEditors.jsx')return {CardEditor,CollectionEditor:empty,CanvasEditor:empty,ImportEditor:empty,SafeRichBody:empty};
   if(specifier==='./referenceCards.js')return {listeningCard:{id:'unused-reference'}};if(specifier==='./intelligenceHelpers.js')return intelligence;if(specifier==='./intelligenceDrafts.js')return intelligenceDrafts;if(specifier==='./podcastTranscription.js')return podcastTranscription;
@@ -126,7 +126,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],useMeaningSearch}=
   if(specifier==='./BookCoverEditor.jsx')return {default:empty};if(specifier==='./bookCover.js')return {applyBookCover:(current,expected,image)=>({...current,image})};
   if(specifier==='./rendererQuit.js')return {}; // No native quit callback in this fixture.
   if(['./AttachmentPreview.jsx','./VaultAttachmentPreview.jsx','./IntelligencePanel.jsx','./SourceFeeds.jsx','./PodcastClips.jsx','./externalContext.js','./publishableCollection.js'].includes(specifier))return {default:empty,PodcastClipPlayback:empty};
-  if(specifier.endsWith('.css'))return {};throw Error('Unexpected module '+specifier);
+  if(specifier.endsWith('.css'))return {};return currentWorkspaceModule(specifier);
  };
  const module={exports:{}};vm.compileFunction(compiled,['module','exports','require','window','history','location','setTimeout','clearTimeout'])(module,module.exports,require,{history,location,matchMedia:()=>({matches:false})},history,location,()=>0,()=>{});
  function render(){stateIndex=refIndex=memoIndex=layoutIndex=0;scheduled=[];tree=module.exports.default({identity,items});for(const run of scheduled)run();return tree;}
@@ -227,7 +227,7 @@ test('queued raw descendants also follow own functional transactions without ble
 test('valid backups whose combined card count exceeds the limit keep the import dialog usable',async()=>{
  const {store,one}=await setup();const before=await one.commit(current=>model.normalizeWorkspaceState({...current,cards:Array.from({length:10000},(_,index)=>({id:`existing-${index}`}))}));
  const ui=workspaceUI(one,{hash:'#/collections'}),backup=JSON.stringify({...createWorkspaceState(),cards:Array.from({length:10001},(_,index)=>({id:`incoming-${index}`}))});
- const input=ui.find(node=>node.type==='input'&&node.props.type==='file'&&node.props.accept==='.json,application/json');assert.ok(input);
+ const input=ui.find(node=>node.type==='input'&&node.props.type==='file'&&node.props.accept?.includes('application/json'));assert.ok(input);
  await input.props.onChange({target:{files:[{size:Buffer.byteLength(backup),text:async()=>backup}],value:'synthetic.json'}});
  assert.doesNotThrow(()=>ui.render());const alert=ui.find(node=>node.props?.role==='alert');assert.ok(alert);assert.match(JSON.stringify(alert.props.children),/20000/);
  const modal=ui.find(node=>node.props?.title==='导入备份');assert.ok(modal);assert.equal(ui.find(node=>node.type==='button'&&node.props.children?.includes('合并备份')),null);

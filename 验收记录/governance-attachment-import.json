@@ -1,0 +1,9 @@
+{
+  "id": "9e675342-e766-4972-b185-adca795c490c",
+  "bytes": 52428800,
+  "expectedSha256": "ec0bda8955c994dc33d50f38a3cb49c78f61bd2ef156cac8a59fa0b40c952fc7",
+  "importToCommitMs": 480.89999997615814,
+  "samples": 1,
+  "preparationExcluded": true,
+  "afterRestartHashVerified": true
+}

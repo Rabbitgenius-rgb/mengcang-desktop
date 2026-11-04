@@ -1,0 +1,21 @@
+{
+  "legacyRuntime": {
+    "version": "0.9.0",
+    "archive": "../../work/desktop-logic-fix-20261103/desktop-source",
+    "mainUnmodified": true
+  },
+  "isolatedProfiles": true,
+  "migrationPreservedV2": true,
+  "compatibilityJsonBytes": 5427,
+  "importedUsingOldUi": true,
+  "restartedOldRuntime": true,
+  "newCardFoundInOldUi": true,
+  "changedNoteShownInOldUi": true,
+  "originalBodyAndAttachmentPreserved": true,
+  "attachmentBytesVerified": 68,
+  "favoriteAndCollectionPreserved": true,
+  "unreadReadArchivedVerifiedInOldUi": true,
+  "cards": 5,
+  "errors": [],
+  "scope": "归档0.9.0应用资源使用当前Electron运行；独立小库验证，不代表500MiB旧版降级或正式安装版验收。"
+}

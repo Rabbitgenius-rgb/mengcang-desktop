@@ -54,7 +54,7 @@ const fs = require('node:fs/promises'),
           await page.evaluate(async () => {
             const q = await import('/acceptance.js'),
               files = q.createAttachmentStore();
-            const id = 'isolated-migration-acceptance';
+            const id = 'isolated-migration-acceptance-' + crypto.randomUUID();
             const old = q.createLegacyStore(id);
             let initial = q.createWorkspaceState();
             const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aC1sAAAAASUVORK5CYII=';

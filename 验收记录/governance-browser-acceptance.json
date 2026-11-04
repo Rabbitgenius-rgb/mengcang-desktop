@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "菜单键盘与Esc返焦",
+    "新建保存并刷新读回",
+    "收藏集创建与归属",
+    "完整ZIP导出读回"
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 900,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "noHorizontalOverflow": true
+    }
+  ],
+  "contrast": {
+    "checked": 25,
+    "lowest": 6.15,
+    "failures": []
+  },
+  "errors": []
+}

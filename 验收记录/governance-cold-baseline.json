@@ -1,0 +1,29 @@
+{
+  "runtime": "archived-0.9.0-v2",
+  "samplesPerSize": 1,
+  "osCachesCleared": false,
+  "timingBoundary": "process launch to persisted sample card visible; card detail operation then verified",
+  "results": [
+    {
+      "sizeMiB": 10,
+      "restartToLibraryOperableMs": 577,
+      "detailOpened": true,
+      "cards": 1,
+      "bytesVerified": 10485760
+    },
+    {
+      "sizeMiB": 50,
+      "restartToLibraryOperableMs": 1570,
+      "detailOpened": true,
+      "cards": 1,
+      "bytesVerified": 52428800
+    },
+    {
+      "sizeMiB": 150,
+      "restartToLibraryOperableMs": 3083,
+      "detailOpened": true,
+      "cards": 3,
+      "bytesVerified": 157286400
+    }
+  ]
+}

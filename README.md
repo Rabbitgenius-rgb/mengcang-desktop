@@ -23,7 +23,9 @@ npm run candidate
 
 `npm run acceptance:desktop` 在开发候选版的隔离资料库运行搜索、阅读定位、图片放大、关联笔记、整理和回看验收，并关闭重开读回。该命令会重建自己的测试资料。`npm run acceptance:browser` 检查浏览器新建、刷新读回、收藏集、ZIP导出、键盘和双尺寸布局。
 
-本轮验收结果与画面保存在 `验收记录/`。性能使用合成附件测量，应用重开计时从新进程启动至资料库可操作。AI测试采用模拟调用。
+`node governance/attachment-import-acceptance.cjs` 单独测量新附件导入及重启原件读回。旧运行时验收通过 `node governance/legacy-cold-baseline.cjs /path/to/archived-app-resources` 与 `node governance/legacy-runtime-acceptance.cjs /path/to/archived-app-resources` 复核；归档资源是包含 `package.json`、主进程和 `renderer/` 的应用资源目录。以上脚本仅使用各自的 `qa/` 隔离目录。
+
+本轮结果、适用边界及画面见[治理验收记录](验收记录/治理验收.md)。性能使用合成附件测量，应用重开计时从新进程启动至资料库可操作。AI测试采用模拟调用。
 
 ## 存储与恢复
 

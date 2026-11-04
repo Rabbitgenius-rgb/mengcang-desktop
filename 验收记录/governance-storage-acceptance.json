@@ -1,0 +1,21 @@
+{
+  "coldStartsMs": [
+    913,
+    527,
+    599
+  ],
+  "content": [
+    {
+      "cards": 10,
+      "bytesVerified": 524288000,
+      "tooLargeDowngradeBlocked": true
+    },
+    {
+      "migrationPreservedV2": true,
+      "zipReadback": true,
+      "oldVersionReadback": true,
+      "postMigrationCard": true,
+      "notesAndRecall": true
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -16,9 +17,9 @@ function text(tree){return tree==null||typeof tree==='boolean'?'':typeof tree===
 function lifecycle(source,initialProps,modules={},globals={}){
  const slots=[];let cursor=0,pending=[],dirty=false,tree,props=initialProps;
  const equal=(a,b)=>!!a&&!!b&&a.length===b.length&&a.every((v,i)=>Object.is(v,b[i]));
- const react={Fragment:Symbol(),createElement:(type,props,...children)=>({type,props:{...props,children}}),useMemo:(factory,deps)=>{const i=cursor++,prior=slots[i];if(!prior||!equal(prior.deps,deps))slots[i]={value:factory(),deps};return slots[i].value;},useRef:initial=>{const i=cursor++;return slots[i]??(slots[i]={current:initial});},useState:initial=>{const i=cursor++;if(!slots[i])slots[i]={value:typeof initial==='function'?initial():initial};return [slots[i].value,next=>{const value=typeof next==='function'?next(slots[i].value):next;if(!Object.is(value,slots[i].value)){slots[i].value=value;dirty=true;}}];},useEffect:(effect,deps)=>{const i=cursor++,prior=slots[i];if(!prior||!equal(prior.deps,deps)){slots[i]={deps,cleanup:prior?.cleanup};pending.push({i,effect});}}};
+ const react={Fragment:Symbol(),createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useMemo:(factory,deps)=>{const i=cursor++,prior=slots[i];if(!prior||!equal(prior.deps,deps))slots[i]={value:factory(),deps};return slots[i].value;},useRef:initial=>{const i=cursor++;return slots[i]??(slots[i]={current:initial});},useState:initial=>{const i=cursor++;if(!slots[i])slots[i]={value:typeof initial==='function'?initial():initial};return [slots[i].value,next=>{const value=typeof next==='function'?next(slots[i].value):next;if(!Object.is(value,slots[i].value)){slots[i].value=value;dirty=true;}}];},useEffect:(effect,deps)=>{const i=cursor++,prior=slots[i];if(!prior||!equal(prior.deps,deps)){slots[i]={deps,cleanup:prior?.cleanup};pending.push({i,effect});}}};
  const icons=new Proxy({},{get:()=>()=>null}),module={exports:{}};
- const require=name=>name==='react'?react:name==='@tabler/icons-react'?icons:name.endsWith('.css')?{}:name in modules?modules[name]:(()=>{throw Error('Unexpected import '+name);})();
+ const require=name=>name==='react'?react:name==='@tabler/icons-react'?icons:name.endsWith('.css')?{}:name in modules?modules[name]:currentWorkspaceModule(name);
  const names=Object.keys(globals);vm.compileFunction(source,['module','exports','require',...names])(module,module.exports,require,...Object.values(globals));
  function refs(node){if(!node||typeof node!=='object')return;if(Array.isArray(node)){node.forEach(refs);return;}if(node.props?.ref&&typeof node.props.ref==='object'&&!node.props.ref.current)node.props.ref.current={contains:()=>true,getBoundingClientRect:()=>({left:0,top:0,width:100,height:100}),replaceChildren(){},style:{setProperty(){}},getContext:()=>({})};refs(node.props?.children);}
  function render(patch={}){props={...props,...patch};cursor=0;dirty=false;tree=module.exports.default(props);refs(tree);return tree;}

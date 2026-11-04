@@ -1,3 +1,5 @@
+import {sourceFunction} from './support/source-function.mjs';
+import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -13,7 +15,7 @@ const compile=async path=>(await transform(await readFile(new URL(path,import.me
 const previewCode=await compile('../src/sublime/VaultAttachmentPreview.jsx');
 const standaloneCode=await compile('../src/StandaloneApp.jsx');
 const workspaceSource=await readFile(new URL('../src/sublime/SublimeWorkspace.jsx',import.meta.url),'utf8');
-const adapterSource=workspaceSource.match(/^function adaptItem\(item\)\{.*\}$/m)?.[0];
+const adapterSource=sourceFunction(workspaceSource,'adaptItem');
 assert.ok(adapterSource,'Exercise the actual workspace adapter, not a copy');
 const adaptItem=vm.runInNewContext(`(${adapterSource})`,{publicDiscoveryItem});
 const AttachmentPreview=()=>null,Workspace=()=>null;
@@ -31,7 +33,7 @@ function lifecycle(code,initialProps={},globals={}){
  const slots=[];let cursor=0,pending=[],dirty=false,tree,props=initialProps,writes=0;
  const equal=(a,b)=>!!a&&!!b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
  const useMemo=(factory,deps)=>{const index=cursor++,previous=slots[index];if(!previous||!equal(previous.deps,deps))slots[index]={value:factory(),deps};return slots[index].value;};
- const react={Fragment:Symbol('fragment'),createElement:(type,props,...children)=>({type,props:{...props,children}}),useMemo,useCallback:(callback,deps)=>useMemo(()=>callback,deps),useRef:initial=>{const index=cursor++;return slots[index]??(slots[index]={current:initial});},useState:initial=>{const index=cursor++;if(!slots[index])slots[index]={value:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{writes++;const value=typeof next==='function'?next(slots[index].value):next;if(!Object.is(value,slots[index].value)){slots[index].value=value;dirty=true;}}];},useEffect:(effect,deps)=>{const index=cursor++,previous=slots[index];if(!previous||!equal(previous.deps,deps)){slots[index]={deps,cleanup:previous?.cleanup};pending.push({index,effect});}}};
+ const react={Fragment:Symbol('fragment'),createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useMemo,useCallback:(callback,deps)=>useMemo(()=>callback,deps),useRef:initial=>{const index=cursor++;return slots[index]??(slots[index]={current:initial});},useState:initial=>{const index=cursor++;if(!slots[index])slots[index]={value:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{writes++;const value=typeof next==='function'?next(slots[index].value):next;if(!Object.is(value,slots[index].value)){slots[index].value=value;dirty=true;}}];},useEffect:(effect,deps)=>{const index=cursor++,previous=slots[index];if(!previous||!equal(previous.deps,deps)){slots[index]={deps,cleanup:previous?.cleanup};pending.push({index,effect});}}};
  const module={exports:{}};
  vm.runInNewContext(code,{module,exports:module.exports,Error,Promise,console,...globals,require:specifier=>{
   if(specifier==='react')return react;
@@ -39,7 +41,7 @@ function lifecycle(code,initialProps={},globals={}){
   if(specifier==='./AttachmentPreview.jsx')return {__esModule:true,default:AttachmentPreview};
   if(specifier==='./sublime/SublimeWorkspace.jsx')return {__esModule:true,default:Workspace};
   if(specifier==='./standalone.css')return {};
-  throw Error('Unexpected import '+specifier);
+  return currentWorkspaceModule(specifier);
  }});
  function render(patch={}){props={...props,...patch};cursor=0;dirty=false;tree=module.exports.default(props);return tree;}
  function commit(){for(let pass=0;pass<20;pass++){const effects=pending;pending=[];for(const {index,effect} of effects){slots[index].cleanup?.();slots[index].cleanup=effect();}if(!dirty&&!pending.length)return;render();}throw Error('Synthetic lifecycle failed to settle');}

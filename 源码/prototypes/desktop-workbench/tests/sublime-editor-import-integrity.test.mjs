@@ -1,3 +1,4 @@
+import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
 import * as recallLibrary from '../src/sublime/recallLibrary.js';
 import test from 'node:test';
@@ -50,7 +51,7 @@ function findNode(tree,predicate){if(!tree||typeof tree!=='object')return null;i
 function workspaceUI(session,{hash='#/add/edit:card',items=[],realNavigation=false,captureSource=intelligenceDrafts.captureAiSource,api={}}={}){
  const identity={id:'synthetic-editor'},states=[],refs=[],memos=[],layouts=[],begins=[],ends=[],submissions=[];let stateIndex=0,refIndex=0,memoIndex=0,layoutIndex=0,tree,scheduled=[];
  const same=(a,b)=>a&&b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
- const react={Fragment:Symbol(),createElement:(type,props,...children)=>({type,props:{...props,children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
+ const react={Fragment:Symbol(),createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
  const CardEditor=()=>null,ImportEditor=()=>null,CollectionEditor=()=>null,empty=()=>null,icons=new Proxy({},{get:()=>empty});
  const observedSession={...session,get state(){return session.state;},get writing(){return session.writing;},beginEdit:(...args)=>{begins.push(args[0]);return session.beginEdit(...args);},endEdit:(...args)=>{ends.push(args[0]);return session.endEdit(...args);},commit:(actions,options)=>{submissions.push({actions,options});return session.commit(actions,options);}};
  let navigation;const location={hash,href:'https://example.test/'},entries=[{state:{},hash}],history={
@@ -63,7 +64,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],realNavigation=fal
  const require=specifier=>{
   if(specifier==='react')return react;if(specifier==='@tabler/icons-react')return icons;
   if(specifier==='./workspaceModel.js')return model;if(specifier==='./workspaceView.js')return view;if(specifier==='../discoveryModel.js')return discovery;if(specifier==='../desktopModel.js')return desktop;
-  if(specifier==='./workspaceStore.js')return {createWorkspaceStore:()=>({})};if(specifier==='./recallLibrary.js')return recallLibrary;if(specifier==='./StarHome.jsx')return {default:empty};if(specifier==='./starHomeView.js')return starHomeView;if(specifier==='./workspacePersistence.js')return {createWorkspaceSession:()=>observedSession};
+  if(specifier==='./workspaceStoreV3.js')return {createWorkspaceStoreV3:()=>({})};if(specifier==='./recallLibrary.js')return recallLibrary;if(specifier==='./StarHome.jsx')return {default:empty};if(specifier==='./starHomeView.js')return starHomeView;if(specifier==='./workspacePersistence.js')return {createWorkspaceSession:()=>observedSession};
   if(specifier==='./workspaceNavigation.js')return {createWorkspaceNavigation:options=>(navigation=realNavigation?navigationModel.createWorkspaceNavigation(options):{restoreCurrent(){},record(){},open:(route)=>options.restore({route,filters:{query:'',media:'All',sort:'newest',inLibrary:false,favorite:false}})})};
   if(specifier==='./SublimeEditors.jsx')return {CardEditor,CollectionEditor,CanvasEditor:empty,ImportEditor,SafeRichBody:empty};
   if(specifier==='./referenceCards.js')return {listeningCard:{id:'unused-reference'}};if(specifier==='./intelligenceHelpers.js')return intelligence;if(specifier==='./intelligenceDrafts.js')return {...intelligenceDrafts,captureAiSource:captureSource};if(specifier==='./podcastTranscription.js')return podcastTranscription;
@@ -73,9 +74,9 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],realNavigation=fal
   if(specifier==='./BookCoverEditor.jsx')return {default:empty};if(specifier==='./bookCover.js')return {applyBookCover:(current,expected,image)=>({...current,image})};
   if(specifier==='./rendererQuit.js')return {}; // No native quit callback in this fixture.
   if(['./AttachmentPreview.jsx','./VaultAttachmentPreview.jsx','./IntelligencePanel.jsx','./SourceFeeds.jsx','./PodcastClips.jsx','./externalContext.js','./publishableCollection.js'].includes(specifier))return {default:empty,PodcastClipPlayback:empty};
-  if(specifier.endsWith('.css'))return {};throw Error('Unexpected module '+specifier);
+  if(specifier.endsWith('.css'))return {};return currentWorkspaceModule(specifier);
  };
- const module={exports:{}};vm.compileFunction(compiled,['module','exports','require','window','history','location','setTimeout','clearTimeout'])(module,module.exports,require,{history,location,matchMedia:()=>({matches:false})},history,location,()=>0,()=>{});
+ const module={exports:{}};vm.compileFunction('const innerWidth=1440,innerHeight=900;'+compiled,['module','exports','require','window','history','location','setTimeout','clearTimeout'])(module,module.exports,require,{history,location,matchMedia:()=>({matches:false})},history,location,()=>0,()=>{});
  function render(patch={}){if(Object.hasOwn(patch,'items'))items=patch.items;stateIndex=refIndex=memoIndex=layoutIndex=0;scheduled=[];tree=module.exports.default({identity,items,api});for(const run of scheduled)run();return tree;}
  function refresh(){states[0].value={...session.state,drafts:session.drafts()};refs[2].current=session.state;return render();}
  render();return {render,refresh,history,location,recordHistory:()=>navigation.record(),begins,ends,submissions,find:predicate=>findNode(tree,predicate),editor:()=>findNode(tree,node=>node.type===CardEditor)?.props,importer:()=>findNode(tree,node=>node.type===ImportEditor)?.props,collector:()=>findNode(tree,node=>node.type===CollectionEditor)?.props,navigate:(page,id='')=>{navigation.open({page,id,sourcePage:1});render();}};
@@ -90,10 +91,10 @@ const editorCompiled=(await transform(source,{loader:'jsx',format:'cjs',jsx:'tra
 function editor(name,props,services={}){
   const slots=[],effects=[];let cursor=0,effectCursor=0,tree,scheduled=[];
   const same=(a,b)=>a&&b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
-  const react={Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,children}}),isValidElement:value=>Boolean(value&&value.props),useEffect:(effect,deps)=>{const index=effectCursor++;if(!effects[index]||!same(deps,effects[index].deps))scheduled.push(()=>{effects[index]?.cleanup?.();effects[index]={deps,cleanup:effect()};});},useMemo:factory=>factory(),useRef:value=>{const index=cursor++;return slots[index]??(slots[index]={current:value});},useState:initial=>{const index=cursor++;if(!slots[index])slots[index]={value:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
+  const react={Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),isValidElement:value=>Boolean(value&&value.props),useEffect:(effect,deps)=>{const index=effectCursor++;if(!effects[index]||!same(deps,effects[index].deps))scheduled.push(()=>{effects[index]?.cleanup?.();effects[index]={deps,cleanup:effect()};});},useMemo:factory=>factory(),useRef:value=>{const index=cursor++;return slots[index]??(slots[index]={current:value});},useState:initial=>{const index=cursor++;if(!slots[index])slots[index]={value:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
   const icons=new Proxy({},{get:(_,name)=>function Icon(){return react.createElement('svg',{'data-icon':String(name)});}});
   const module={exports:{}};
-  const context={module,exports:module.exports,FileReader:services.FileReader,Blob,URL,Error,crypto:globalThis.crypto,console,setTimeout,clearTimeout,require:path=>path==='react'?react:path==='@tabler/icons-react'?icons:path==='../discoveryModel.js'?discovery:path==='./workspaceModel.js'?model:path==='./attachmentPreview.js'?attachments:path==='./webCapture.js'?{captureWebPage:services.captureWebPage||(()=>{throw Error('Unexpected web request');})}:path==='./bookCover.js'?{defaultBookCover:async()=>''}:path==='./BookCoverEditor.jsx'?{default:()=>null}:path==='./BookCoverEditor.jsx'?{default:()=>null}:path==='./bookCover.js'?{defaultBookCover:async()=>''}:path==='./AttachmentPreview.jsx'?{default:()=>null}:path.endsWith('.css')?{}:(()=>{throw Error('Unexpected import '+path);})()};
+  const context={module,exports:module.exports,FileReader:services.FileReader,Blob,URL,Error,crypto:globalThis.crypto,console,setTimeout,clearTimeout,require:path=>path==='react'?react:path==='@tabler/icons-react'?icons:path==='../discoveryModel.js'?discovery:path==='./workspaceModel.js'?model:path==='./attachmentPreview.js'?attachments:path==='./webCapture.js'?{captureWebPage:services.captureWebPage||(()=>{throw Error('Unexpected web request');})}:path==='./bookCover.js'?{defaultBookCover:async()=>''}:path==='./BookCoverEditor.jsx'?{default:()=>null}:path==='./BookCoverEditor.jsx'?{default:()=>null}:path==='./bookCover.js'?{defaultBookCover:async()=>''}:path==='./AttachmentPreview.jsx'?{default:()=>null}:path.endsWith('.css')?{}:currentWorkspaceModule(path)};
   vm.compileFunction(editorCompiled,Object.keys(context))(...Object.values(context));
   function render(){cursor=effectCursor=0;scheduled=[];tree=module.exports[name](props);for(const run of scheduled)run();return tree;}
   render();
@@ -162,7 +163,7 @@ test('editing a Vault file saves a navigable source relation without copying a l
  await ui.editor().onSave(payload);
  const saved=(await store.load()).cards.find(c=>c.body==='Edited source note body');
  assert.ok(saved);assert.equal(saved.origin,'local');assert.equal(saved.attachment,null);assert.equal(saved.sourceCardId,item.path);assert.equal(saved.originalPath,undefined);
- ui.refresh();const sourceButton=ui.find(node=>node.type==='button'&&text(node).startsWith('查看来源文件'));assert.ok(sourceButton);sourceButton.props.onClick();ui.refresh();assert.equal(text(ui.find(node=>node.props?.className==='sw-addedby sw-origin')),'原始资料');
+ ui.refresh();const sourceButton=ui.find(node=>node.type==='button'&&text(node).startsWith('查看来源文件'));assert.ok(sourceButton);sourceButton.props.onClick();ui.refresh();assert.equal(ui.find(node=>node.type?.name==='CardIdentity').props.card.origin,'vault');
 });
 
 test('SourceFeeds import does not consume unrelated ImportEditor input',async()=>{
@@ -254,7 +255,7 @@ for(const name of ['CardEditor','ImportEditor'])test(`${name} ignores a late Fil
 
 test('real navigation snapshots exclude modal payloads and their attachment bytes',async()=>{
  const {one}=await setup();await one.commit({type:'card.upsert',card:{id:'card',attachment:smallAudio}});
- const ui=workspaceUI(one,{hash:'#/library',realNavigation:true});ui.find(node=>node.props?.label==='分享 card').props.onClick();ui.render();
+ const ui=workspaceUI(one,{hash:'#/library',realNavigation:true});ui.find(node=>node.props?.label==='分享：card').props.onClick();ui.render();
  assert.ok(ui.find(node=>node.props?.title==='分享离线卡片'));
  const entry=ui.recordHistory();assert.equal(Object.hasOwn(entry,'modal'),false);assert.equal(JSON.stringify(ui.history.state).includes(smallAudio.dataUrl),false);
 });
@@ -273,7 +274,7 @@ test('a narrow collection pin never blesses an unfinished full editor or recreat
 
 const backupFile=(name,read)=>({target:{files:[{name,size:1000,text:read}],value:name}});
 const backupText=id=>model.serializeWorkspace(model.workspaceReducer(model.createWorkspaceState(),{type:'card.upsert',card:{id,title:id,body:'Backup body '+id}}));
-const backupPicker=ui=>ui.find(node=>node.type==='input'&&node.props.type==='file'&&node.props.accept==='.json,application/json');
+const backupPicker=ui=>ui.find(node=>node.type==='input'&&node.props.type==='file'&&node.props.accept?.includes('application/json'));
 const restoreModal=ui=>ui.find(node=>node.props?.title==='导入备份');
 const pasteInput=ui=>ui.find(node=>node.type==='textarea'&&node.props['aria-label']==='备份 JSON 内容');
 function openPaste(ui){ui.find(node=>node.props?.label==='本机工具').props.onClick();ui.render();button(ui,'粘贴备份内容').props.onClick();ui.render();}
@@ -334,7 +335,7 @@ test('a superseded backup failure cannot replace the new preview or show an old 
 for(const destination of ['route','modal'])test(`a backup read completing after a new ${destination} does not reopen restore`,async()=>{
  const {one}=await setup(),ui=workspaceUI(one,{hash:'#/library'});let release;
  const pending=backupPicker(ui).props.onChange(backupFile('pending.json',()=>new Promise(resolve=>release=resolve)));
- if(destination==='route')ui.navigate('import');else{ui.find(node=>node.props?.label==='分享 card').props.onClick();ui.render();}
+ if(destination==='route')ui.navigate('import');else{ui.find(node=>node.props?.label==='分享：card').props.onClick();ui.render();}
  release(backupText('late'));await pending;ui.render();assert.equal(restoreModal(ui),null);
  if(destination==='route')assert.ok(ui.importer());else assert.ok(ui.find(node=>node.props?.title==='分享离线卡片'));
 });
@@ -349,7 +350,7 @@ test('a pending merge commits its chosen backup but leaves a newer modal open',a
  const {store:base}=await setup();let pause=false,release,started;const began=new Promise(resolve=>started=resolve);
  const one=createWorkspaceSession({...base,update:async updater=>{if(pause){pause=false;started();await new Promise(resolve=>release=resolve);}return base.update(updater);}});await one.load();const ui=workspaceUI(one,{hash:'#/library'});
  await backupPicker(ui).props.onChange(backupFile('chosen.json',async()=>backupText('chosen')));ui.render();pause=true;const pending=button(ui,'合并备份').props.onClick();await began;
- restoreModal(ui).props.onClose();ui.render();ui.find(node=>node.props?.label==='分享 card').props.onClick();ui.render();release();await pending;ui.refresh();
+ restoreModal(ui).props.onClose();ui.render();ui.find(node=>node.props?.label==='分享：card').props.onClick();ui.render();release();await pending;ui.refresh();
  assert.ok((await base.load()).cards.some(card=>card.id==='chosen'));assert.ok(ui.find(node=>node.props?.title==='分享离线卡片'));
 });
 
@@ -365,7 +366,7 @@ for(const sourceId of ['card','missing-original'])test(`a recovered private note
 test('opening and closing another modal invalidates a pending backup read even when modal returns to null',async()=>{
  const {one}=await setup(),ui=workspaceUI(one,{hash:'#/library'});let release;
  const pending=backupPicker(ui).props.onChange(backupFile('old.json',()=>new Promise(resolve=>release=resolve)));
- ui.find(node=>node.props?.label==='分享 card').props.onClick();ui.render();ui.find(node=>node.props?.title==='分享离线卡片').props.onClose();ui.render();
+ ui.find(node=>node.props?.label==='分享：card').props.onClick();ui.render();ui.find(node=>node.props?.title==='分享离线卡片').props.onClose();ui.render();
  release(backupText('old'));await pending;ui.render();assert.equal(restoreModal(ui),null);
 });
 
@@ -433,20 +434,20 @@ test('read-only native identities above the persisted saved-ID limit remain view
  const {store,one}=await setup(),before=await store.load(),ui=workspaceUI(one,{hash:'#/library'});
  ui.find(node=>node.props?.['aria-label']==='搜索资料库').props.onChange({target:{value:'UNIQUE-LARGE-LIBRARY'}});ui.render();
  const items=Array.from({length:20001},(_,index)=>({path:'native/source-'+index+'.md',title:index===20000?'UNIQUE-LARGE-LIBRARY':'Native source '+index,body:'Read-only body'}));
- ui.render({items});assert.ok(ui.find(node=>node.props?.['aria-label']==='打开 UNIQUE-LARGE-LIBRARY · 原始资料'));assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 UNIQUE-LARGE-LIBRARY'));assert.deepEqual(await store.load(),before);
+ ui.render({items});assert.ok(ui.find(node=>node.props?.card?.title==='UNIQUE-LARGE-LIBRARY'&&typeof node.props?.onOpen==='function'));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：UNIQUE-LARGE-LIBRARY'));assert.deepEqual(await store.load(),before);
 });
 
 test('native membership updates when distinct source ID arrays have the same joined text',async()=>{
  const {one}=await setup(),items=ids=>ids.map(path=>({path,title:path,body:'Native source body'})),ui=workspaceUI(one,{hash:'#/library',items:items(['a|b','c'])});
- assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 a|b'));
- ui.render({items:items(['a','b|c'])});assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 a'));assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 b|c'));assert.equal(ui.find(node=>node.props?.['aria-label']==='打开 a|b'),null);
+ assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：a|b'));
+ ui.render({items:items(['a','b|c'])});assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：a'));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：b|c'));assert.equal(ui.find(node=>node.props?.card?.id==='a|b'&&typeof node.props?.onOpen==='function'),null);
 });
 
 test('memoized native membership reflects saved hidden and favorite array replacements',async()=>{
- const {one}=await setup(),item={path:'native',title:'Native title',body:'Native body'},ui=workspaceUI(one,{hash:'#/library',items:[item]});assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 Native title'));
- await one.commit([{type:'card.favorite',id:'native',value:true},{type:'card.hide',id:'native',hidden:true}]);ui.refresh();assert.equal(ui.find(node=>node.props?.['aria-label']==='打开 Native title · 原始资料'),null);
- ui.navigate('trash');assert.ok(ui.find(node=>node.props?.['aria-label']==='打开 Native title · 原始资料'));assert.ok(ui.find(node=>node.props?.className==='sw-favorite-mark'));
- await one.commit({type:'card.hide',id:'native',hidden:false});ui.refresh();ui.navigate('library');assert.ok(ui.find(node=>node.props?.['aria-label']==='已保存 Native title'));
+ const {one}=await setup(),item={path:'native',title:'Native title',body:'Native body'},ui=workspaceUI(one,{hash:'#/library',items:[item]});assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：Native title'));
+ await one.commit([{type:'card.favorite',id:'native',value:true},{type:'card.hide',id:'native',hidden:true}]);ui.refresh();assert.equal(ui.find(node=>node.props?.card?.title==='Native title'&&typeof node.props?.onOpen==='function'),null);
+ ui.navigate('trash');assert.ok(ui.find(node=>node.props?.card?.title==='Native title'&&typeof node.props?.onOpen==='function'));assert.ok(ui.find(node=>node.props?.className==='sw-favorite-mark'));
+ await one.commit({type:'card.hide',id:'native',hidden:false});ui.refresh();ui.navigate('library');assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：Native title'));
  await one.commit({type:'card.favorite',id:'native',value:false});ui.refresh();assert.equal(ui.find(node=>node.props?.className==='sw-favorite-mark'),null);
 });
 
@@ -487,27 +488,28 @@ test('ordinary exports with only OCR or captions reach the real import transacti
  }
 });
 
-test('same-title insight identity is visible before the preview, survives filtering and matches detail without writes',async()=>{
+test('same-title insights retain separate exact-card actions through filtering and detail navigation without writes',async()=>{
  const {store,one}=await setup(),title='合成同名解读';
  const cards=[
   {id:'ai-insight:11111111-1111-4111-8111-111111111111',origin:'local',type:'text',title,tags:['AI 解读'],body:'仅第一份匹配',createdAt:'2026-10-18T01:02:03Z'},
   {id:'ai-insight:22222222-2222-4222-8222-222222222222',origin:'local',type:'text',title,tags:['AI 解读'],body:'仅第二份匹配',createdAt:'2026-10-18T02:03:04Z'},
  ];
  await one.commit(cards.flatMap(card=>[{type:'card.upsert',card},{type:'card.save',id:card.id,saved:true}]));
- const before=JSON.stringify(await store.load()),ui=workspaceUI(one,{hash:'#/library'});
- const open=card=>ui.find(node=>node.type==='button'&&node.props?.['aria-label']?.startsWith(`打开 ${title}`)&&node.props['aria-label'].includes(card.id.slice(-8)));
+ const before=JSON.stringify(await store.load()),ui=workspaceUI(one,{hash:'#/library',realNavigation:true});
+ const open=card=>ui.find(node=>node.props?.card?.id===card.id&&typeof node.props?.onOpen==='function');
  assert.ok(open(cards[0]));assert.ok(open(cards[1]));
- const tile=ui.find(node=>node.type==='article'&&node.props?.role==='gridcell'&&node.props.children.some(child=>child?.type?.name==='CardIdentity'&&child.props.card.id===cards[0].id));
- assert.ok(tile);const children=tile.props.children;
- assert.ok(children.findIndex(child=>child?.type?.name==='CardIdentity')<children.findIndex(child=>child?.props?.className==='sw-tile-body'));
+ assert.notEqual(open(cards[0]).props.card.id,open(cards[1]).props.card.id);
+ assert.equal(open(cards[0]).props.card.body,cards[0].body);
+ assert.equal(open(cards[1]).props.card.body,cards[1].body);
  ui.find(node=>node.props?.['aria-label']==='搜索资料库').props.onChange({target:{value:'仅第一份匹配'}});ui.render();
  assert.ok(open(cards[0]));assert.equal(open(cards[1]),null);
- const label=open(cards[0]).props['aria-label'];assert.match(label,/保存 2026-10-18 09:02:03/);
- ui.navigate('card',cards[0].id);
- const detail=ui.find(node=>node.type==='p'&&node.props?.className==='sw-card-identity-duplicate');
- assert.ok(detail);assert.ok(label.endsWith(text(detail)));
+ open(cards[0]).props.onOpen(cards[0].id);ui.render();
+ const detail=ui.find(node=>node.type?.name==='CardIdentity');
+ assert.ok(detail);assert.equal(detail.props.card.id,cards[0].id);
+ assert.equal(detail.props.card.createdAt,cards[0].createdAt);
  assert.equal(JSON.stringify(await store.load()),before);
 });
+
 
 
 test('legacy external book uses a note-based original action, keeps body visible and never fetches PDF bytes',async()=>{

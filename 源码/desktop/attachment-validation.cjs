@@ -30,6 +30,7 @@ var references = /* @__PURE__ */ new Map();
 function attachmentRefForUrl(value) {
   return references.get(value) || null;
 }
+var MAX_INLINE_IDENTITY_CHARS = 96 * 1024 * 1024;
 
 // prototypes/desktop-workbench/src/reader/readerState.js
 var READER_SETTINGS = Object.freeze({ theme: "light", fontFamily: "serif", fontSize: 19, lineHeight: 1.9, zoom: 1, fit: "width" });

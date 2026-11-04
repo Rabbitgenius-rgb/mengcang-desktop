@@ -25,7 +25,7 @@ run(node, [
   'eslint.config.mjs',
   'package.json',
 ]);
-run(node, [path.join(root, 'governance/lint.mjs')]);
+run(node, [path.join(root, 'governance/lint.mjs'), '--strict']);
 const unit = await testFiles(path.join(ui, 'tests'));
 const buildDependent = unit.filter((file) => file.endsWith('/sites-worker.test.mjs'));
 run(node, ['--test', ...(await testFiles(path.join(source, 'tests'))), ...unit.filter((file) => !buildDependent.includes(file))]);
@@ -33,5 +33,6 @@ run('npm', ['run', 'desktop:build'], source);
 run('npm', ['run', 'build'], ui);
 run(node, ['--test', ...buildDependent]);
 run(node, [path.join(root, 'governance/reachability.mjs')]);
+run(node, [path.join(root, 'governance/structure.mjs')]);
 run(node, [path.join(root, 'governance/size.mjs')]);
 console.log('All governance checks passed.');

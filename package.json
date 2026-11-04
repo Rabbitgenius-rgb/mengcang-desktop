@@ -5,11 +5,17 @@
   "scripts": {
     "check": "node governance/check.mjs",
     "format:check": "prettier --check 源码/prototypes/desktop-workbench/src governance eslint.config.mjs package.json",
-    "lint": "node governance/lint.mjs",
+    "lint": "node governance/lint.mjs --strict",
     "lint:baseline": "node governance/lint.mjs --update-baseline",
     "reachability": "node governance/reachability.mjs",
     "size": "node governance/size.mjs",
-    "lint:strict": "node governance/lint.mjs --strict"
+    "lint:strict": "node governance/lint.mjs --strict",
+    "structure": "node governance/structure.mjs",
+    "candidate": "npm run desktop:build --prefix 源码 && node governance/candidate.mjs --package",
+    "preview": "npm run dev --prefix 源码/prototypes/desktop-workbench -- --open /preview.html",
+    "acceptance:desktop": "node governance/desktop-acceptance.cjs --fresh",
+    "acceptance:storage": "node governance/candidate.mjs --benchmark && node governance/benchmark.cjs --v3 && node governance/storage-acceptance.cjs",
+    "acceptance:browser": "node governance/browser-acceptance.cjs"
   },
   "devDependencies": {
     "esbuild": "0.25.12",

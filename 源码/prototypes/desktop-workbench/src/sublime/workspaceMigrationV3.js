@@ -3,7 +3,7 @@ import { sameValue } from './workspaceStoreV3Entities.js';
 
 export function openWorkspaceDatabase(indexedDB, name, stores) {
   let opening;
-  return () => {
+  const open = () => {
     if (!opening)
       opening = new Promise((resolve, reject) => {
         const request = indexedDB.open(name, 1);
@@ -32,6 +32,18 @@ export function openWorkspaceDatabase(indexedDB, name, stores) {
       });
     return opening;
   };
+  open.close = async () => {
+    const pending = opening;
+    opening = null;
+    if (pending) {
+      try {
+        (await pending).close();
+      } catch {
+        /* Failed opens own no connection. */
+      }
+    }
+  };
+  return open;
 }
 
 function transactionRecord(db, store, mode, id, value) {
@@ -96,13 +108,26 @@ export function createLegacyWorkspaceAccess(identity, { indexedDB = globalThis.i
       tx.onabort = tx.onerror = () => reject(failure || tx.error || Error('旧副本未能清理。'));
     });
   }
-  return { read, backup, remove };
+  return { read, backup, remove, close: () => Promise.all([open.close(), backups.close()]) };
 }
 
-export function matchingLegacyVersion(legacy, source) {
-  return (
-    !!source &&
-    legacy.present === source.present &&
-    (!legacy.present || (legacy.snapshot.revision === source.revision && (legacy.raw?.format || 'legacy') === source.format))
-  );
+// Old pre-envelope records have no monotonic revision. Fingerprint only that
+// compatibility branch so an older application cannot silently fork its data.
+export async function legacyWorkspaceSource(legacy) {
+  const source = { present: legacy.present, revision: legacy.snapshot.revision, format: legacy.raw?.format || 'legacy' };
+  if (source.present && source.format === 'legacy') {
+    if (!globalThis.crypto?.subtle) throw Error('当前环境无法核验旧资料，请保留原库并在梦藏中重试。');
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(legacy.raw)));
+    source.sha256 = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('');
+  }
+  return source;
+}
+
+export async function matchingLegacyVersion(legacy, source) {
+  if (!source || legacy.present !== source.present) return false;
+  if (!legacy.present) return true;
+  if (legacy.snapshot.revision !== source.revision || (legacy.raw?.format || 'legacy') !== source.format) return false;
+  if (source.format !== 'legacy') return true;
+  const current = await legacyWorkspaceSource(legacy);
+  return typeof source.sha256 === 'string' && source.sha256 === current.sha256;
 }

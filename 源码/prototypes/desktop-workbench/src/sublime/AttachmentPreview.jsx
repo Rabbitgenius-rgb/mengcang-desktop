@@ -37,16 +37,21 @@ export default function AttachmentPreview({
     [selectionError, setSelectionError] = useState(''),
     [indexSaving, setIndexSaving] = useState(false),
     [query, setQuery] = useState('');
+  const attachmentSnapshot = useRef(attachment);
+  attachmentSnapshot.current = attachment;
+  const attachmentKey = JSON.stringify([attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name]);
   const kind = attachmentKind(attachment);
   useEffect(() => {
     mounted.current = true;
+    const requests = run;
     return () => {
       mounted.current = false;
-      run.current++;
+      requests.current++;
     };
   }, []);
   useEffect(() => {
     const request = ++run.current;
+    const attachment = attachmentSnapshot.current;
     let objectUrl = '',
       worker,
       timer;
@@ -127,7 +132,7 @@ export default function AttachmentPreview({
       worker?.terminate();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name, kind]);
+  }, [attachmentKey, kind]);
   async function nativePreview() {
     const request = ++run.current;
     setStatus('loading');

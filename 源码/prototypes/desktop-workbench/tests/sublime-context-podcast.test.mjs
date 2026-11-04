@@ -446,7 +446,7 @@ test('saved podcast playback starts at the saved range and stops at its end with
   assert.equal(pauses, 1);
 });
 
-for (const nextAction of ['another audio', 'transcription', 'recovery', 'parent completion'])
+for (const nextAction of ['another audio', 'transcription', 'recovery', 'parent completion', 'parent completion before effect'])
   test(`a delayed subtitle import cannot overwrite ${nextAction}`, async () => {
     const source = await readFile(new URL('../src/sublime/PodcastClips.jsx', import.meta.url), 'utf8'),
       compiled = (await transform(source, { loader: 'jsx', format: 'cjs', jsx: 'transform' })).code;
@@ -533,7 +533,7 @@ for (const nextAction of ['another audio', 'transcription', 'recovery', 'parent 
       transcriptionDrafts: [{ id: 'history', phase: 'complete', sourceSnapshot: { title: '测试' }, transcript: newTranscript }],
       onRecoverTranscription: async () => restored,
     };
-    if (nextAction === 'parent completion') {
+    if (nextAction.startsWith('parent completion')) {
       props.transcriptionActive = true;
       props.draft.transcriptionPhase = 'pending';
       props.draft.transcriptionRequestId = 'parent-request';
@@ -562,10 +562,10 @@ for (const nextAction of ['another audio', 'transcription', 'recovery', 'parent 
     const text = (node) =>
       node == null ? '' : Array.isArray(node) ? node.map(text).join('') : typeof node === 'object' ? text(node.props?.children) : String(node);
     if (nextAction === 'another audio') find(tree, (node) => node.props?.['aria-label'] === '资料库音频').props.onChange({ target: { value: 'audio-b' } });
-    else if (nextAction === 'parent completion') {
+    else if (nextAction.startsWith('parent completion')) {
       props.draft = { ...restored, transcriptionPhase: 'complete', transcriptionRequestId: 'parent-request' };
       render();
-      completionEffect();
+      if (nextAction === 'parent completion') completionEffect();
     } else
       await find(
         tree,
@@ -574,6 +574,7 @@ for (const nextAction of ['another audio', 'transcription', 'recovery', 'parent 
     render();
     release('1\n00:00:01,000 --> 00:00:02,000\n旧音频的字幕');
     await new Promise((resolve) => setImmediate(resolve));
+    if (nextAction === 'parent completion before effect') completionEffect();
     render();
     if (nextAction === 'another audio') {
       assert.equal(draft.sourceId, 'audio-b');

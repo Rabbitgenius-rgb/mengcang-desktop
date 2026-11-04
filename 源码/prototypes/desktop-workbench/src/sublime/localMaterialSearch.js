@@ -1,3 +1,4 @@
+import { attachmentRefForUrl } from './attachmentRegistry.js';
 import { articleOriginalLocation, articlePageUrl, articleSourceUrl } from './articleReaderModel.js';
 
 // The local gateway returns a fresh list (and timestamp) when it rereads the
@@ -33,7 +34,8 @@ export function localSearchThumbnail(card) {
     sources.find(
       (src) =>
         typeof src === 'string' &&
-        /^(?:data:image\/(?:png|jpeg|gif|webp|avif|bmp|tiff|heic|heif);base64,|mengcang-asset:\/\/vault\/\?path=|blob:mengcang:\/\/app\/)/i.test(src),
+        (attachmentRefForUrl(src)?.type.startsWith('image/') ||
+          /^(?:data:image\/(?:png|jpeg|gif|webp|avif|bmp|tiff|heic|heif);base64,|mengcang-asset:\/\/vault\/\?path=|blob:mengcang:\/\/app\/)/i.test(src)),
     ) || ''
   );
 }

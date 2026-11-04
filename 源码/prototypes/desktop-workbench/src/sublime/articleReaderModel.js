@@ -1,3 +1,5 @@
+import { normalizeWorkspaceAttachment } from './workspaceModel.js';
+import { attachmentRefForUrl } from './attachmentRegistry.js';
 import { normalizeArticleModel, articlePlainText } from '../../../../src/clipper/article.mjs';
 import { textFragmentUrl, normalizeAnchorText, normalizeWebAnchor } from '../../../../src/clipper/anchors.mjs';
 
@@ -28,7 +30,7 @@ export function articleReaderModel(card) {
   let article = null;
   if (card?.article)
     try {
-      article = normalizeArticleModel(card.article);
+      article = normalizeArticleModel(card.article, { normalizeAttachment: normalizeWorkspaceAttachment });
     } catch {}
   const snapshotBody = article ? articlePlainText(article) : '';
   // A plain-text edit must take precedence over its older rich capture. Keep
@@ -54,7 +56,7 @@ export function savedArticleImage(block) {
     /^image\/(?:png|jpeg|gif|webp|avif)$/i.test(attachment.type || '') &&
     Number.isSafeInteger(attachment.size) &&
     attachment.size > 0 &&
-    /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/i.test(attachment.dataUrl || '')
+    (attachmentRefForUrl(attachment.dataUrl) || /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/i.test(attachment.dataUrl || ''))
     ? attachment.dataUrl
     : '';
 }

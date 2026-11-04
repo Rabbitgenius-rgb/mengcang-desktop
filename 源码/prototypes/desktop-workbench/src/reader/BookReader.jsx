@@ -83,7 +83,7 @@ export default function BookReader({
     active = useRef(true),
     root = useRef(null),
     props = useRef({});
-  props.current = { onUpdate, onExit, onLibrary, onExcerpt, readerStates };
+  props.current = { onUpdate, onExit, onLibrary, onExcerpt, readerStates, card, initialNavigation };
   selected.current = { selection, note: annotationNote };
   const [sourceReload, setSourceReload] = useState(0);
   const format = bookFormat(loaded),
@@ -95,7 +95,9 @@ export default function BookReader({
     };
   }, []);
   useEffect(() => {
-    const run = ++generation.current;
+    const requests = generation;
+    const run = ++requests.current;
+    const { card, initialNavigation } = props.current;
     setError('');
     setSelection(null);
     setNavigateTo(null);
@@ -143,15 +145,16 @@ export default function BookReader({
     }
     void load();
     return () => {
-      generation.current++;
+      requests.current++;
     };
   }, [card.id, card.attachment?.dataUrl, card.originalPath, card.originalMime, card.updatedAt, api, initialPage, sourceReload]);
+  const storedReaderState = readerStates[key];
   useEffect(() => {
     if (!key || jobs.current.size || failed.current.length) return;
-    const fresh = normalizeReaderState(readerStates[key]);
+    const fresh = normalizeReaderState(storedReaderState);
     local.current = fresh;
     setState(fresh);
-  }, [key, readerStates[key]]);
+  }, [key, storedReaderState]);
   const flush = useCallback(async () => {
     while (jobs.current.size) await Promise.allSettled([...jobs.current]);
     if (failed.current.length || failedExcerpts.current.length) throw Error('阅读笔记或素材摘录尚未保存，请重试保存或导出笔记保留。');

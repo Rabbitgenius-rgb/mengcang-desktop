@@ -1,18 +1,25 @@
+import { sameAttachmentContent } from './attachmentRegistry.js';
 import { compactAiSource } from './intelligenceDrafts.js';
 import { MAX_TRANSCRIPT_BYTES, parseTimedTranscript } from './podcastClips.js';
 
 export const PODCAST_TRANSCRIPTION_PREFIX = 'podcast-transcription:';
 export const podcastTranscriptionKey = (id) => `${PODCAST_TRANSCRIPTION_PREFIX}${id}`;
 const cleanString = (value, max) => (typeof value === 'string' && value.length <= max && !value.includes('\0') ? value : '');
-const audioStamp = (draft) => [
-  draft?.sourceId || '',
-  draft?.attachment?.name || '',
-  draft?.attachment?.type || '',
-  draft?.attachment?.size || 0,
-  draft?.attachment?.dataUrl || '',
-];
-export function samePodcastAudio(a, b) {
-  return JSON.stringify(audioStamp(a)) === JSON.stringify(audioStamp(b));
+export function samePodcastAudio(left, right) {
+  return (left?.sourceId || '') === (right?.sourceId || '') && sameAttachmentContent(left?.attachment, right?.attachment);
+}
+export function samePodcastDraft(left, right, field) {
+  if (left === right) return true;
+  if (field === 'attachment') return sameAttachmentContent(left, right);
+  return (
+    !!left &&
+    !!right &&
+    typeof left === 'object' &&
+    typeof right === 'object' &&
+    Array.isArray(left) === Array.isArray(right) &&
+    Object.keys(left).length === Object.keys(right).length &&
+    Object.keys(left).every((key) => Object.hasOwn(right, key) && samePodcastDraft(left[key], right[key], key))
+  );
 }
 export function normalizePodcastTranscription(record) {
   if (

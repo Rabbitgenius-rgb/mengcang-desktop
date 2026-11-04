@@ -64,7 +64,7 @@ export default function PersonalRelated({
   const [loading, setLoading] = useState(false),
     [nativeNote, setNativeNote] = useState('');
   const exact = useMemo(() => personalRelations(source, library, collections), [source, library, collections]);
-  const semantic = native?.source === source && native?.library === library ? native.items : [];
+  const semantic = useMemo(() => (native?.source === source && native?.library === library ? native.items : []), [native, source, library]);
   const results = useMemo(() => relatedResults(source, library, exact, semantic, view), [source, library, exact, semantic, view]);
   useEffect(() => {
     views?.set(source.id, {
@@ -74,8 +74,9 @@ export default function PersonalRelated({
       ...(previousRecommendation.current ? { recommendation: previousRecommendation.current } : {}),
     });
   }, [views, source.id, view, native]);
+  const filterOpen = !!filterDraft;
   useLayoutEffect(() => {
-    if (!filterDraft) {
+    if (!filterOpen) {
       setFilterPosition(null);
       return;
     }
@@ -101,9 +102,9 @@ export default function PersonalRelated({
       window.removeEventListener('resize', position);
       window.removeEventListener('scroll', position, true);
     };
-  }, [!!filterDraft]);
+  }, [filterOpen]);
   useEffect(() => {
-    if (!filterDraft) return;
+    if (!filterOpen) return;
     filterRoot.current?.querySelector('input')?.focus({ preventScroll: true });
     const outside = (event) => {
       if (!filterRoot.current?.contains(event.target) && !filterButton.current?.contains(event.target)) setFilterDraft(null);
@@ -122,7 +123,7 @@ export default function PersonalRelated({
       document.removeEventListener('pointerdown', outside);
       document.removeEventListener('keydown', key, true);
     };
-  }, [!!filterDraft]);
+  }, [filterOpen]);
   useEffect(() => {
     if (!root.current || typeof IntersectionObserver !== 'function') {
       setVisible(true);

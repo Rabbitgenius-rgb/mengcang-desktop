@@ -14,7 +14,7 @@ import {publicDiscoveryItem} from '../src/discoveryModel.js';
 const compile=async path=>(await transform(await readFile(new URL(path,import.meta.url),'utf8'),{loader:'jsx',format:'cjs',jsx:'transform'})).code;
 const previewCode=await compile('../src/sublime/VaultAttachmentPreview.jsx');
 const standaloneCode=await compile('../src/StandaloneApp.jsx');
-const workspaceSource=await readFile(new URL('../src/sublime/SublimeWorkspace.jsx',import.meta.url),'utf8');
+const workspaceSource=await readFile(new URL('../src/sublime/workspace/constants.js',import.meta.url),'utf8');
 const adapterSource=sourceFunction(workspaceSource,'adaptItem');
 assert.ok(adapterSource,'Exercise the actual workspace adapter, not a copy');
 const adaptItem=vm.runInNewContext(`(${adapterSource})`,{publicDiscoveryItem});

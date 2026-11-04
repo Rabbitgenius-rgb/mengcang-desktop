@@ -97,7 +97,7 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
     scrollFrame = useRef(0),
     loadSequence = useRef(0),
     lastPosition = useRef(null);
-  callbacks.current = { onLocation, onReady, onSelection, onError };
+  callbacks.current = { onLocation, onReady, onSelection, onError, source };
   sourceLocation.current = location;
   const sourceIdentity = source?.sourceKey || source?.url || source?.dataUrl;
   const hits = useMemo(() => (book ? searchEpub(book, search) : []), [book, search]);
@@ -125,7 +125,7 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
     navigation.current = null;
     (async () => {
       try {
-        const bytes = await readEpubSource(source, { signal: controller.signal });
+        const bytes = await readEpubSource(callbacks.current.source, { signal: controller.signal });
         if (!alive) return;
         const next = await openEpub(bytes, { signal: controller.signal });
         if (!alive || sequence !== loadSequence.current) return;
@@ -153,24 +153,7 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
     };
   }, [sourceIdentity]);
 
-  const go = useCallback(
-    (target) => {
-      if (!book) return;
-      const locator = target?.locator || target || {},
-        next = epubChapterIndex(locator.chapter, book.chapters.length);
-      restoring.current = true;
-      restore.current = { ...locator, chapter: next, progress: epubProgress(locator.progress) };
-      if (next === chapter) {
-        setChapter(next);
-        setActiveHit((previous) => previous);
-        applyLocation();
-      } else setChapter(next);
-      // applyLocation is read at event time after its declaration.
-    },
-    [book, chapter],
-  );
-
-  function applyLocation() {
+  const applyLocation = useCallback(() => {
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       frame.current = 0;
@@ -202,7 +185,24 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
       restoring.current = false;
       emitLocation();
     });
-  }
+  }, [chapter, emitLocation]);
+
+  const go = useCallback(
+    (target) => {
+      if (!book) return;
+      const locator = target?.locator || target || {},
+        next = epubChapterIndex(locator.chapter, book.chapters.length);
+      restoring.current = true;
+      restore.current = { ...locator, chapter: next, progress: epubProgress(locator.progress) };
+      if (next === chapter) {
+        setChapter(next);
+        setActiveHit((previous) => previous);
+        applyLocation();
+      } else setChapter(next);
+      // applyLocation is read at event time after its declaration.
+    },
+    [book, chapter, applyLocation],
+  );
 
   useEffect(() => {
     if (!book || !selected) return;
@@ -239,7 +239,7 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
       alive = false;
       for (const url of urls) URL.revokeObjectURL(url);
     };
-  }, [book, chapter]);
+  }, [book, chapter, selected, applyLocation]);
 
   useEffect(() => {
     if (!book || !navigateTo) return;
@@ -247,14 +247,14 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
     if (navigation.current === token) return;
     navigation.current = token;
     go(navigateTo);
-  }, [book, navigateTo?.nonce, navigateTo?.chapter, navigateTo?.progress, navigateTo?.locator]);
+  }, [book, navigateTo, go]);
   useEffect(() => {
     if (!selected || restoring.current) return;
     const value = lastPosition.current?.chapter === chapter ? lastPosition.current.progress : progressOf(viewport.current);
     restore.current = { chapter, progress: value };
     restoring.current = true;
     applyLocation();
-  }, [settings.fontSize, settings.lineHeight, settings.fontFamily]);
+  }, [settings.fontSize, settings.lineHeight, settings.fontFamily, chapter, selected, applyLocation]);
 
   function selectionChanged() {
     if (!book || !article.current) return;
@@ -278,10 +278,13 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
       label: `${selected.title} · ${Math.round(progressOf(viewport.current) * 100)}%`,
     });
   }
-  function activateLink(href) {
-    const target = book.resolveHref(href);
-    if (target) go({ ...target, progress: 0 });
-  }
+  const activateLink = useCallback(
+    (href) => {
+      const target = book.resolveHref(href);
+      if (target) go({ ...target, progress: 0 });
+    },
+    [book, go],
+  );
   function showHit(index) {
     if (!hits.length) return;
     const next = (index + hits.length) % hits.length;
@@ -307,11 +310,14 @@ export default function EpubBookReader({ source, location = {}, settings = {}, a
       go({ chapter: chapter + 1, progress: 0 });
     }
   }
-  const marks = selected ? chapterMarks(annotations, chapter, selected.text.length) : [];
-  const visibleMarks = activeHit >= 0 && hits[activeHit]?.chapter === chapter ? [...marks, { ...hits[activeHit], id: 'search-result' }] : marks;
+  const marks = useMemo(() => (selected ? chapterMarks(annotations, chapter, selected.text.length) : []), [annotations, chapter, selected]);
+  const visibleMarks = useMemo(
+    () => (activeHit >= 0 && hits[activeHit]?.chapter === chapter ? [...marks, { ...hits[activeHit], id: 'search-result' }] : marks),
+    [activeHit, hits, chapter, marks],
+  );
   const rendered = useMemo(
     () => (selected ? renderChapter(selected.tree, images, visibleMarks, activateLink) : null),
-    [selected, images, annotations, activeHit, hits],
+    [selected, images, visibleMarks, activateLink],
   );
 
   if (loading)

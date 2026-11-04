@@ -1,3 +1,4 @@
+import {compileWorkspace} from './support/compile-workspace.mjs';
 import {workspaceDependencies,currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
 import * as recallLibrary from '../src/sublime/recallLibrary.js';
@@ -103,12 +104,12 @@ import * as intelligence from '../src/sublime/intelligenceHelpers.js';
 import * as intelligenceDrafts from '../src/sublime/intelligenceDrafts.js';
 import * as readerState from '../src/reader/readerState.js';
 import * as podcastTranscription from '../src/sublime/podcastTranscription.js';
-const compiled=(await transform(await readFile(new URL('../src/sublime/SublimeWorkspace.jsx',import.meta.url),'utf8'),{loader:'jsx',format:'cjs',jsx:'transform'})).code;
+const compiled=await compileWorkspace();
 function findNode(tree,predicate){if(!tree||typeof tree!=='object')return null;if(Array.isArray(tree)){for(const node of tree){const match=findNode(node,predicate);if(match)return match;}return null;}return predicate(tree)?tree:findNode(tree.props?.children,predicate);}
 function workspaceUI(session,{hash='#/add/edit:card',items=[],useMeaningSearch}={}){
  const identity={id:'synthetic-editor'},states=[],refs=[],memos=[],layouts=[],begins=[],ends=[],submissions=[];let stateIndex=0,refIndex=0,memoIndex=0,layoutIndex=0,tree,scheduled=[];
  const same=(a,b)=>a&&b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
- const react={Fragment:Symbol(),memo:component=>component,createElement:(type,props,...children)=>({type,props:{...props,children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
+ const react={useCallback:callback=>callback,Fragment:Symbol(),memo:component=>component,createElement:(type,props,...children)=>({type,props:{...props,children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
  const CardEditor=()=>null,empty=()=>null,icons=new Proxy({},{get:()=>empty});
  const observedSession={...session,get state(){return session.state;},get writing(){return session.writing;},beginEdit:(...args)=>{begins.push(args[0]);return session.beginEdit(...args);},endEdit:(...args)=>{ends.push(args[0]);return session.endEdit(...args);},commit:(actions,options)=>{submissions.push({actions,options});return session.commit(actions,options);}};
  let navigation;const location={hash,href:'https://example.test/'},history={state:{},replaceState(){},pushState(){}};
@@ -128,7 +129,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],useMeaningSearch}=
   if(['./AttachmentPreview.jsx','./VaultAttachmentPreview.jsx','./IntelligencePanel.jsx','./SourceFeeds.jsx','./PodcastClips.jsx','./externalContext.js','./publishableCollection.js'].includes(specifier))return {default:empty,PodcastClipPlayback:empty};
   if(specifier.endsWith('.css'))return {};return currentWorkspaceModule(specifier);
  };
- const module={exports:{}};vm.compileFunction(compiled,['module','exports','require','window','history','location','setTimeout','clearTimeout'])(module,module.exports,require,{history,location,matchMedia:()=>({matches:false})},history,location,()=>0,()=>{});
+ const module={exports:{}};vm.compileFunction('const innerWidth=1440,innerHeight=900;'+compiled,['module','exports','require','window','history','location','setTimeout','clearTimeout'])(module,module.exports,require,{history,location,matchMedia:()=>({matches:false})},history,location,()=>0,()=>{});
  function render(){stateIndex=refIndex=memoIndex=layoutIndex=0;scheduled=[];tree=module.exports.default({identity,items});for(const run of scheduled)run();return tree;}
  function refresh(){states[0].value={...session.state,drafts:session.drafts()};refs[2].current=session.state;return render();}
  render();return {render,refresh,begins,ends,submissions,find:predicate=>findNode(tree,predicate),editor:()=>findNode(tree,node=>node.type===CardEditor)?.props,navigate:(page,id='')=>{navigation.open({page,id,sourcePage:1});render();}};
@@ -286,7 +287,7 @@ test('batch actions use only visible checks, while the separately labeled export
  await one.commit(['one','two'].flatMap(id=>[{type:'card.upsert',card:{id,type:'image',title:id}},{type:'card.save',id,saved:true}]));
  const ui=workspaceUI(one,{hash:'#/library'});
  const button=label=>ui.find(n=>n.type==='button'&&n.props.children?.includes(label));
- const click=node=>{node.props.onClick();ui.render();};
+ const click=node=>{node.props.onClick({currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:40,height:40,right:40,bottom:40})},preventDefault(){},stopPropagation(){}});ui.render();};
  const options=()=>click(ui.find(n=>n.props?.label==='资料库选项'));
  click(button('图片'));options();click(button('选择卡片'));
  const disabled=()=>['导出','加入收藏集','标星'].every(label=>button(label).props.disabled);

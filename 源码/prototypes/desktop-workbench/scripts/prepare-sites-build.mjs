@@ -9,6 +9,8 @@ const index = path.join(dist, "client", "index.html");
 const worker = path.join(root, "worker", "index.js");
 const hosting = path.join(root, ".openai", "hosting.json");
 
+if (existsSync(path.join(dist, "client", "preview.html"))) copyFileSync(path.join(dist, "client", "preview.html"), index);
+
 for (const file of [index, worker, hosting]) {
   if (!existsSync(file)) throw new Error("Missing Sites build input: " + file);
 }

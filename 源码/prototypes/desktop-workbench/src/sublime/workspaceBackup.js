@@ -97,6 +97,7 @@ export async function importWorkspaceBackup(input, store) {
   const head = new TextDecoder().decode(
     new Uint8Array(bytes instanceof Uint8Array ? bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + Math.min(bytes.byteLength, 64)) : bytes.slice(0, 64)),
   );
+  if (/^\s*\{/.test(head) && bytes.byteLength > MAX_WORKSPACE_BACKUP_BYTES) throw Error('备份超过256MiB导入上限。');
   if (/^\s*\{/.test(head))
     return { state: parseWorkspaceBackup(new TextDecoder('utf-8', { fatal: true }).decode(bytes)), revision: 0, entityVersions: {}, format: 'legacy-json' };
   const zip = await JSZip.loadAsync(bytes, { checkCRC32: false, createFolders: false });

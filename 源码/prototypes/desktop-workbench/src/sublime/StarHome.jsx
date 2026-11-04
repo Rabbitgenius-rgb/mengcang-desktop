@@ -37,7 +37,7 @@ const excerpt = (card) =>
     .slice(0, 420);
 
 export default function StarHome({ cards = [], state, value = initialStarView(), onChange, onOpen, onLibrary, onAdd, previewLabel = '' }) {
-  const map = useMemo(() => buildStarMap(cards, state), [cards, state.collections, state.annotations]);
+  const map = useMemo(() => buildStarMap(cards, state), [cards, state]);
   const searching = Boolean(value.query.trim());
   const matches = useMemo(() => searchStarCards(cards, state, value.query), [cards, state, value.query]);
   const matchIds = useMemo(() => new Set(matches.map((card) => card.id)), [matches]);
@@ -58,14 +58,16 @@ export default function StarHome({ cards = [], state, value = initialStarView(),
     if (value.selectedId && value.selectedId !== previousSelected.current) panel.current?.focus({ preventScroll: true });
     previousSelected.current = value.selectedId;
   }, [value.selectedId]);
+  const keyboardActions = useRef({ closePreview, onChange });
+  keyboardActions.current = { closePreview, onChange };
   useEffect(() => {
     const key = (event) => {
       if (event.key === 'Escape' && value.selectedId) {
         event.preventDefault();
-        closePreview();
+        keyboardActions.current.closePreview();
       } else if (event.key === 'Escape' && searching) {
         event.preventDefault();
-        onChange(changeStarQuery(value, ''));
+        keyboardActions.current.onChange(changeStarQuery(value, ''));
         search.current?.focus();
       }
     };

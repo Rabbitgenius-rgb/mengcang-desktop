@@ -250,3 +250,87 @@ test('legacy size estimation compacts only the duplicate card image and counts n
   const compact = { ...original, card: { attachment } };
   assert.equal(estimateLegacyWorkspaceBytes(state), new Blob([JSON.stringify(compact)]).size);
 });
+
+test('a v2 article migrates to v3 and keeps its image blocks and saved figure after reload', async () => {
+  const { IDBFactory } = await import('fake-indexeddb');
+  const { createWorkspaceStoreV3 } = await import('../src/sublime/workspaceStoreV3.js');
+  const { createWorkspaceSession } = await import('../src/sublime/workspacePersistence.js');
+  const { articlePlainText } = await import('../../../src/clipper/article.mjs');
+  const { articleReaderModel, savedArticleImage } = await import('../src/sublime/articleReaderModel.js');
+  const { saveArticleFigure, articleFigureBlock } = await import('../src/sublime/articleFigures.js');
+  const article = {
+    version: 1,
+    blocks: [
+      { id: 'title', type: 'heading', level: 2, runs: [{ text: '万维网概念图' }] },
+      { id: 'figure', type: 'image', src: 'https://example.test/concept.png', alt: '概念与链接', caption: '概念图', attachment },
+    ],
+  };
+  let old = workspaceReducer(createWorkspaceState(), {
+    type: 'card.upsert',
+    card: {
+      id: 'article',
+      title: '万维网文章',
+      type: 'article',
+      body: articlePlainText(article),
+      sourceUrl: 'https://example.test/proposal',
+      article,
+    },
+  });
+  old = workspaceReducer(old, { type: 'card.save', id: 'article', saved: true });
+  const indexedDB = new IDBFactory();
+  await new Promise((resolve, reject) => {
+    const request = indexedDB.open('mengcang-sublime-workspace-v1', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('workspaces');
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const tx = request.result.transaction('workspaces', 'readwrite');
+      tx.objectStore('workspaces').put({ format: 'workspace-storage-v2', revision: 4, entityVersions: {}, state: old }, 'article-test');
+      tx.oncomplete = () => {
+        request.result.close();
+        resolve();
+      };
+      tx.onerror = () => reject(tx.error);
+    };
+  });
+  const attachments = memoryStore(),
+    options = { indexedDB, attachments, locks: null, createChannel: () => null, eventTarget: null };
+  const store = createWorkspaceStoreV3('article-test', options),
+    session = createWorkspaceSession(store);
+  await session.load();
+  const source = session.state.cards[0],
+    view = articleReaderModel(source);
+  assert.equal(view.article.blocks.length, 2);
+  assert.equal(view.hasEditedBody, false);
+  assert.equal(view.missingImages, 0);
+  assert.ok(attachmentRefForUrl(savedArticleImage(view.article.blocks[1])));
+  const imageId = await saveArticleFigure({
+    session,
+    source,
+    block: view.article.blocks[1],
+    isCurrent: () => true,
+    newId: () => 'saved-figure',
+    now: () => '2026-11-04T00:00:00Z',
+  });
+  assert.equal(imageId, 'saved-figure');
+  store.close();
+  const reopened = createWorkspaceStoreV3('article-test', options),
+    loaded = await reopened.load();
+  const reloadedArticle = loaded.cards.find((card) => card.id === 'article'),
+    figure = loaded.cards.find((card) => card.id === imageId);
+  assert.equal(articleReaderModel(reloadedArticle).article.blocks.length, 2);
+  assert.equal(articleFigureBlock(reloadedArticle, figure).id, 'figure');
+  assert.deepEqual(attachmentRefForUrl(figure.attachment.dataUrl), ref);
+  assert.equal(attachments.files.size, 1);
+  assert.equal(attachments.reads, 0);
+  reopened.close();
+});
+
+test('reusing a mutable export input cannot return an old note from the attachment transform cache', async () => {
+  const state = { schemaVersion: 1, cards: [{ id: 'a', attachment }], annotations: { a: { note: 'before' } } };
+  const store = memoryStore();
+  const first = await externalizeAttachments(state, store);
+  state.annotations.a.note = 'after';
+  const second = await externalizeAttachments(state, store);
+  assert.equal(first.annotations.a.note, 'before');
+  assert.equal(second.annotations.a.note, 'after');
+});

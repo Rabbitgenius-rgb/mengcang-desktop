@@ -9,7 +9,9 @@ export default function VaultAttachmentPreview({ card, api }) {
   // byte-only file change without new metadata requires reopening the preview.
   const sourceKey = JSON.stringify([card.path, card.originalPath || '', card.originalMime || '', card.updatedAt || '']);
   useEffect(() => {
-    const request = ++run.current,
+    const requests = run,
+      openAttempts = openRun;
+    const request = ++requests.current,
       source = { api, sourceKey, request };
     setPreview({ ...source, attachment: null, issue: '' });
     async function read() {
@@ -23,10 +25,10 @@ export default function VaultAttachmentPreview({ card, api }) {
     }
     void read();
     return () => {
-      run.current++;
-      openRun.current++;
+      requests.current++;
+      openAttempts.current++;
     };
-  }, [api, sourceKey]);
+  }, [api, sourceKey, card.path]);
   // Hide the previous source immediately, including the render before cleanup.
   const current = preview?.api === api && preview.sourceKey === sourceKey ? preview : null;
   async function openOriginal() {

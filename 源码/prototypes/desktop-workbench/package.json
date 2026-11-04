@@ -6,7 +6,7 @@
   "scripts": {
     "predev": "node ../../scripts/build-discovery-helper.mjs",
     "dev": "vite",
-    "build": "vite build && node scripts/prepare-sites-build.mjs",
+    "build": "MENGCANG_BUILD_PREVIEW=1 vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs"
   },

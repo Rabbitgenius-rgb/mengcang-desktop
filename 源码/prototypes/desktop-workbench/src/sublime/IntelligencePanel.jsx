@@ -124,11 +124,16 @@ export default function IntelligencePanel({
       setAcceptedCollections([]);
     }
   }
+  const draftView = useRef({});
+  draftView.current = { modeDrafts, matchingDrafts, showDraft };
   useEffect(() => {
     if (!trackedMode) return;
+    const { modeDrafts, matchingDrafts, showDraft } = draftView.current;
     const selected = modeDrafts.find((record) => record.id === draftId) || matchingDrafts[0] || null;
     showDraft(selected);
-  }, [active, chosen?.id, draftId, draftSignature]);
+  }, [active, chosen?.id, draftId, draftSignature, trackedMode]);
+  const chosenSource = useRef(chosen);
+  chosenSource.current = chosen;
   const currentImage = imageState?.mode === active && sameImageReference(imageState.source, chosen) ? imageState : null;
   useEffect(() => {
     let cancelled = false;
@@ -136,7 +141,7 @@ export default function IntelligencePanel({
       setImageState(null);
       return;
     }
-    const source = chosen,
+    const source = chosenSource.current,
       selectedMode = active;
     setImageState({ source, mode: selectedMode, loading: true });
     (async () => {
@@ -189,11 +194,13 @@ export default function IntelligencePanel({
     }
     return v;
   };
+  const refreshAction = useRef(refresh);
+  refreshAction.current = refresh;
   useEffect(() => {
-    refresh().catch((e) => {
+    refreshAction.current().catch((e) => {
       if (live.current) setError(e.message);
     });
-  }, []);
+  }, [api]);
   async function work(fn) {
     if (busyLock.current) return;
     busyLock.current = true;

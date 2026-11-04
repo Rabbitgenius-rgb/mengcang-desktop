@@ -1,7 +1,7 @@
 import { createWorkspaceState, normalizeWorkspaceState } from './workspaceModel.js';
 import { workspaceConflict } from './workspaceStore.js';
 import { createAttachmentStore, externalizeAttachments, externalizeAttachmentUrls, hydrateAttachmentUrls } from './attachmentStore.js';
-import { createLegacyWorkspaceAccess, matchingLegacyVersion, openWorkspaceDatabase } from './workspaceMigrationV3.js';
+import { createLegacyWorkspaceAccess, legacyWorkspaceSource, matchingLegacyVersion, openWorkspaceDatabase } from './workspaceMigrationV3.js';
 import { WORKSPACE_V3_STORES, workspaceMeta, writeWorkspaceRecords, readWorkspaceRecords } from './workspaceStoreV3Entities.js';
 
 export const WORKSPACE_V3_DATABASE = 'mengcang-sublime-workspace-v3';
@@ -104,13 +104,13 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
       JSON.stringify(current.raw) !== JSON.stringify(previous.raw)
     )
       throw Error('旧版资料在迁移期间改变，已保留原库，请关闭旧版后重试。');
+    const source = await legacyWorkspaceSource(previous);
     const db = await openDatabase();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(WORKSPACE_V3_STORES, 'readwrite');
       const request = tx.objectStore('meta').get(key);
       request.onsuccess = () => {
         if (request.result) return;
-        const source = { present: previous.present, revision: previous.snapshot.revision, format: previous.raw?.format || 'legacy' };
         const meta = workspaceMeta(
           diskState,
           { entityVersions: previous.snapshot.entityVersions, legacySource: source, legacyBackup: backup, successfulStartIds: [], legacyCleaned: false },
@@ -131,10 +131,15 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
         const previous = await legacy.read();
         if (existing) {
           await accept(existing);
+          if (existing.meta.legacyCleanupRequested && !previous.present && !existing.meta.legacyCleaned) {
+            // Deletion can finish before its completion marker reaches disk.
+            // Finish only the maintenance marker, retaining every v3 entity.
+            await maintain((meta) => ({ ...meta, legacyCleaned: true }), { duringStartup: true });
+          }
           if (
             !existing.meta.legacyCleaned &&
             !(existing.meta.legacyCleanupRequested && !previous.present) &&
-            !matchingLegacyVersion(previous, existing.meta.legacySource)
+            !(await matchingLegacyVersion(previous, existing.meta.legacySource))
           ) {
             readOnlyError = Error('检测到旧版资料库发生变化。当前资料以只读方式打开，请先核对旧版新增内容。');
           }
@@ -293,8 +298,8 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
     queue = next;
     return next;
   }
-  async function maintain(transform) {
-    await initialize();
+  async function maintain(transform, { duringStartup = false } = {}) {
+    if (!duringStartup) await initialize();
     readOnlyFailure();
     const db = await openDatabase();
     let meta;
@@ -345,6 +350,14 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
       disposed = true;
       listeners.clear();
       disconnect();
+      void queue
+        .catch(() => {})
+        .then(async () => {
+          if (!options.openDatabase) await openDatabase.close?.();
+          if (!options.legacy) await legacy.close?.();
+          if (!options.attachments) await attachments.dispose?.();
+        })
+        .catch(() => {});
     },
     migrationStatus,
     async recordSuccessfulStartup(startupId) {
@@ -356,7 +369,7 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
       await initialize();
       if (!migrationStatus().canCleanup) throw Error('请完成三次正常启动读回后再清理旧副本。');
       const previous = await legacy.read();
-      if (!matchingLegacyVersion(previous, cache.meta.legacySource)) throw Error('旧版资料发生变化，旧副本保留，请先核对。');
+      if (!(await matchingLegacyVersion(previous, cache.meta.legacySource))) throw Error('旧版资料发生变化，旧副本保留，请先核对。');
       await maintain((meta) => ({ ...meta, legacyCleanupRequested: true }));
       await legacy.remove(previous);
       await maintain((meta) => ({ ...meta, legacyCleaned: true }));

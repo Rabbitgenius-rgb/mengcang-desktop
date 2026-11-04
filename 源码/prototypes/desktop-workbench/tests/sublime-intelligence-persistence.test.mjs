@@ -1,3 +1,4 @@
+import {compileWorkspace} from './support/compile-workspace.mjs';
 import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
 import * as recallLibrary from '../src/sublime/recallLibrary.js';
@@ -18,7 +19,7 @@ import * as readerState from '../src/reader/readerState.js';
 
 import {workspaceDependencies} from './fixtures/workspace-dependencies.mjs';
 
-const compiled=(await transform(await readFile(new URL('../src/sublime/SublimeWorkspace.jsx',import.meta.url),'utf8'),{loader:'jsx',format:'cjs',jsx:'transform'})).code;
+const compiled=await compileWorkspace();
 const offlineMessage='连接已断开，重新连接后可再次保存；卡片、笔记和原文件仍在本机。';
 const compatibilityMessage='当前连接器尚不支持原文件入库；需要更新连接器。';
 const wav=Buffer.from('RIFF\0\0\0\0WAVEsynthetic');
@@ -34,7 +35,7 @@ function workspace({cards=[structuredClone(card)],items=[],hash='#/library',open
  let state=initialState?structuredClone(initialState):{...model.createWorkspaceState(),cards:structuredClone(cards),savedIds:cards.map(item=>item.id)};
  const slots=[],refs=[],effects=[];let stateCursor=0,refCursor=0,tree,commits=0,captures=[],navigations=[],failWrite=false;
  const identity={id:'test-vault-modal'};
- const react={Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useEffect:fn=>effects.push(fn),useLayoutEffect:()=>{},useMemo:factory=>factory(),useRef:initial=>{const index=refCursor++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateCursor++;if(!slots[index])slots[index]={value:index===0?state:index===1?true:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
+ const react={useCallback:callback=>callback,Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useEffect:fn=>effects.push(fn),useLayoutEffect:()=>{},useCallback:callback=>callback,useMemo:factory=>factory(),useRef:initial=>{const index=refCursor++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateCursor++;if(!slots[index])slots[index]={value:index===0?state:index===1?true:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
  const icons=new Proxy({},{get:(_,name)=>function Icon(){return react.createElement('svg',{'data-icon':String(name)});}});
  const session={writing:0,drafts:()=>state.drafts,settled:async()=>state,recoverableDrafts:()=>Object.entries(state.drafts).filter(([id])=>id.startsWith('window-draft:')).map(([id,value])=>({id,...value})),readDraft:async id=>structuredClone(state.drafts[id]),commit:async action=>{commits++;if(failWrite){failWrite=false;throw Error('合成磁盘写入失败');}state=typeof action==='function'?action(state):model.workspaceReducer(state,structuredClone(action));return state;}};
  const api={captureAvailable:true,captureAttachmentAvailable:true,capture:async payload=>{captures.push(structuredClone(payload));return {ok:true,data:{note:{path:'01_sources/cards/text/synthetic.md'}}};}};

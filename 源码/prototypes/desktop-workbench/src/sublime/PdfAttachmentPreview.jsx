@@ -54,6 +54,9 @@ export default function PdfAttachmentPreview({
     [notice, setNotice] = useState('');
   const matches = useMemo(() => documentMatches(index?.pages || [], query), [index, query]);
   const [renderedText, setRenderedText] = useState(null);
+  const sourceSnapshot = useRef({ attachment, storedIndex });
+  sourceSnapshot.current = { attachment, storedIndex };
+  const attachmentKey = JSON.stringify([attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name]);
   const indexedPage = index?.pages?.find((item) => item.page === page);
   const indexNeedsUpdate =
     !!index && index.source !== 'ocr' && !index.truncated && renderedText?.page === page && indexedPage && indexedPage.text !== renderedText.text;
@@ -68,7 +71,9 @@ export default function PdfAttachmentPreview({
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    const request = ++run.current;
+    const requests = run;
+    const request = ++requests.current;
+    const { attachment, storedIndex } = sourceSnapshot.current;
     let task, timer;
     documentRef.current = null;
     pageText.current = null;
@@ -135,13 +140,13 @@ export default function PdfAttachmentPreview({
       }
     })();
     return () => {
-      run.current++;
+      requests.current++;
       clearTimeout(timer);
       unlock.current = null;
       documentRef.current = null;
       void task?.destroy();
     };
-  }, [attachment.dataUrl, initialPage]);
+  }, [attachmentKey, initialPage]);
   useEffect(() => {
     const pdf = documentRef.current;
     if (!pdf || !canvas.current || !layer.current || !width) return;

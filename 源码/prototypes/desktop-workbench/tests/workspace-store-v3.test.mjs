@@ -269,3 +269,52 @@ test('real Blob attachment migration removes base64 from v3 records and restores
   assert.equal(restored.fileDraft.attachment.dataUrl, picture);
   await attachmentStore.dispose();
 });
+
+test('raw legacy records without revisions detect old-application edits after migration', async () => {
+  const options = isolated();
+  const db = await openWorkspaceDatabase(options.indexedDB, 'mengcang-sublime-workspace-v1', ['workspaces'])();
+  const original = add('original')(createWorkspaceState());
+  await record(db, 'workspaces', 'test', original);
+  const first = createWorkspaceStoreV3('test', options);
+  assert.equal((await first.load()).cards[0].id, 'original');
+  // An older raw-state writer has no revision to advance.
+  const changed = add('new-in-old-app')(original);
+  await record(db, 'workspaces', 'test', changed);
+  const reopened = createWorkspaceStoreV3('test', options);
+  const snapshot = await reopened.loadSnapshot();
+  assert.equal(snapshot.readOnly, true);
+  assert.ok(snapshot.state.cards.some((card) => card.id === 'original'));
+  assert.deepEqual(await record(db, 'workspaces', 'test'), changed);
+  await assert.rejects(reopened.update(add('unsafe-fork')), { code: 'WORKSPACE_READ_ONLY' });
+});
+
+test('restart completes interrupted legacy cleanup metadata without rewriting v3 contents', async () => {
+  const options = isolated();
+  const { db } = await seed(options, add('original')(createWorkspaceState()));
+  const access = createLegacyWorkspaceAccess('test', options);
+  const store = createWorkspaceStoreV3('test', {
+    ...options,
+    legacy: {
+      ...access,
+      remove: async (previous) => {
+        await access.remove(previous);
+        throw Error('process interrupted after deletion');
+      },
+    },
+  });
+  await store.load();
+  for (const id of ['start-one', 'start-two', 'start-three']) await store.recordSuccessfulStartup(id);
+  await store.update(add('migration-era-card'));
+  const before = await store.loadSnapshot();
+  await assert.rejects(store.cleanupLegacy(), /process interrupted/);
+  assert.equal(await record(db, 'workspaces', 'test'), undefined);
+  const trace = [];
+  const reopened = createWorkspaceStoreV3('test', { ...options, trace: (entry) => trace.push(entry) });
+  assert.deepEqual(await reopened.loadSnapshot(), before);
+  assert.equal(reopened.migrationStatus().legacyCleaned, true);
+  assert.equal(reopened.migrationStatus().canCleanup, false);
+  assert.equal(
+    trace.some((entry) => entry.store !== 'meta'),
+    false,
+  );
+});

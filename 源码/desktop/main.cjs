@@ -20,6 +20,7 @@ const {createFloatAppearanceClient}=require('./float-appearance.cjs');
 const {PRODUCTION_VAULT,relative,bundleFile,trustedFrame,draftName,jsonValue,captureJson,atomicPrivate,createPrivateWriteQueue}=require('./security.cjs');
 // Candidate builds supply a fixed, isolated configuration. Production never reads credentials.
 let config={};try{config=require('./candidate-config.json');}catch{}
+if(!app.isPackaged&&!config.userDataPath)throw Error('开发候选版缺少隔离配置，请先准备候选目录。');
 app.setName(config.name||'梦藏');
 if(config.userDataPath){if(!path.isAbsolute(config.userDataPath))throw Error('候选应用资料目录必须是绝对路径');fs.mkdirSync(config.userDataPath,{recursive:true,mode:0o700});app.setPath('userData',config.userDataPath);}
 protocol.registerSchemesAsPrivileged(['mengcang','mengcang-asset','mengcang-reader'].map(scheme=>({scheme,privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true,stream:true}})));

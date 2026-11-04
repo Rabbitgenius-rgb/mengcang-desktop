@@ -72,3 +72,35 @@ export function forgetAttachmentUrl(url) {
 export function attachmentFileExtension(type) {
   return MIME_EXTENSIONS[type] || 'bin';
 }
+
+// Content identity is separate from stored-URL registration. Hashing an input
+// must never imply that its file has already been written to AttachmentStore.
+const inlineIdentities = new Map();
+const MAX_INLINE_IDENTITY_CHARS = 96 * 1024 * 1024;
+let inlineIdentityChars = 0;
+export function rememberInlineAttachmentIdentity(dataUrl, value) {
+  if (typeof dataUrl !== 'string' || !/^data:[^;,]+;base64,/i.test(dataUrl)) return;
+  const ref = attachmentReference(value);
+  if (inlineIdentities.has(dataUrl)) {
+    inlineIdentities.delete(dataUrl);
+    inlineIdentityChars -= dataUrl.length;
+  }
+  inlineIdentities.set(dataUrl, ref);
+  inlineIdentityChars += dataUrl.length;
+  while (inlineIdentityChars > MAX_INLINE_IDENTITY_CHARS) {
+    const oldest = inlineIdentities.keys().next().value;
+    inlineIdentities.delete(oldest);
+    inlineIdentityChars -= oldest.length;
+  }
+}
+export function attachmentContentRef(dataUrl) {
+  return attachmentRefForUrl(dataUrl) || inlineIdentities.get(dataUrl) || null;
+}
+export function sameAttachmentContent(left, right) {
+  if (left === right || (!left && !right)) return true;
+  if (!left || !right || ['name', 'type', 'size'].some((key) => left[key] !== right[key])) return false;
+  if (left.dataUrl === right.dataUrl) return true;
+  const a = attachmentContentRef(left.dataUrl),
+    b = attachmentContentRef(right.dataUrl);
+  return !!a && !!b && a.sha256 === b.sha256 && a.size === b.size && a.size === left.size && b.size === right.size;
+}

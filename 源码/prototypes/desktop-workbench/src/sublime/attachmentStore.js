@@ -7,6 +7,7 @@ import {
   registerAttachmentUrl,
   forgetAttachmentUrl,
   attachmentFileExtension,
+  rememberInlineAttachmentIdentity,
 } from './attachmentRegistry.js';
 export { attachmentReference, attachmentRefForUrl, nativeAttachmentUrl } from './attachmentRegistry.js';
 const transformedUrls = new WeakMap();
@@ -89,12 +90,17 @@ export function createAttachmentStore({
       type: value.type || decoded.type,
       size: value.size ?? decoded.size,
     });
-    if (bridge) return attachmentReference(resultData(await bridge.put({ ...attachment, name: value.name || attachment.name })));
+    if (bridge) {
+      const ref = attachmentReference(resultData(await bridge.put({ ...attachment, name: value.name || attachment.name })));
+      rememberInlineAttachmentIdentity(value.dataUrl, ref);
+      return ref;
+    }
     const bytes = decode(attachment.dataUrl),
       ref = { sha256: await fingerprint(bytes), type: attachment.type, size: attachment.size };
     const previous = await blobRecord('readonly', ref.sha256);
     if (previous) await checkBlob(previous, ref);
     else await blobRecord('readwrite', ref.sha256, new Blob([bytes], { type: ref.type }));
+    rememberInlineAttachmentIdentity(value.dataUrl, ref);
     return ref;
   }
   async function get(value) {
@@ -157,7 +163,7 @@ export function externalizeAttachmentUrls(value, field) {
   const next = Array.isArray(value)
     ? value.map((item) => externalizeAttachmentUrls(item, field))
     : Object.fromEntries(Object.entries(value).map(([key, item]) => [key, externalizeAttachmentUrls(item, key)]));
-  transformedUrls.set(value, next);
+  if (Object.isFrozen(value)) transformedUrls.set(value, next);
   return next;
 }
 export async function externalizeAttachments(value, store) {
@@ -184,7 +190,7 @@ export async function externalizeAttachments(value, store) {
     const next = Array.isArray(item) ? [] : {};
     for (const [key, child] of Object.entries(item))
       Object.defineProperty(next, key, { value: await visit(child, Array.isArray(item) ? field : key), enumerable: true, writable: true, configurable: true });
-    cache.set(item, next);
+    if (Object.isFrozen(item)) cache.set(item, next);
     return next;
   }
   return visit(value);

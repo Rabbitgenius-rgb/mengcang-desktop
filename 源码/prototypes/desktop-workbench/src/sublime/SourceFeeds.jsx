@@ -21,7 +21,8 @@ export default function SourceFeeds({ api, feeds = [], onFeedsChange, onImport, 
     mounted.current = true;
     return () => {
       mounted.current = false;
-      generation.current++;
+      const requests = generation;
+      requests.current++;
     };
   }, []);
   const candidates = useMemo(

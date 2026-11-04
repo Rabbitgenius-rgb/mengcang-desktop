@@ -10,12 +10,12 @@ const aiPolicy = require('../desktop/ai-policy.cjs');
 
 const source = fs.readFileSync(path.join(__dirname, '../desktop/main.cjs'), 'utf8');
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve=yes;reject=no; }); return { promise, resolve, reject }; }
-function harness({ smoke = false,nativePreview=async()=>({kind:"text",body:"Synthetic"}),mcpClose=async()=>{},clipperClose=async()=>{} } = {}) {
+function harness({ smoke = false,packaged=true,nativePreview=async()=>({kind:"text",body:"Synthetic"}),mcpClose=async()=>{},clipperClose=async()=>{} } = {}) {
   const ready = deferred(), created = deferred(), windows = [], handlers = new Map(), protocols = new Map(), errors = [], timers = new Set();
   let readyTask,gateway,quits=0,menu;const sent=[];
   const app = new EventEmitter();
   Object.assign(app, {
-    setName() {}, requestSingleInstanceLock: () => true, getPath: () => '/synthetic/user-data',
+    isPackaged:packaged, setName() {}, requestSingleInstanceLock: () => true, getPath: () => '/synthetic/user-data',
     commandLine: { hasSwitch: name => smoke && name === 'smoke-test' },
     whenReady: () => ({ then(callback) { readyTask=ready.promise.then(callback);return readyTask; } }),
     quit() {quits++;}, exit() {},
@@ -191,3 +191,5 @@ test('companion title IPC is restricted to the trusted main frame',async()=>{
  assert.equal((await read({syntheticTrusted:false})).ok,false);
  const result=await read({syntheticTrusted:true});assert.equal(result.ok,true);assert.deepEqual(Object.keys(result.data.titles),[]);
 });
+
+test('unconfigured development startup stops before acquiring the default profile',()=>{assert.throws(()=>harness({packaged:false}),/缺少隔离配置/);});

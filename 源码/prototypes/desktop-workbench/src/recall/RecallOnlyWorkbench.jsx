@@ -521,7 +521,7 @@ function ComponentDialog({ title, onClose, children, closeLabel = '关闭创建�
       if (focus?.isConnected && !focus.closest('[inert]')) focus.focus?.();
       else if (fallbackFocus) document.querySelector(fallbackFocus)?.focus();
     };
-  }, []);
+  }, [fallbackFocus]);
   return (
     <dialog
       ref={ref}

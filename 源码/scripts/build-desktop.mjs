@@ -30,3 +30,9 @@ await fs.rm(path.join(target,'renderer/references'),{recursive:true,force:true})
 const pkg=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
 await fs.writeFile(path.join(target,'package.json'),JSON.stringify({name:'mengcang-desktop',productName:'梦藏',version:pkg.version,main:'main.cjs',description:'本地创作与阅读空间',author:'Rabbit',private:true},null,2));
 console.log('Desktop resources bundled; no web server is required.');
+
+// Every development build starts isolated, including after the build folder is replaced.
+const candidateRoot=path.resolve(root,'../qa');
+const candidateVault=path.join(candidateRoot,'candidate-vault');
+await fs.mkdir(path.join(candidateVault,'01_sources/cards/text'),{recursive:true});
+await fs.writeFile(path.join(target,'candidate-config.json'),JSON.stringify({name:'梦藏治理候选',userDataPath:path.join(candidateRoot,'candidate-profile'),vaultPath:candidateVault,recallBridgeDirectory:path.join(candidateRoot,'candidate-bridge'),recallCompanionDirectory:path.join(candidateRoot,'candidate-companion')}));

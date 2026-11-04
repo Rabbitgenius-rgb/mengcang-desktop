@@ -37,9 +37,11 @@ export default function FloatStyleLibrary({ api, demo }) {
       if (mounted.current) setLoading(false);
     }
   }
+  const loadAction = useRef(load);
+  loadAction.current = load;
   useEffect(() => {
     mounted.current = true;
-    void load();
+    void loadAction.current();
     return () => {
       mounted.current = false;
     };

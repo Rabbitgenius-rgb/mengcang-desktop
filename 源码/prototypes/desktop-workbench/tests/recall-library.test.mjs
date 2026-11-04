@@ -108,7 +108,7 @@ test('failed duplicate receipt transaction remains retryable without a second ca
 });
 test('the actual companion accepts the canonical duplicate identity and keeps one cached excerpt',async t=>{
  const {mkdtemp,readFile,rm}=await import('node:fs/promises'),{tmpdir}=await import('node:os'),{join}=await import('node:path');
- const {createRecallService}=await import('../../../../sticky/src/recall-service.cjs');
+ const {createRecallService}=await import('../../../tests/fixtures/recall-service.cjs');
  const directory=await mkdtemp(join(tmpdir(),'recall-dedup-companion-')),{library,session}=setup();
  const service=await createRecallService({userData:directory,callDream:(method,params)=>library.call(method,params)});
  t.after(async()=>{await service.close();await rm(directory,{recursive:true,force:true});});

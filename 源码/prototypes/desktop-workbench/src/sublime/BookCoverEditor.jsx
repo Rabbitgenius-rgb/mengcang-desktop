@@ -16,7 +16,11 @@ export default function BookCoverEditor({ attachment, image = '', onSave, onCanc
     mounted = useRef(false),
     input = useRef(null),
     savingRef = useRef(false);
+  const currentImage = useRef(image);
+  currentImage.current = image;
   useEffect(() => {
+    const requests = run,
+      image = currentImage.current;
     mounted.current = true;
     const controller = new AbortController();
     let source;
@@ -41,7 +45,7 @@ export default function BookCoverEditor({ attachment, image = '', onSave, onCanc
     })();
     return () => {
       mounted.current = false;
-      run.current++;
+      requests.current++;
       controller.abort();
       source?.close();
       book.current = null;

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "bytes": 4236157,
+  "maxBytes": 4659773,
+  "files": [
+    {
+      "name": "assets/App-BAwKJf3T.css",
+      "bytes": 73997
+    },
+    {
+      "name": "assets/App-BTqOUZI1.js",
+      "bytes": 134360
+    },
+    {
+      "name": "assets/StandaloneApp-BBnS023D.js",
+      "bytes": 2381
+    },
+    {
+      "name": "assets/StandaloneApp-BVkcx-RC.css",
+      "bytes": 814
+    },
+    {
+      "name": "assets/SublimeWorkspace-BaBNT6Zb.js",
+      "bytes": 1371187
+    },
+    {
+      "name": "assets/SublimeWorkspace-C5fiRtTk.css",
+      "bytes": 200852
+    },
+    {
+      "name": "assets/attachmentWord.worker-Ds3aKho3.js",
+      "bytes": 309884
+    },
+    {
+      "name": "assets/index-CXTnRTu9.js",
+      "bytes": 199847
+    },
+    {
+      "name": "assets/index-ci-zOxO0.css",
+      "bytes": 22276
+    },
+    {
+      "name": "assets/pdf.worker.min-BmVo14Nb.mjs",
+      "bytes": 1317034
+    },
+    {
+      "name": "pdf-assets/wasm/jbig2_nowasm_fallback.js",
+      "bytes": 145703
+    },
+    {
+      "name": "pdf-assets/wasm/openjpeg_nowasm_fallback.js",
+      "bytes": 451590
+    },
+    {
+      "name": "pdf-assets/wasm/quickjs-eval.js",
+      "bytes": 6232
+    }
+  ]
+}

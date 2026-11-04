@@ -10,11 +10,12 @@ export function useOriginalPosition({ api, library, scope }) {
     pending = useRef(false);
   latest.current = { api, library, scope };
   useEffect(() => {
-    run.current++;
+    const requests = run;
+    requests.current++;
     pending.current = false;
     setState(null);
     return () => {
-      run.current++;
+      requests.current++;
       pending.current = false;
     };
   }, [api, scope]);

@@ -27,13 +27,14 @@ export default function StandaloneApp() {
     }
   }, [api]);
   useEffect(() => {
+    const requests = epoch;
     document.title = '梦藏';
     void refresh();
     const stop = api.subscribe((event) => {
       if (event.type === 'change' || event.type === 'status') void refresh();
     });
     return () => {
-      epoch.current++;
+      requests.current++;
       stop();
     };
   }, [api, refresh]);

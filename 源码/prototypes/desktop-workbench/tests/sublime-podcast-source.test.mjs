@@ -1,3 +1,4 @@
+import * as attachmentRegistry from '../src/sublime/attachmentRegistry.js';
 import * as attachmentStore from '../src/sublime/attachmentStore.js';
 import { currentWorkspaceModule } from './fixtures/workspace-dependencies.mjs';
 import test from 'node:test';
@@ -157,15 +158,17 @@ function editor(props, { component = 'default', helpers = {} } = {}) {
             ? transcription
             : name === './workspaceModel.js'
               ? model
-              : name === './attachmentStore.js'
-                ? attachmentStore
-                : name === './attachmentPreview.js'
-                  ? attachment
-                  : name === '@tabler/icons-react'
-                    ? new Proxy({}, { get: () => () => null })
-                    : name.endsWith('.css')
-                      ? {}
-                      : currentWorkspaceModule(name),
+              : name === './attachmentRegistry.js'
+                ? attachmentRegistry
+                : name === './attachmentStore.js'
+                  ? attachmentStore
+                  : name === './attachmentPreview.js'
+                    ? attachment
+                    : name === '@tabler/icons-react'
+                      ? new Proxy({}, { get: () => () => null })
+                      : name.endsWith('.css')
+                        ? {}
+                        : currentWorkspaceModule(name),
   });
   function render() {
     let count = 0;
@@ -421,11 +424,13 @@ test('the shared attachment digest preserves AI metadata and validates raw bytes
     require: (name) =>
       name === './workspaceModel.js'
         ? model
-        : name === './attachmentStore.js'
-          ? attachmentStore
-          : (() => {
-              throw Error(name);
-            })(),
+        : name === './attachmentRegistry.js'
+          ? attachmentRegistry
+          : name === './attachmentStore.js'
+            ? attachmentStore
+            : (() => {
+                return currentWorkspaceModule(name);
+              })(),
   });
   await assert.rejects(module.exports.fingerprintWorkspaceAttachment(a), /当前环境无法核验原文件/);
 });

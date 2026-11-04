@@ -38,16 +38,22 @@ const defaults = {
   audioReviewRequired: false,
 };
 
+const transcriptIntentKey = (draft) =>
+  JSON.stringify([draft?.sourceId, draft?.transcriptionRequestId, draft?.transcriptionPhase, draft?.transcript, draft?.transcriptName]);
+
 function useAudioFingerprint(attachment, enabled = true) {
   const [result, setResult] = useState(null);
+  const attachmentSnapshot = useRef(attachment);
+  attachmentSnapshot.current = attachment;
   const dataUrl = attachment?.dataUrl,
     type = attachment?.type,
     size = attachment?.size,
     name = attachment?.name;
   useEffect(() => {
     let cancelled = false;
-    if (enabled && attachment)
-      podcastAudioSha256(attachment)
+    const source = attachmentSnapshot.current;
+    if (enabled && source)
+      podcastAudioSha256(source)
         .then((sha256) => {
           if (!cancelled) setResult({ dataUrl, type, size, name, sha256, error: '' });
         })
@@ -65,11 +71,15 @@ function useAudioFingerprint(attachment, enabled = true) {
 }
 
 function useAudioSource(attachment) {
+  const attachmentSnapshot = useRef(attachment);
+  attachmentSnapshot.current = attachment;
+  const attachmentKey = JSON.stringify([attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name]);
   const [source, setSource] = useState({ url: '', error: '' });
   useEffect(() => {
     let url = '',
       cancelled = false;
     setSource({ url: '', error: '' });
+    const attachment = attachmentSnapshot.current;
     if (!attachment) return;
     const loaded = (bytes) => {
       if (cancelled) return;
@@ -90,7 +100,7 @@ function useAudioSource(attachment) {
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name]);
+  }, [attachmentKey]);
   return source;
 }
 
@@ -136,10 +146,10 @@ export default function PodcastClips({
   formRef.current = form;
   useEffect(() => {
     mounted.current = true;
+    const requests = loadRun;
     return () => {
       mounted.current = false;
-      loadRun.current++;
-      audio.current?.pause();
+      requests.current++;
     };
   }, []);
   useEffect(() => {
@@ -155,8 +165,12 @@ export default function PodcastClips({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [getTranscriptionStatus]);
+  const latestDraft = useRef(draft);
+  latestDraft.current = draft;
+  const draftUpdateKey = transcriptIntentKey(draft);
   useEffect(() => {
+    const draft = latestDraft.current;
     if (draft?.transcriptionPhase === 'complete' && samePodcastAudio(draft, formRef.current)) {
       subtitleRead.current++;
       setForm((previous) => ({
@@ -167,7 +181,7 @@ export default function PodcastClips({
         transcriptionPhase: 'complete',
       }));
     }
-  }, [draft?.transcriptionRequestId, draft?.transcriptionPhase, draft?.transcript]);
+  }, [draftUpdateKey]);
   const sources = useMemo(() => cards.filter((card) => fileTypeFor(card.attachment)?.kind === 'audio'), [cards]);
   const sourceCard = sources.find((card) => card.id === form.sourceId),
     attachment = form.attachment || sourceCard?.attachment;
@@ -192,8 +206,12 @@ export default function PodcastClips({
     if (sourceChanged && !form.audioReviewRequired) setForm((previous) => ({ ...previous, audioReviewRequired: true }));
     else if (!needsAudioReview && !form.sourceAudioSha256 && fingerprint.sha256)
       setForm((previous) => ({ ...previous, sourceAudioSha256: fingerprint.sha256 }));
-  }, [sourceChanged, needsAudioReview, form.sourceAudioSha256, fingerprint.sha256]);
+  }, [sourceChanged, needsAudioReview, form.audioReviewRequired, form.sourceAudioSha256, fingerprint.sha256]);
   const audioSource = useAudioSource(attachment);
+  useEffect(() => {
+    const player = audio.current;
+    return () => player?.pause();
+  }, [audioSource.url]);
   const transcribeAdapter = transcribeAudio || transcribeLocal;
   const provider = transcriptionStatus?.settings?.transcriptionProvider || (transcribeAudio ? 'api' : 'local');
   const localStatus = transcriptionStatus?.localTranscription;
@@ -289,11 +307,13 @@ export default function PodcastClips({
     if (!file) return;
     const read = ++subtitleRead.current,
       run = loadRun.current,
-      snapshot = { sourceId: formRef.current.sourceId, attachment: attachmentRef.current };
+      snapshot = { sourceId: formRef.current.sourceId, attachment: attachmentRef.current },
+      parentIntent = transcriptIntentKey(latestDraft.current);
     const current = () =>
       mounted.current &&
       read === subtitleRead.current &&
       run === loadRun.current &&
+      parentIntent === transcriptIntentKey(latestDraft.current) &&
       samePodcastAudio(snapshot, { sourceId: formRef.current.sourceId, attachment: attachmentRef.current });
     setError('');
     try {
@@ -703,10 +723,11 @@ export function PodcastClipPlayback({ attachment, sourceLocation, sourceAudioSha
   useEffect(() => {
     playingRange.current = false;
     setError('');
+    const player = audio.current;
     return () => {
-      audio.current?.pause();
+      player?.pause();
     };
-  }, [attachment?.dataUrl, sourceLocation, sourceAudioSha256]);
+  }, [attachment?.dataUrl, sourceLocation, sourceAudioSha256, audioSource.url]);
   if (!range) return null;
   let valid = false;
   try {

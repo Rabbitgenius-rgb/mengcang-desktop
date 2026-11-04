@@ -50,7 +50,7 @@ export default function PdfBookReader({
     pendingNavigation = useRef(null),
     pendingLanding = useRef(null),
     hadReadingError = useRef(false);
-  callbacks.current = { onLocation, onReady, onSelection, onError, onSettings, onOpenLink, onRecovered };
+  callbacks.current = { onLocation, onReady, onSelection, onError, onSettings, onOpenLink, onRecovered, source, initialPage: location?.page };
   const sourceKey = pdfSourceKey(source);
   const [page, setPage] = useState(1),
     [total, setTotal] = useState(0),
@@ -105,8 +105,10 @@ export default function PdfBookReader({
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    const request = ++generation.current;
-    searchGeneration.current++;
+    const requests = generation,
+      searches = searchGeneration;
+    const request = ++requests.current;
+    searches.current++;
     let task, timer, sourceLoader;
     pdfRef.current = null;
     paintedText.current = null;
@@ -130,7 +132,7 @@ export default function PdfBookReader({
     callbacks.current.onSelection?.(null);
     const isCurrent = () => request === generation.current;
     try {
-      sourceLoader = createPdfBookSource(source, {
+      sourceLoader = createPdfBookSource(callbacks.current.source, {
         RangeTransport: PDFDataRangeTransport,
         assetBase,
         onError: (problem) => {
@@ -174,7 +176,7 @@ export default function PdfBookReader({
           setPassword('');
           setPasswordState('');
           setTotal(pdf.numPages);
-          setPage(clampPdfPage(pendingNavigation.current?.page ?? location?.page, pdf.numPages));
+          setPage(clampPdfPage(pendingNavigation.current?.page ?? callbacks.current.initialPage, pdf.numPages));
           setLoaded((value) => value + 1);
           callbacks.current.onReady?.({ totalPages: pdf.numPages, outline: [] });
           try {
@@ -196,8 +198,8 @@ export default function PdfBookReader({
       report(problem);
     }
     return () => {
-      generation.current++;
-      searchGeneration.current++;
+      requests.current++;
+      searches.current++;
       clearTimeout(timer);
       unlock.current = null;
       pdfRef.current = null;
@@ -210,7 +212,7 @@ export default function PdfBookReader({
     if (!navigateTo) return;
     pendingNavigation.current = navigateTo;
     if (pdfRef.current) setPage(clampPdfPage(navigateTo.page, pdfRef.current.numPages));
-  }, [navigateTo?.page, navigateTo?.nonce]);
+  }, [navigateTo]);
   useEffect(() => {
     if (!total || !pdfRef.current) return;
     setDraftPage(String(page));
@@ -219,6 +221,8 @@ export default function PdfBookReader({
     setSelectionError('');
     viewport.current?.scrollTo?.({ top: 0, left: 0 });
   }, [page, total, sourceKey]);
+  const renderWidth = dimensions.width,
+    renderHeight = dimensions.height;
   useEffect(() => {
     const pdf = pdfRef.current;
     if (!pdf || !canvas.current || !layer.current) return;
@@ -240,7 +244,7 @@ export default function PdfBookReader({
       .getPage(page)
       .then(async (pdfPage) => {
         if (!current()) return;
-        const drawing = pdfReaderViewport(pdfPage, dimensions, zoom, fit, window.devicePixelRatio || 1);
+        const drawing = pdfReaderViewport(pdfPage, { width: renderWidth, height: renderHeight }, zoom, fit, window.devicePixelRatio || 1);
         target.width = drawing.width;
         target.height = drawing.height;
         target.style.width = drawing.viewport.width + 'px';
@@ -292,7 +296,7 @@ export default function PdfBookReader({
       render?.cancel();
       textLayer?.cancel();
     };
-  }, [page, dimensions.width, dimensions.height, zoom, fit, loaded]);
+  }, [page, renderWidth, renderHeight, zoom, fit, loaded, sourceKey]);
   useEffect(() => {
     const landing = pendingLanding.current,
       element = viewport.current;

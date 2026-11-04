@@ -244,7 +244,8 @@ export default function ArticleReader({
   );
   const focusName = highlightName + '-focus';
   useEffect(() => {
-    generation.current++;
+    const requests = generation;
+    requests.current++;
     setSelection(normalizeArticleHighlightDraft(initialDraftRef.current));
     setBusy(false);
     setError('');
@@ -256,7 +257,7 @@ export default function ArticleReader({
     setDiscoveryVisible(false);
     draftFailure.current = null;
     return () => {
-      generation.current++;
+      requests.current++;
       clearTimeout(flashTimer.current);
       globalThis.CSS?.highlights?.delete(focusName);
     };
@@ -294,9 +295,10 @@ export default function ArticleReader({
     });
     return () => registerFlush(null);
   }, [registerFlush, card.id]);
+  const selectionActive = !!selection;
   useEffect(() => {
     setSelectionActionsVisible(false);
-    if (!selection || !selectionActions.current || typeof globalThis.IntersectionObserver !== 'function') return;
+    if (!selectionActive || !selectionActions.current || typeof globalThis.IntersectionObserver !== 'function') return;
     // The existing top bar and desktop dock can cover a visually intersecting
     // button, so only retire the shortcut within the unobstructed reading area.
     const observer = new globalThis.IntersectionObserver((entries) => setSelectionActionsVisible(entries.some((entry) => entry.isIntersecting)), {
@@ -306,7 +308,7 @@ export default function ArticleReader({
     });
     observer.observe(selectionActions.current);
     return () => observer.disconnect();
-  }, [selection?.operationId, card.id]);
+  }, [selectionActive, selection?.operationId, card.id]);
   useEffect(() => {
     const registry = globalThis.CSS?.highlights,
       HighlightClass = globalThis.Highlight;

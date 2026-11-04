@@ -7,6 +7,7 @@ import webCaptureVite from "./web-capture-vite.mjs";
 export default defineConfig({
   build: {
     outDir: "dist/client",
+    rollupOptions: {input: process.env.MENGCANG_BUILD_PREVIEW ? "preview.html" : "index.html"},
   },
   optimizeDeps: {
     include: ["react", "react-dom/client", "motion/react"],

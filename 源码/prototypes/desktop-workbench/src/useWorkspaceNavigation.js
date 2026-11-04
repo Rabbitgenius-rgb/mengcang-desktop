@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef} from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 // Keep the registered controller stable while reading the latest page state.
 export function useWorkspaceNavigation(desktop, viewId, handlers) {
@@ -8,8 +8,8 @@ export function useWorkspaceNavigation(desktop, viewId, handlers) {
   if (!controller.current) {
     controller.current = {
       capture: () => current.current.capture(),
-      restore: state => current.current.restore(state),
-      open: path => current.current.open(path),
+      restore: (state) => current.current.restore(state),
+      open: (path) => current.current.open(path),
     };
   }
   const register = desktop?.registerNavigation;

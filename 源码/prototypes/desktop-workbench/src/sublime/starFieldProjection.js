@@ -1,6 +1,6 @@
-export const STAR_CAMERA_LIMITS = Object.freeze({yaw: .7, pitch: .4, minZoom: .75, maxZoom: 1.6});
+export const STAR_CAMERA_LIMITS = Object.freeze({ yaw: 0.7, pitch: 0.4, minZoom: 0.75, maxZoom: 1.6 });
 
-const finite = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const finite = (value, fallback) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const bound = (value, min, max) => Math.max(min, Math.min(max, value));
 
 export function clampStarCamera(camera = {}) {
@@ -13,10 +13,12 @@ export function clampStarCamera(camera = {}) {
 
 /** A perspective camera looking toward the origin. Positive z is nearer the viewer. */
 export function projectStarPoint(point, camera, viewport) {
-  const {yaw, pitch, zoom} = clampStarCamera(camera);
+  const { yaw, pitch, zoom } = clampStarCamera(camera);
   const width = Math.max(0, finite(viewport?.width, 0));
   const height = Math.max(0, finite(viewport?.height, 0));
-  const x = finite(point?.x, 0), y = finite(point?.y, 0), z = finite(point?.z, 0);
+  const x = finite(point?.x, 0),
+    y = finite(point?.y, 0),
+    z = finite(point?.z, 0);
   const yawX = x * Math.cos(yaw) + z * Math.sin(yaw);
   const yawZ = -x * Math.sin(yaw) + z * Math.cos(yaw);
   const rotatedY = y * Math.cos(pitch) - yawZ * Math.sin(pitch);
@@ -27,7 +29,11 @@ export function projectStarPoint(point, camera, viewport) {
   const screenX = width / 2 + yawX * scale;
   const screenY = height / 2 + rotatedY * scale;
   return {
-    x: screenX, y: screenY, z: rotatedZ, scale, perspective,
+    x: screenX,
+    y: screenY,
+    z: rotatedZ,
+    scale,
+    perspective,
     visible: width > 0 && height > 0 && distance > 80 && screenX >= 12 && screenX <= width - 12 && screenY >= 12 && screenY <= height - 12,
   };
 }

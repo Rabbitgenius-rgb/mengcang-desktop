@@ -1,35 +1,130 @@
-.sublime-workspace .sw-zoom-image{display:block;width:100%;border:0;border-radius:inherit;margin:0;padding:0;background:transparent;line-height:0;cursor:zoom-in;overflow:hidden}
-.sublime-workspace .sw-zoom-image:disabled{opacity:1;cursor:default}
-.sublime-workspace .sw-zoom-image>img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+.sublime-workspace .sw-zoom-image {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: inherit;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  line-height: 0;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+.sublime-workspace .sw-zoom-image:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.sublime-workspace .sw-zoom-image > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
 .sw-image-lightbox {
-  position:fixed; inset:0; z-index:10000; display:grid;
-  grid-template-rows:auto minmax(0,1fr); gap:12px; padding:16px 20px 20px;
-  box-sizing:border-box; overflow:hidden; overscroll-behavior:contain;
-  background:rgba(25,29,34,.92); backdrop-filter:blur(12px); color:#e6edf3;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px 20px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(25, 29, 34, 0.92);
+  backdrop-filter: blur(12px);
+  color: #e6edf3;
 }
-.sw-image-view-tools { display:flex; justify-content:flex-end; gap:8px; }
+.sw-image-view-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
 .sw-image-view-tools button {
-  display:inline-flex; align-items:center; justify-content:center; height:36px;
-  padding:0 14px; border:0; border-radius:18px; background:#30363d;
-  color:inherit; cursor:pointer; font:inherit; font-size:14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 18px;
+  background: #30363d;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
 }
-.sw-image-view-tools button:hover { background:#414951; }
-.sw-image-view-tools .sw-image-lightbox-close { width:36px; padding:0; }
-.sw-image-view-tools button:focus-visible { outline:2px solid #00aaff; outline-offset:3px; }
-.sw-image-viewport { min-height:0; min-width:0; overflow:auto; overscroll-behavior:contain; }
+.sw-image-view-tools button:hover {
+  background: #414951;
+}
+.sw-image-view-tools .sw-image-lightbox-close {
+  width: 36px;
+  padding: 0;
+}
+.sw-image-view-tools button:focus-visible {
+  outline: 2px solid #00aaff;
+  outline-offset: 3px;
+}
+.sw-image-viewport {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
 .sw-image-view-sheet {
-  display:grid; place-items:center; width:max-content; min-width:100%; min-height:100%;
+  display: grid;
+  place-items: center;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
 }
 .sw-image-view-sheet > img {
-  display:block; width:var(--sw-view-image-width); aspect-ratio:var(--sw-view-image-ratio);
-  max-width:none; max-height:none; height:auto; border-radius:4px; user-select:none;
+  display: block;
+  width: var(--sw-view-image-width);
+  aspect-ratio: var(--sw-view-image-ratio);
+  max-width: none;
+  max-height: none;
+  height: auto;
+  border-radius: 4px;
+  user-select: none;
 }
-.sw-image-viewport[data-whole="false"] img { cursor:grab; }
-.sw-image-viewport[data-dragging="true"] img { cursor:grabbing; }
-.sublime-workspace .se-attachment-preview.is-image{padding:0;border:0;background:transparent}
-.sublime-workspace .se-attachment-preview.is-image .se-attachment-image{width:100%;max-height:none;border:0;border-radius:0}
-.sublime-workspace .se-attachment-preview.is-image.is-compact .se-attachment-image{max-height:280px}
-.sublime-workspace .se-image-file-info{padding:9px 12px;color:var(--sw-muted);font-size:12px;line-height:1.5}
-.se-image-file-info>summary{cursor:pointer;width:fit-content}
-.sublime-workspace .se-image-file-info .se-attachment-download{margin:8px 0 0;padding-top:8px;border-color:var(--sw-line,#8883)}
-.sublime-workspace .se-image-file-info .se-attachment-download>a{background:var(--sw-active);color:var(--sw-text)}
+.sw-image-viewport[data-whole='false'] img {
+  cursor: grab;
+}
+.sw-image-viewport[data-dragging='true'] img {
+  cursor: grabbing;
+}
+.sublime-workspace .se-attachment-preview.is-image {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.sublime-workspace .se-attachment-preview.is-image .se-attachment-image {
+  width: 100%;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+}
+.sublime-workspace .se-attachment-preview.is-image.is-compact .se-attachment-image {
+  max-height: 280px;
+}
+.sublime-workspace .se-image-file-info {
+  padding: 9px 12px;
+  color: var(--sw-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.se-image-file-info > summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.sublime-workspace .se-image-file-info .se-attachment-download {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-color: var(--sw-line, #8883);
+}
+.sublime-workspace .se-image-file-info .se-attachment-download > a {
+  background: var(--sw-active);
+  color: var(--sw-text);
+}

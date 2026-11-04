@@ -28,15 +28,10 @@ export class ErrorBoundary extends React.Component {
               <details className="error-boundary-details">
                 <summary>查看错误详情</summary>
                 <pre>{this.state.error.toString()}</pre>
-                {this.state.errorInfo && (
-                  <pre>{this.state.errorInfo.componentStack}</pre>
-                )}
+                {this.state.errorInfo && <pre>{this.state.errorInfo.componentStack}</pre>}
               </details>
             )}
-            <button
-              className="btn btn-primary"
-              onClick={() => window.location.reload()}
-            >
+            <button className="btn btn-primary" onClick={() => window.location.reload()}>
               <IconRefresh size={15} />
               刷新页面
             </button>

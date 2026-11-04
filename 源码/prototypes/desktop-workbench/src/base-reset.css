@@ -4,7 +4,9 @@
    ============================================================ */
 
 /* CSS 重置 */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -27,18 +29,29 @@ body {
 }
 
 /* 标题重置 */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   font-weight: var(--font-semibold);
 }
 
 /* 段落与列表 */
-p, ul, ol, dl {
+p,
+ul,
+ol,
+dl {
   margin: 0;
 }
 
 /* 表单元素继承 */
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font: inherit;
   color: inherit;
   background: none;
@@ -77,7 +90,9 @@ select:focus-visible {
 }
 
 /* 输入框基础样式 */
-input, textarea, select {
+input,
+textarea,
+select {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);

@@ -1,1 +1,75 @@
-.sw-book-cover-editor{color:var(--sw-text,inherit);font-size:14px;line-height:1.65}.sw-book-cover-editor>p{margin:10px 0}.sw-book-cover-preview{height:min(340px,40vh);display:grid;place-items:center;background:var(--sw-bg,#111);border-radius:10px;margin:16px 0;overflow:hidden}.sw-book-cover-preview img{max-height:100%;max-width:100%;object-fit:contain}.sw-book-cover-pages{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0}.sw-book-cover-pages button{display:grid;place-items:center;border:0;border-radius:6px;background:var(--sw-card,#30363d);color:inherit;padding:8px}.sw-book-cover-pages input{width:65px;padding:5px;border:1px solid #9199a355;border-radius:5px;background:transparent;color:inherit;font:inherit}.sw-book-cover-editor button:disabled{opacity:.45;cursor:default}.sw-book-cover-error{color:#c44}.se-book-cover-row{display:flex;align-items:center;gap:12px;margin:14px 0}.se-book-cover-row img{width:52px;max-height:78px;object-fit:contain;border-radius:3px}.se-book-cover-row small{display:block}.se-book-cover-panel{padding:18px;border:1px solid #9199a355;border-radius:10px;margin:14px 0}
+.sw-book-cover-editor {
+  color: var(--sw-text, inherit);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.sw-book-cover-editor > p {
+  margin: 10px 0;
+}
+.sw-book-cover-preview {
+  height: min(340px, 40vh);
+  display: grid;
+  place-items: center;
+  background: var(--sw-bg, #111);
+  border-radius: 10px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.sw-book-cover-preview img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.sw-book-cover-pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+.sw-book-cover-pages button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: var(--sw-card, #30363d);
+  color: inherit;
+  padding: 8px;
+}
+.sw-book-cover-pages input {
+  width: 65px;
+  padding: 5px;
+  border: 1px solid #9199a355;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.sw-book-cover-editor button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.sw-book-cover-error {
+  color: #c44;
+}
+.se-book-cover-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+.se-book-cover-row img {
+  width: 52px;
+  max-height: 78px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+.se-book-cover-row small {
+  display: block;
+}
+.se-book-cover-panel {
+  padding: 18px;
+  border: 1px solid #9199a355;
+  border-radius: 10px;
+  margin: 14px 0;
+}

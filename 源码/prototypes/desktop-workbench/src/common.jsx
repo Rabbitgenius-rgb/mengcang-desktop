@@ -25,23 +25,61 @@ const art = {
   bookPoem: [2, 336, 877, 68, 101],
   bookLight: [2, 430, 877, 66, 101],
 };
-export function Art({src,real=false,name='mist',className='',alt='',style={}}) {
-  return real ? <RealArt src={src} className={className} alt={alt} style={style}/> : <PreviewArt name={name} className={className} alt={alt} style={style}/>;
+export function Art({ src, real = false, name = 'mist', className = '', alt = '', style = {} }) {
+  return real ? <RealArt src={src} className={className} alt={alt} style={style} /> : <PreviewArt name={name} className={className} alt={alt} style={style} />;
 }
-function RealArt({src,className='',alt='',style={}}) {
-  const [failed,setFailed]=useState(false);
-  useEffect(()=>setFailed(false),[src]);
-  useEffect(()=>{const retry=()=>setFailed(false);window.addEventListener('mengcang-assets-refresh',retry);return()=>window.removeEventListener('mengcang-assets-refresh',retry);},[]);
-  return <span className={`art real-art ${className} ${!src || failed?'real-art-missing':''}`} style={style}>{src && !failed ? <img draggable={false} loading="lazy" decoding="async" alt={alt} src={src} onError={()=>setFailed(true)}/> : <span role="img" aria-label={alt ? `${alt}：${src?'文件无法读取':'未关联图片'}` : '未关联图片'}>{src?'文件无法读取':'未关联图片'}</span>}</span>;
+function RealArt({ src, className = '', alt = '', style = {} }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+  useEffect(() => {
+    const retry = () => setFailed(false);
+    window.addEventListener('mengcang-assets-refresh', retry);
+    return () => window.removeEventListener('mengcang-assets-refresh', retry);
+  }, []);
+  return (
+    <span className={`art real-art ${className} ${!src || failed ? 'real-art-missing' : ''}`} style={style}>
+      {src && !failed ? (
+        <img draggable={false} loading="lazy" decoding="async" alt={alt} src={src} onError={() => setFailed(true)} />
+      ) : (
+        <span role="img" aria-label={alt ? `${alt}：${src ? '文件无法读取' : '未关联图片'}` : '未关联图片'}>
+          {src ? '文件无法读取' : '未关联图片'}
+        </span>
+      )}
+    </span>
+  );
 }
-function PreviewArt({name='mist',className='',alt='',style={}}) {
-  const ref = useRef(null); const [box,setBox] = useState(null);
-  const [board,x,y,w,h]=art[name] || art.mist;
-  useLayoutEffect(()=>{ const node=ref.current; const o=new ResizeObserver(([e])=>setBox(e.contentRect));o.observe(node);return()=>o.disconnect(); },[]);
-  const s=box ? Math.max(box.width/w,box.height/h) : 1;
-  const dims=board===1 ? [1461,1076] : [1460,1077];
-  return <span ref={ref} className={`art ${className}`} role="img" aria-label={alt || name} style={{aspectRatio:`${w}/${h}`,...style}}>
-    {box && <img draggable="false" aria-hidden="true" alt="" src={`/references/board-${['one','two','three'][board-1]}.png`} style={{width:dims[0]*s,height:dims[1]*s,left:(box.width-w*s)/2-x*s,top:(box.height-h*s)/2-y*s}}/>}
-  </span>;
+function PreviewArt({ name = 'mist', className = '', alt = '', style = {} }) {
+  const ref = useRef(null);
+  const [box, setBox] = useState(null);
+  const [board, x, y, w, h] = art[name] || art.mist;
+  useLayoutEffect(() => {
+    const node = ref.current;
+    const o = new ResizeObserver(([e]) => setBox(e.contentRect));
+    o.observe(node);
+    return () => o.disconnect();
+  }, []);
+  const s = box ? Math.max(box.width / w, box.height / h) : 1;
+  const dims = board === 1 ? [1461, 1076] : [1460, 1077];
+  return (
+    <span ref={ref} className={`art ${className}`} role="img" aria-label={alt || name} style={{ aspectRatio: `${w}/${h}`, ...style }}>
+      {box && (
+        <img
+          draggable="false"
+          aria-hidden="true"
+          alt=""
+          src={`/references/board-${['one', 'two', 'three'][board - 1]}.png`}
+          style={{ width: dims[0] * s, height: dims[1] * s, left: (box.width - w * s) / 2 - x * s, top: (box.height - h * s) / 2 - y * s }}
+        />
+      )}
+    </span>
+  );
 }
-export function EmptyState({title='没有找到内容',description='换个关键词，或添加一条新的记录。'}) {return <div className="empty-state"><IconSearch size={25} stroke={1.3}/><strong>{title}</strong><p>{description}</p></div>}
+export function EmptyState({ title = '没有找到内容', description = '换个关键词，或添加一条新的记录。' }) {
+  return (
+    <div className="empty-state">
+      <IconSearch size={25} stroke={1.3} />
+      <strong>{title}</strong>
+      <p>{description}</p>
+    </div>
+  );
+}

@@ -58,7 +58,7 @@ function attachmentReference(value) {
   return { sha256: value.sha256, type, size: value.size };
 }
 function inspectBytes(bytes, ref) {
-  if (bytes.length !== ref.size || hash(bytes) !== ref.sha256) throw new Error('附件校验失败，原引用已保留。');
+  if (bytes.length !== ref.size || hash(bytes) !== ref.sha256) throw Object.assign(new Error('附件校验失败，原引用已保留。'), {code:'ATTACHMENT_INTEGRITY'});
   normalizeWorkspaceAttachment({
     name: `attachment.${MIME_EXTENSIONS[ref.type]}`,
     type: ref.type,
@@ -82,7 +82,8 @@ function createFileAttachmentStore({ directory }) {
     const handle = await fs.open(path.join(root, ref.sha256), constants.O_RDONLY | constants.O_NOFOLLOW);
     try {
       const stat = await handle.stat();
-      if (!stat.isFile() || stat.size !== ref.size) throw new Error('附件大小校验失败。');
+      if (!stat.isFile()) throw new Error('附件路径不是常规文件。');
+      if (stat.size !== ref.size) throw Object.assign(new Error('附件大小校验失败。'), {code:'ATTACHMENT_INTEGRITY'});
       const bytes = await handle.readFile();
       inspectBytes(bytes, ref);
       return bytes;
@@ -90,7 +91,23 @@ function createFileAttachmentStore({ directory }) {
       await handle.close();
     }
   }
-  async function put(value) {
+  // Serialize claiming a new digest, repairing it, and rolling back unpublished
+  // bytes. An ordinary save adopting the same digest takes permanent ownership.
+  const provisional = new Map();
+  let mutations = Promise.resolve();
+  function mutate(fn) {
+    const result = mutations.then(fn);
+    mutations = result.catch(() => {});
+    return result;
+  }
+  function claim(ref, token, created) {
+    if (!token) provisional.delete(ref.sha256);
+    else if (created || provisional.has(ref.sha256)) {
+      if (!provisional.has(ref.sha256)) provisional.set(ref.sha256,new Set());
+      provisional.get(ref.sha256).add(token);
+    }
+  }
+  async function write(value, token) {
     const match = typeof value?.dataUrl === 'string' && /^data:([^;,]+);base64,/i.exec(value.dataUrl);
     const type = String(value?.type || match?.[1] || '')
       .trim()
@@ -108,11 +125,14 @@ function createFileAttachmentStore({ directory }) {
     const bytes = Buffer.from(encoded, 'base64');
     const ref = attachmentReference({ sha256: hash(bytes), type: attachment.type, size: attachment.size });
     await ready();
+    let repairing = false;
     try {
       await read(ref);
+      claim(ref, token, false);
       return ref;
     } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
+      repairing = !!token && error.code === 'ATTACHMENT_INTEGRITY';
+      if (!repairing && error.code !== 'ENOENT') throw error;
     }
     const capacity = await fs.statfs(root);
     if (capacity.bavail * capacity.bsize < bytes.length) throw Object.assign(new Error('磁盘空间不足，附件未提交。'), { code: 'ATTACHMENT_NO_SPACE' });
@@ -125,8 +145,13 @@ function createFileAttachmentStore({ directory }) {
       } finally {
         await handle.close();
       }
-      try {
-        await fs.link(temporary, path.join(root, ref.sha256));
+      const destination = path.join(root, ref.sha256);
+      // The supplied bytes were checked for MIME, length and digest, and the
+      // complete temporary file is durable before replacing a damaged target.
+      if (repairing) await fs.rename(temporary, destination);
+      else try {
+        await fs.link(temporary, destination);
+        claim(ref,token,true);
       } catch (error) {
         if (error.code !== 'EEXIST') throw error;
       }
@@ -143,6 +168,27 @@ function createFileAttachmentStore({ directory }) {
     const stat = await fs.statfs(root);
     return { availableBytes: stat.bavail * stat.bsize };
   }
-  return { put, read, capacity };
+  function validateToken(token) {
+    if (typeof token !== 'string' || !/^[0-9a-f-]{36}$/.test(token)) throw Error('恢复操作标识无效。');
+  }
+  function restore(value, token) {
+    validateToken(token);
+    return mutate(() => write(value,token));
+  }
+  function settleRestore(token, committed) {
+    validateToken(token);
+    if (typeof committed !== 'boolean') throw Error('恢复提交状态无效。');
+    return mutate(async () => {
+      for (const [sha,owners] of provisional) {
+        if (!owners.delete(token)) continue;
+        if (committed) { provisional.delete(sha); continue; }
+        if (owners.size === 0) {
+          await fs.rm(path.join(root,sha),{force:true});
+          provisional.delete(sha);
+        }
+      }
+    });
+  }
+  return { put:value=>mutate(()=>write(value)), read, capacity, restore, settleRestore };
 }
 module.exports = { createFileAttachmentStore, attachmentReference };

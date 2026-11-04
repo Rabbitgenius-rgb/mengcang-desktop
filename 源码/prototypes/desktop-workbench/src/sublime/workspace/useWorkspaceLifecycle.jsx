@@ -188,7 +188,7 @@ export function useWorkspaceLifecycle({
       .load()
       .then(async (value) => {
         let migrationError = '';
-        if (!value.drafts.legacyDiscoveryImported && apiRef.current?.discoveryStateGet) {
+        if (!session.migrationStatus?.()?.readOnly && !value.drafts.legacyDiscoveryImported && apiRef.current?.discoveryStateGet) {
           try {
             const legacy = valueOf(await apiRef.current.discoveryStateGet());
             if (epoch.current !== run) return;
@@ -265,7 +265,8 @@ export function useWorkspaceLifecycle({
     return () => document.removeEventListener('keydown', escape);
   }, [popover, setPopover]);
   useEffect(() => {
-    if (!connected || !ready || stateRef.current.drafts.legacyDiscoveryImported || !apiRef.current?.discoveryStateGet) return;
+    if (!connected || !ready || session.migrationStatus?.()?.readOnly || stateRef.current.drafts.legacyDiscoveryImported || !apiRef.current?.discoveryStateGet)
+      return;
     let cancelled = false;
     const run = epoch.current;
     apiRef.current
@@ -293,7 +294,7 @@ export function useWorkspaceLifecycle({
   }, [coverJobs, session]);
   useEffect(() => {
     const jobs = coverJobs.current;
-    if (!ready || loadedIdentity.current !== identityId || !jobs) return;
+    if (!ready || loadedIdentity.current !== identityId || !jobs || session.migrationStatus?.()?.readOnly) return;
     for (const source of state.cards) {
       if (
         source.origin === 'vault' ||

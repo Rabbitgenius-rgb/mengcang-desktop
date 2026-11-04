@@ -301,7 +301,7 @@ test('pasted backup preview and cancellation do not write; explicit merge preser
 
 test('pasted backup rejects empty invalid version and oversized Unicode without saving or truncating earlier text',async()=>{
  const {store,one}=await setup(),before=await store.load(),ui=workspaceUI(one,{hash:'#/library'});openPaste(ui);
- previewPaste(ui);assert.match(text(ui.find(node=>node.props?.title==='粘贴备份内容')),/请先粘贴完整备份/);
+ previewPaste(ui);assert.match(text(ui.find(node=>node.props?.title==='粘贴备份内容')),/请先粘贴旧版兼容备份/);
  changePaste(ui,'{not json');previewPaste(ui);assert.match(text(ui.find(node=>node.props?.title==='粘贴备份内容')),/不是有效的 JSON/);assert.equal(restoreModal(ui),null);
  changePaste(ui,'{"schemaVersion":999}');previewPaste(ui);assert.match(text(ui.find(node=>node.props?.title==='粘贴备份内容')),/受支持的工作区版本/);
  const previous=pasteInput(ui).props.value;changePaste(ui,'a'.repeat(4*1024*1024+1));assert.equal(pasteInput(ui).props.value,previous);assert.match(text(ui.find(node=>node.props?.title==='粘贴备份内容')),/超过 4MiB/);

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWorkspaceRoute } from './useWorkspaceRoute.jsx';
 import { useWorkspaceSession } from './useWorkspaceSession.jsx';
+import { useBackupRestore } from './BackupRestoreReview.jsx';
 import { useDraftRecovery } from './useDraftRecovery.jsx';
 import { useCardActions } from './useCardActions.jsx';
 import { useArticleActions } from './useArticleActions.jsx';
@@ -116,6 +117,7 @@ export function useWorkspaceActions({
     documentJobs,
     documentWaiters,
   });
+  const backupRestore = useBackupRestore({ modal, cards, viewRef, epoch, session, modalRef, navigate, notify, setError });
   const { backup, previewBackupText, openPastedBackup, updatePastedBackup, previewPastedBackup, readBackupFile, recoverDraft } = useDraftRecovery({
     epoch,
     modalRef,
@@ -322,6 +324,7 @@ export function useWorkspaceActions({
     perform,
     saveDraft,
     settleDocumentJobs,
+    ...backupRestore,
     backup,
     previewBackupText,
     openPastedBackup,

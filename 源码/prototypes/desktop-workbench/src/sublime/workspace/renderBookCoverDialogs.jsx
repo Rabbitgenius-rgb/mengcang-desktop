@@ -86,27 +86,37 @@ export function renderBookCoverDialogs(view) {
       )}
       {modal.type === 'legacy-cleanup' && (
         <>
-          <p>新资料库已完成三次启动读回。清理旧版迁移副本后，自动备份仍可用于恢复。</p>
-          <button onClick={() => setModal(null)}>取消</button>
+          <p>新资料库已完成三次启动。确认后会逐份核验当前引用的原附件和迁移备份，全部通过才清理旧副本。</p>
+          {modal.issue && <p role="alert">{modal.issue}</p>}
+          <button disabled={modal.checking} onClick={() => setModal(null)}>
+            取消
+          </button>
           <button
+            disabled={modal.checking}
             onClick={async () => {
+              setModal({ ...modal, checking: true, issue: '' });
               try {
                 await session.cleanupLegacy();
-                setModal(null);
+                setModal((current) => (current?.type === 'legacy-cleanup' ? null : current));
                 notify('旧版迁移副本已清理');
               } catch (issue) {
-                setError(issue.message);
+                setModal((current) => (current?.type === 'legacy-cleanup' ? { ...current, checking: false, issue: issue.message } : current));
               }
             }}
           >
-            确认清理旧副本
+            {modal.checking ? '正在核验原附件…' : '确认清理旧副本'}
           </button>
         </>
       )}
       {modal.type === 'backup' && (
         <>
           <p>备份已生成。若浏览器没有自动保存，请点击下面的链接下载同一份备份。</p>
-          <GeneratedDownload text={modal.text} name={modal.filename} type={modal.contentType || 'application/zip'} label="下载完整备份" />
+          <GeneratedDownload
+            text={modal.text}
+            name={modal.filename}
+            type={modal.contentType || 'application/zip'}
+            label={modal.contentType === 'application/json' ? '下载旧版兼容 JSON' : '下载完整 ZIP 备份'}
+          />
         </>
       )}
       {modal.type === 'share' && (

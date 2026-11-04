@@ -1,3 +1,4 @@
+import { sameAttachmentContent } from './attachmentRegistry.js';
 import { safeSourceUrl, normalizeWorkspaceAttachment, selectCards } from './workspaceModel.js';
 export { cardIdentityMetadata, createCardIdentityContext } from './cardIdentity.js';
 
@@ -324,6 +325,13 @@ export function cardCapturePayload(card, { operationId, caption, includeAttachme
     tags: card.tags || [],
     ...(includeAttachment && card.attachment ? { attachment: normalizeWorkspaceAttachment(card.attachment) } : {}),
   };
+}
+// Prior drafts may contain a stored URL or inline bytes and a derived image preview.
+export function sameCaptureRequest(prior, next, selectedAttachment) {
+  const businessKeys = Object.keys(next).filter((key) => key !== 'attachment');
+  if (!businessKeys.every((key) => JSON.stringify(prior[key]) === JSON.stringify(next[key]))) return false;
+  if (!prior.attachment || !next.attachment) return !prior.attachment && !next.attachment;
+  return sameAttachmentContent(prior.attachment, next.attachment) || sameAttachmentContent(prior.attachment, selectedAttachment);
 }
 export function buildOfflineCardHTML(card, { includeNote = false, includeAttachment = true } = {}) {
   const title = escapeHTML(card.title || '未命名卡片'),

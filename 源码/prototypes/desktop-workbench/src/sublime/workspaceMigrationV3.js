@@ -1,3 +1,4 @@
+import { collectAttachmentReferences } from './workspaceBackup.js';
 import { createWorkspaceState, normalizeWorkspaceState } from './workspaceModel.js';
 import { sameValue } from './workspaceStoreV3Entities.js';
 
@@ -130,4 +131,31 @@ export async function matchingLegacyVersion(legacy, source) {
   if (source.format !== 'legacy') return true;
   const current = await legacyWorkspaceSource(legacy);
   return typeof source.sha256 === 'string' && source.sha256 === current.sha256;
+}
+
+// Called under the same per-workspace lock as commits. Read the on-disk
+// snapshot and original files again; generating desktop display URLs does
+// not open their files. A failure leaves both versions available.
+export async function verifyAndRemoveLegacy({ readWorkspace, legacy, attachments, updateMeta }) {
+  const { meta, diskState } = await readWorkspace();
+  if (!meta.legacySource?.present || meta.legacyCleaned || (meta.successfulStartIds?.length || 0) < 3) {
+    throw Error('旧副本状态已改变，请重新打开本机工具。');
+  }
+  const previous = await legacy.read();
+  if (!(await matchingLegacyVersion(previous, meta.legacySource))) throw Error('旧版资料发生变化，旧副本已保留。');
+  await legacy.backup(previous);
+  for (const ref of collectAttachmentReferences(diskState)) {
+    try {
+      // Both store adapters verify the original size and SHA-256 in get().
+      await attachments.get(ref);
+    } catch (error) {
+      throw Error(`附件校验失败（${ref.type}，${ref.sha256.slice(0, 12)}）。旧版副本已保留，请先恢复原附件再重试。`, { cause: error });
+    }
+  }
+  await updateMeta((current) => {
+    if (current.revision !== meta.revision || current.legacyCleaned) throw Error('校验期间资料库已改变，旧副本已保留。请重新核对。');
+    return { ...current, legacyCleanupRequested: true };
+  });
+  await legacy.remove(previous);
+  await updateMeta((current) => ({ ...current, legacyCleaned: true }));
 }

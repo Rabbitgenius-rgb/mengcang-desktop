@@ -149,7 +149,7 @@ test('v3 detects an old application saving the retained v2 record before restart
 });
 
 test('legacy cleanup is explicit after three distinct successful starts, retaining its backup and v3 changes', async () => {
-  const options = isolated(),
+  const options = { ...isolated(), locks: navigator.locks },
     { db } = await seed(options, add('original')(createWorkspaceState()));
   const store = createWorkspaceStoreV3('test', options);
   await store.load();
@@ -289,7 +289,7 @@ test('raw legacy records without revisions detect old-application edits after mi
 });
 
 test('restart completes interrupted legacy cleanup metadata without rewriting v3 contents', async () => {
-  const options = isolated();
+  const options = { ...isolated(), locks: navigator.locks };
   const { db } = await seed(options, add('original')(createWorkspaceState()));
   const access = createLegacyWorkspaceAccess('test', options);
   const store = createWorkspaceStoreV3('test', {
@@ -317,4 +317,55 @@ test('restart completes interrupted legacy cleanup metadata without rewriting v3
     trace.some((entry) => entry.store !== 'meta'),
     false,
   );
+});
+
+test('damaged retained legacy data leaves healthy v3 and its post-migration records readable for export', async () => {
+  const options = isolated();
+  const { db, raw } = await seed(options, add('original')(createWorkspaceState()));
+  const first = createWorkspaceStoreV3('test', options);
+  await first.update(add('post-migration'));
+  const damaged = { ...raw, state: { ...raw.state, schemaVersion: 999 } };
+  await record(db, 'workspaces', 'test', damaged);
+  const reopened = createWorkspaceStoreV3('test', options);
+  const session = createWorkspaceSession(reopened);
+  await session.load();
+  assert.equal(session.migrationStatus().readOnly, true);
+  assert.match(session.migrationStatus().issue, /可导出/);
+  assert.deepEqual(
+    (await session.settled()).cards.map((card) => card.id),
+    ['original', 'post-migration'],
+  );
+  assert.deepEqual(await record(db, 'workspaces', 'test'), damaged);
+  await assert.rejects(reopened.update(add('not saved')), { code: 'WORKSPACE_READ_ONLY' });
+  assert.equal(session.migrationStatus().canCleanup, false);
+});
+
+test('cleanup validates original bytes referenced only by a draft and preserves legacy if a different window commits during validation', async () => {
+  const options = { ...isolated(), locks: navigator.locks };
+  const state = add('sample')(createWorkspaceState());
+  state.drafts.figure = { attachment: { dataUrl: picture } };
+  const { db, raw } = await seed(options, state);
+  const files = createAttachmentStore({ indexedDB: options.indexedDB });
+  let targetRead;
+  const store = createWorkspaceStoreV3('test', { ...options, attachments: { ...files, url: nativeAttachmentUrl, get: (ref) => targetRead(ref) } });
+  await store.load();
+  for (const id of ['a', 'b', 'c']) await store.recordSuccessfulStartup(id);
+  targetRead = () => {
+    throw Error('missing original');
+  };
+  await assert.rejects(store.cleanupLegacy(), /附件校验失败/);
+  assert.deepEqual(await record(db, 'workspaces', 'test'), raw);
+
+  // Simulate an older/non-cooperating writer that does not participate in Web Locks.
+  const other = createWorkspaceStoreV3('test', { ...options, attachments: files, locks: null });
+  targetRead = async (ref) => {
+    await other.update(add('concurrent change'));
+    return files.get(ref);
+  };
+  await assert.rejects(store.cleanupLegacy(), /校验期间资料库已改变/);
+  assert.deepEqual(await record(db, 'workspaces', 'test'), raw);
+  targetRead = (ref) => files.get(ref);
+  await store.cleanupLegacy();
+  assert.equal(await record(db, 'workspaces', 'test'), undefined);
+  assert.ok((await store.load()).cards.some((card) => card.id === 'concurrent change'));
 });

@@ -1,12 +1,10 @@
-const { _electron: electron } = require('../源码/node_modules/playwright');
+const { createAcceptanceRun } = require('./acceptance-run.cjs');
 const path = require('node:path');
 const fs = require('node:fs/promises');
 (async () => {
   const root = path.resolve(__dirname, '..');
-  const app = await electron.launch({
-    executablePath: path.join(root, '源码/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'),
-    args: [path.join(root, '源码/desktop/build/app')],
-  });
+  const run = await createAcceptanceRun();
+  const app = await run.launch();
   try {
     const page = await app.firstWindow();
     await page.getByRole('textbox', { name: /搜索/ }).first().waitFor();

@@ -21,11 +21,13 @@ npm run candidate
 
 `npm run preview` 打开共用界面的 `preview.html`。浏览器预览使用独立资料库，首次为空，可通过正常界面新建卡片。
 
-`npm run acceptance:desktop` 在开发候选版的隔离资料库运行搜索、阅读定位、图片放大、关联笔记、整理和回看验收，并关闭重开读回。该命令会重建自己的测试资料。`npm run acceptance:browser` 检查浏览器新建、刷新读回、收藏集、ZIP导出、键盘和双尺寸布局。
+`npm run acceptance:desktop` 每次在 `qa/acceptance-runs/` 下新建一套资料库、原始资料目录与桥接目录，用于搜索、阅读定位、图片放大、关联笔记、整理、回看和关闭重开读回。默认使用开发构建。通过 `npm run acceptance:desktop -- /path/to/梦藏治理候选.app` 可以验收支持隔离启动的已打包治理候选版。`npm run acceptance:browser` 检查浏览器新建、刷新读回、收藏集、ZIP 导出、键盘和双尺寸布局。
 
 `node governance/attachment-import-acceptance.cjs` 单独测量新附件导入及重启原件读回。旧运行时验收通过 `node governance/legacy-cold-baseline.cjs /path/to/archived-app-resources` 与 `node governance/legacy-runtime-acceptance.cjs /path/to/archived-app-resources` 复核；归档资源是包含 `package.json`、主进程和 `renderer/` 的应用资源目录。以上脚本仅使用各自的 `qa/` 隔离目录。
 
 本轮结果、适用边界及画面见[治理验收记录](验收记录/治理验收.md)。性能使用合成附件测量，应用重开计时从新进程启动至资料库可操作。AI测试采用模拟调用。
+
+修复候选的桌面复核使用 `node governance/recovery-acceptance.cjs /path/to/梦藏治理候选.app` 和 `node governance/migration-safety-acceptance.cjs /path/to/梦藏治理候选.app`，分别检查备份还原和旧副本清理。
 
 ## 存储与恢复
 

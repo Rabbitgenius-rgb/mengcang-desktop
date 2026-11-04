@@ -6,5 +6,5 @@ methods.push('clipperReady','clipperResult','captureArticleImage');
 const api = Object.fromEntries(methods.map(method => [method, (...args) => ipcRenderer.invoke(`mengcang:${method}`, ...args)]));
 api.assetUrl = relativePath => typeof relativePath === 'string' ? `mengcang-asset://vault/?path=${encodeURIComponent(relativePath)}` : '';
 api.subscribe = callback => { const receive = (_event, data) => callback(data); ipcRenderer.on('mengcang:event', receive); return () => ipcRenderer.removeListener('mengcang:event', receive); };
-api.attachments = Object.freeze({put:value=>ipcRenderer.invoke('mengcang:attachmentPut',value),read:value=>ipcRenderer.invoke('mengcang:attachmentRead',value),capacity:()=>ipcRenderer.invoke('mengcang:attachmentCapacity')});
+api.attachments = Object.freeze({restore:(value,token)=>ipcRenderer.invoke('mengcang:attachmentRestore',value,token),settleRestore:(token,committed)=>ipcRenderer.invoke('mengcang:attachmentRestoreEnd',token,committed),put:value=>ipcRenderer.invoke('mengcang:attachmentPut',value),read:value=>ipcRenderer.invoke('mengcang:attachmentRead',value),capacity:()=>ipcRenderer.invoke('mengcang:attachmentCapacity')});
 contextBridge.exposeInMainWorld('mengcang', Object.freeze(api));

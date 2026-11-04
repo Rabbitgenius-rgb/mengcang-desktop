@@ -1,13 +1,12 @@
-const { _electron: electron } = require('../源码/node_modules/playwright');
+const { createAcceptanceRun } = require('./acceptance-run.cjs');
 const { build } = require('../源码/node_modules/esbuild');
 const fs = require('node:fs/promises'),
   path = require('node:path'),
   assert = require('node:assert/strict');
 (async () => {
-  const root = path.resolve(__dirname, '..'),
-    source = path.join(root, '源码'),
-    dir = path.join(source, 'desktop/build/app'),
-    output = path.join(root, '验收记录/桌面验收');
+  const root = path.resolve(__dirname, '..');
+  const run = await createAcceptanceRun({ executablePath: process.argv.slice(2).find((arg) => !arg.startsWith('--')) });
+  const output = path.join(run.directory, 'screenshots');
   await fs.mkdir(output, { recursive: true });
   const { outputFiles } = await build({
     entryPoints: [path.join(root, 'governance/fixtures.mjs')],
@@ -16,19 +15,10 @@ const fs = require('node:fs/promises'),
     format: 'iife',
     globalName: 'governanceFixtures',
   });
-  const config = JSON.parse(await fs.readFile(path.join(dir, 'candidate-config.json'), 'utf8'));
-  assert.ok(config.userDataPath.startsWith(path.join(root, 'qa') + path.sep));
-  assert.ok(config.vaultPath.startsWith(path.join(root, 'qa') + path.sep));
-  if (process.argv.includes('--fresh')) await fs.rm(config.userDataPath, { recursive: true, force: true });
   const errors = [],
     checks = [];
   async function launch() {
-    const app = await electron.launch({
-      executablePath:
-        (process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : null) ||
-        path.join(source, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'),
-      args: process.argv[2] && !process.argv[2].startsWith('--') ? [] : [dir],
-    });
+    const app = await run.launch();
     const page = await app.firstWindow();
     page.on('dialog', (d) => d.accept());
     page.on('pageerror', (e) => {
@@ -154,8 +144,8 @@ const fs = require('node:fs/promises'),
     await app.close();
   }
   assert.deepEqual(errors, []);
-  const result = { checks, errors };
-  await fs.writeFile(path.join(root, '验收记录/governance-desktop-acceptance.json'), JSON.stringify(result, null, 2));
+  const result = { checks, errors, run: path.relative(root, run.directory) };
+  await fs.writeFile(path.join(run.directory, 'governance-desktop-acceptance.json'), JSON.stringify(result, null, 2), { flag: 'wx' });
   console.log(result);
 })().catch((e) => {
   console.error(e);

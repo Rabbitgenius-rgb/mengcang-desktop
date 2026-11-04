@@ -1,7 +1,7 @@
 import React from 'react';
 import { workspaceReducer, normalizeWorkspaceState, MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup } from '.././workspaceModel.js';
-import { hydrateAttachmentUrls } from '.././attachmentStore.js';
-import { exportWorkspaceZip, importWorkspaceBackup, exportLegacyWorkspace } from '.././workspaceBackup.js';
+
+import { exportWorkspaceZip, inspectWorkspaceBackup, previewBackupState, exportLegacyWorkspace } from '.././workspaceBackup.js';
 import { copyDraftTitle, recoveredBoardCopy } from '.././workspaceView.js';
 import { uid, attachmentFiles, download, checkPastedBackupSize } from './constants.js';
 
@@ -89,10 +89,10 @@ export function useDraftRecovery({
     if (modal?.type !== 'paste-backup') return;
     try {
       checkPastedBackupSize(modal.text);
-      if (!modal.text.trim()) throw Error('请先粘贴完整备份 JSON 内容。');
+      if (!modal.text.trim()) throw Error('请先粘贴旧版兼容备份的 JSON 内容。');
       previewBackupText(modal.text, '粘贴的备份');
     } catch (issue) {
-      const message = issue?.name === 'SyntaxError' ? '内容不是有效的 JSON，请复制完整备份后重试。' : issue.message || '备份内容无法读取。';
+      const message = issue?.name === 'SyntaxError' ? '内容不是有效的 JSON，请重新复制旧版兼容备份中的全部文本。' : issue.message || '备份内容无法读取。';
       setModal((value) => (value?.type === 'paste-backup' ? { ...value, issue: message } : value));
     }
   }
@@ -116,12 +116,12 @@ export function useDraftRecovery({
       const isZip = /\.zip$/i.test(file.name);
       if (!isZip && file.size > MAX_WORKSPACE_BACKUP_BYTES) throw Error('旧 JSON 备份超过256MiB，请选择完整 ZIP 备份。');
       if (isZip) {
-        const parsed = await importWorkspaceBackup(await file.arrayBuffer(), attachmentFiles);
-        const value = normalizeWorkspaceState(await hydrateAttachmentUrls(parsed.state, attachmentFiles));
+        const plan = await inspectWorkspaceBackup(await file.arrayBuffer());
+        const value = normalizeWorkspaceState(await previewBackupState(plan));
         if (current()) {
           setError('');
           setPopover(null);
-          setModal({ type: 'restore', value, filename: file.name });
+          setModal({ type: 'restore', value, plan, filename: file.name });
         }
       } else {
         const text = await file.text();

@@ -6,6 +6,7 @@ const fs = require('node:fs/promises'),
   const root = path.resolve(__dirname, '..'),
     source = path.join(root, '源码'),
     dir = path.join(source, 'desktop/build/app');
+  const benchmarkProfile = await require('./acceptance-run.cjs').requireBenchmarkRun(dir);
   await build({
     stdin: {
       contents: process.argv.includes('--v3')
@@ -22,6 +23,7 @@ const fs = require('node:fs/promises'),
     const start = Date.now();
     const app = await electron.launch({ executablePath: path.join(source, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'), args: [dir] });
     try {
+      if ((await app.evaluate(({ app }) => app.getPath('userData'))) !== benchmarkProfile) throw Error('性能运行使用了非验收资料目录。');
       const page = await app.firstWindow();
       await page.getByRole('textbox', { name: /搜索/ }).first().waitFor();
       const boot = Date.now() - start;

@@ -20,6 +20,7 @@ const {createFloatAppearanceClient}=require('./float-appearance.cjs');
 const {PRODUCTION_VAULT,relative,bundleFile,trustedFrame,draftName,jsonValue,captureJson,atomicPrivate,createPrivateWriteQueue}=require('./security.cjs');
 // Candidate builds supply a fixed, isolated configuration. Production never reads credentials.
 let config={};try{config=require('./candidate-config.json');}catch{}
+if(app.commandLine.hasSwitch('mengcang-acceptance-run'))config=require('./acceptance-profile.cjs').acceptanceProfile(config,app.commandLine.getSwitchValue('mengcang-acceptance-run'));
 if(!app.isPackaged&&!config.userDataPath)throw Error('开发候选版缺少隔离配置，请先准备候选目录。');
 app.setName(config.name||'梦藏');
 if(config.userDataPath){if(!path.isAbsolute(config.userDataPath))throw Error('候选应用资料目录必须是绝对路径');fs.mkdirSync(config.userDataPath,{recursive:true,mode:0o700});app.setPath('userData',config.userDataPath);}
@@ -28,7 +29,7 @@ if(!app.requestSingleInstanceLock()){app.quit();}else{
 let win,gateway,readerSources,mcpBridge,recallBridge,clipperBridge,recallPresentation,mcpBridgeError='',quitDrained=false,quitTask=null,quitRequested=false,quitId=null,ready=false;
 const writes=createPrivateWriteQueue(),pending=new Set(),userData=app.getPath('userData');
 const attachments=require('./attachment-store.cjs').createFileAttachmentStore({directory:path.join(userData,'attachments-v3')});
-const quitSensitiveRequests=new Set(['attachmentPut','capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
+const quitSensitiveRequests=new Set(['attachmentPut','attachmentRestore','capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
 const vaultPath=config.vaultPath||PRODUCTION_VAULT,bundleRoot=path.join(__dirname,'renderer');
 const smokeTest=app.commandLine.hasSwitch('smoke-test');let smokeTimeout;
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.woff2':'font/woff2','.json':'application/json'};
@@ -77,6 +78,8 @@ app.whenReady().then(async()=>{
  if(url.hostname!=='vault')throw Error();const file=await gateway.attachment(relative(url.searchParams.get('path')));return new Response(file.data,{headers:{'Content-Type':file.contentType,'Cache-Control':'private, max-age=60','X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':'mengcang://app'}});}catch{return new Response('附件不可用',{status:404});}});
  protocol.handle('mengcang-reader',request=>readerSources.handle(request));
  handle('attachmentPut',value=>attachments.put(value));
+ handle('attachmentRestore',(value,token)=>attachments.restore(value,token));
+ handle('attachmentRestoreEnd',(token,committed)=>attachments.settleRestore(token,committed));
  handle('attachmentRead',async value=>{const bytes=await attachments.read(value);return {dataUrl:`data:${value.type};base64,${bytes.toString('base64')}`};});
  handle('attachmentCapacity',()=>attachments.capacity());
  handle('status',()=>({...gateway.status(),runtimeStartupId}));handle('snapshot',()=>gateway.snapshot());handle('readNote',value=>gateway.readNote(relative(value)));handle('readAttachment',value=>gateway.readAttachment(relative(value)));

@@ -5,15 +5,21 @@ const fs = require('node:fs/promises'),
   const root = path.resolve(__dirname, '..'),
     input = process.argv[2];
   if (!input) throw Error('请提供已归档的0.9.0应用资源目录');
-  const appDir = path.join(root, 'qa/reference-app');
+  const run = await fs.mkdtemp(path.join(root, 'qa/reference-'));
+  const appDir = path.join(run, 'app');
+  const vault = path.join(run, 'vault');
+  const cards = path.join(vault, '01_sources/cards/text');
+  await fs.mkdir(cards, { recursive: true });
+  await fs.writeFile(path.join(cards, 'source.md'), '---\ntype: material\ntitle: 治理验收来源\n---\n这是隔离验收资料。\n', { flag: 'wx' });
   await fs.cp(input, appDir, { recursive: true });
   await fs.writeFile(
     path.join(appDir, 'candidate-config.json'),
     JSON.stringify({
       name: '梦藏界面对照',
-      userDataPath: path.join(root, 'qa/reference-profile'),
-      vaultPath: path.join(root, 'qa/candidate-vault'),
-      recallBridgeDirectory: path.join(root, 'qa/reference-bridge'),
+      userDataPath: path.join(run, 'profile'),
+      vaultPath: vault,
+      recallBridgeDirectory: path.join(run, 'bridge'),
+      recallCompanionDirectory: path.join(run, 'companion'),
     }),
   );
   const app = await electron.launch({

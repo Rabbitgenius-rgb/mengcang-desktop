@@ -10,6 +10,7 @@ if (build.status !== 0) process.exit(build.status || 1);
 const target = path.join(root,'desktop/build/app');
 await fs.rm(target,{recursive:true,force:true});
 await fs.mkdir(target,{recursive:true});
+await fs.copyFile(path.join(root,'desktop/acceptance-profile.cjs'),path.join(target,'acceptance-profile.cjs'));
 for (const file of ['main.cjs','attachment-store.cjs','workspace-v3-read.cjs','reader-source.cjs','source-actions.cjs','discovery-state.cjs','mcp-bridge.cjs','mcp-library.cjs','mcp-workspace.cjs','preload.cjs','security.cjs','attachment-validation.cjs','ai-policy.cjs','intelligence.cjs','intelligence-bridge.cjs','local-transcription.cjs','renderer-quit.cjs','feed-capture.cjs','download-lifecycle.cjs','web-capture.cjs','public-dns.cjs','native-file-preview.cjs','html-parser.cjs','html-parser-LICENSE.txt','html-parser-entities-LICENSE.txt']) await fs.copyFile(path.join(root,'desktop',file),path.join(target,file));
 await bundle({entryPoints:[path.join(root,'desktop/local-gateway.cjs')],outfile:path.join(target,'local-gateway.cjs'),bundle:true,platform:'node',format:'cjs',target:'node22'});
 await bundle({entryPoints:[path.join(root,'desktop/recall-bridge.cjs')],outfile:path.join(target,'recall-bridge.cjs'),bundle:true,platform:'node',format:'cjs',target:'node22'});
@@ -33,6 +34,7 @@ console.log('Desktop resources bundled; no web server is required.');
 
 // Every development build starts isolated, including after the build folder is replaced.
 const candidateRoot=path.resolve(root,'../qa');
-const candidateVault=path.join(candidateRoot,'candidate-vault');
+const development=path.join(candidateRoot,'development');
+const candidateVault=path.join(development,'vault');
 await fs.mkdir(path.join(candidateVault,'01_sources/cards/text'),{recursive:true});
-await fs.writeFile(path.join(target,'candidate-config.json'),JSON.stringify({name:'梦藏治理候选',userDataPath:path.join(candidateRoot,'candidate-profile'),vaultPath:candidateVault,recallBridgeDirectory:path.join(candidateRoot,'candidate-bridge'),recallCompanionDirectory:path.join(candidateRoot,'candidate-companion')}));
+await fs.writeFile(path.join(target,'candidate-config.json'),JSON.stringify({name:'梦藏开发候选',userDataPath:path.join(development,'profile'),vaultPath:candidateVault,recallBridgeDirectory:path.join(development,'bridge'),recallCompanionDirectory:path.join(development,'companion'),acceptanceRunsRoot:path.join(candidateRoot,'acceptance-runs')}));

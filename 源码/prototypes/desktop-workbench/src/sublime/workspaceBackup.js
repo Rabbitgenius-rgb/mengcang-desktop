@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
-import { MAX_ATTACHMENT_BYTES, MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup, serializeWorkspace } from './workspaceModel.js';
-import { attachmentReference, externalizeAttachments, restoreAttachmentData } from './attachmentStore.js';
+import { attachmentFileExtension } from './attachmentRegistry.js';
+import { MAX_ATTACHMENT_BYTES, MAX_WORKSPACE_BACKUP_BYTES, parseWorkspaceBackup, serializeWorkspace, normalizeWorkspaceAttachment } from './workspaceModel.js';
+import { attachmentReference, externalizeAttachments, restoreAttachmentData, nativeAttachmentUrl, hydrateAttachmentUrls } from './attachmentStore.js';
 
 export const WORKSPACE_ZIP_FORMAT = 'mengcang-workspace-backup-v3';
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
@@ -16,7 +17,7 @@ export function collectAttachmentReferences(value) {
     if (own(item, '$attachment')) {
       if (Object.keys(item).length !== 1) throw Error('备份附件引用格式无效。');
       const ref = attachmentReference(item.$attachment);
-      refs.set(`${ref.sha256}:${ref.type}`, ref);
+      refs.set(`${ref.sha256}:${ref.type}:${ref.size}`, ref);
       return;
     }
     Object.values(item).forEach(visit);
@@ -93,7 +94,7 @@ function crc32(bytes) {
   }
   return (checksum ^ 0xffffffff) >>> 0;
 }
-export async function importWorkspaceBackup(input, store) {
+export async function inspectWorkspaceBackup(input) {
   if (typeof input === 'string') return { state: parseWorkspaceBackup(input), revision: 0, entityVersions: {}, format: 'legacy-json' };
   const bytes = input instanceof Blob ? await input.arrayBuffer() : input;
   const head = new TextDecoder().decode(
@@ -123,16 +124,65 @@ export async function importWorkspaceBackup(input, store) {
     const file = zip.file(entryName(ref));
     if (!file || file._data.uncompressedSize !== ref.size) throw Error('备份附件缺失或大小不符。');
   }
-  const imported = new Set();
-  for (const ref of manifest.attachments) {
-    if (imported.has(`${ref.sha256}:${ref.type}`)) continue;
+  // Verify the entire immutable archive before exposing a confirm action. Keep
+  // the compressed archive, and materialize one member at a time on demand.
+  const readFile = async (ref) => {
     const content = await zip.file(entryName(ref)).async('uint8array');
-    if ((await digest(content)) !== ref.sha256) throw Error('备份附件内容校验失败。');
-    const stored = attachmentReference(await store.put({ type: ref.type, size: ref.size, dataUrl: await binaryDataUrl(content, ref.type) }));
-    if (stored.sha256 !== ref.sha256 || stored.size !== ref.size || stored.type !== ref.type) throw Error('备份附件写入校验失败。');
-    imported.add(`${ref.sha256}:${ref.type}`);
+    if (content.length !== ref.size || (await digest(content)) !== ref.sha256) throw Error('备份附件内容校验失败。');
+    return normalizeWorkspaceAttachment({
+      name: 'attachment.' + attachmentFileExtension(ref.type),
+      type: ref.type,
+      size: ref.size,
+      dataUrl: await binaryDataUrl(content, ref.type),
+    });
+  };
+  for (const ref of manifest.attachments) await readFile(ref);
+  return {
+    state: manifest.state,
+    revision: manifest.revision,
+    entityVersions: manifest.entityVersions,
+    format: WORKSPACE_ZIP_FORMAT,
+    attachments: manifest.attachments,
+    readFile,
+  };
+}
+
+// A preview URL carries only validated metadata. Nothing in the preview needs
+// pixels, and no permanent file or browser Blob is created until confirmation.
+export async function previewBackupState(plan) {
+  return hydrateAttachmentUrls(plan.state, { url: nativeAttachmentUrl });
+}
+
+export async function applyWorkspaceBackup(plan, store, commit, stillCurrent = () => true) {
+  const checkCurrent = () => {
+    if (!stillCurrent()) throw Error('恢复操作已取消，请重新选择备份。');
+  };
+  const token = crypto.randomUUID();
+  const touched = new Map();
+  let applied = false;
+  try {
+    for (const ref of plan.attachments || []) {
+      checkCurrent();
+      const value = await plan.readFile(ref);
+      checkCurrent();
+      touched.set(ref.sha256, ref);
+      const stored = attachmentReference(store.restore ? await store.restore(value, token) : await store.put(value));
+      if (stored.sha256 !== ref.sha256 || stored.size !== ref.size || stored.type !== ref.type) throw Error('备份附件写入校验失败。');
+    }
+    checkCurrent();
+    const result = await commit(plan.state);
+    applied = true;
+    return result;
+  } finally {
+    if (store.settleRestore && touched.size) await store.settleRestore(token, [...touched.values()], applied);
   }
-  return { state: manifest.state, revision: manifest.revision, entityVersions: manifest.entityVersions, format: WORKSPACE_ZIP_FORMAT };
+}
+
+// Existing programmatic imports explicitly request materialization; UI previews
+// call inspectWorkspaceBackup and only call applyWorkspaceBackup on confirmation.
+export async function importWorkspaceBackup(input, store) {
+  const plan = await inspectWorkspaceBackup(input);
+  return applyWorkspaceBackup(plan, store, (state) => ({ state, revision: plan.revision, entityVersions: plan.entityVersions, format: plan.format }));
 }
 const raster = (type) => /^image\/(?:png|jpe?g|pjpeg|gif|webp|avif|bmp|tiff)$/i.test(String(type || '').trim());
 const refValue = (value) => (record(value) && Object.keys(value).length === 1 && own(value, '$attachment') ? attachmentReference(value.$attachment) : null);

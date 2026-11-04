@@ -114,6 +114,7 @@
     "src/sublime/sublimeWorkspace.css",
     "src/sublime/useOriginalPosition.js",
     "src/sublime/webCapture.js",
+    "src/sublime/workspace/BackupRestoreReview.jsx",
     "src/sublime/workspace/CardDetailView.jsx",
     "src/sublime/workspace/CardMenu.jsx",
     "src/sublime/workspace/LibraryView.jsx",

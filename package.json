@@ -13,7 +13,7 @@
     "structure": "node governance/structure.mjs",
     "candidate": "npm run desktop:build --prefix 源码 && node governance/candidate.mjs --package",
     "preview": "npm run dev --prefix 源码/prototypes/desktop-workbench -- --open /preview.html",
-    "acceptance:desktop": "node governance/desktop-acceptance.cjs --fresh",
+    "acceptance:desktop": "node governance/desktop-acceptance.cjs",
     "acceptance:storage": "node governance/candidate.mjs --benchmark && node governance/benchmark.cjs --v3 && node governance/storage-acceptance.cjs",
     "acceptance:browser": "node governance/browser-acceptance.cjs"
   },

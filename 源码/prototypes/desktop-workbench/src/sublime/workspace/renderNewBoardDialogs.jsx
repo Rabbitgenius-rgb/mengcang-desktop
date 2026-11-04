@@ -4,7 +4,7 @@ import { VAULT_DISCONNECTED_MESSAGE } from './constants.js';
 import { download } from './constants.js';
 import { inlineWorkspaceAttachment } from '../attachmentStore.js';
 import { valueOf } from '../../desktopModel.js';
-import { cardCapturePayload } from '../workspaceView.js';
+import { cardCapturePayload, sameCaptureRequest } from '../workspaceView.js';
 export function renderNewBoardDialogs(view) {
   const { modal, state, connected, api, saving, createBoard, setModal, exportText, copyText, stateRef, commit, onRefresh, notify, setError } = view;
   return (
@@ -119,7 +119,7 @@ export function renderNewBoardDialogs(view) {
                       },
                     );
                   const prior = stateRef.current.drafts[key];
-                  if (prior?.payload && JSON.stringify(prior.payload) !== JSON.stringify(payload))
+                  if (prior?.payload && !sameCaptureRequest(prior.payload, payload, modal.card.attachment))
                     throw Error('上次请求的内容已变化，请保留这张卡并核对仓库后再新建副本。');
                   await commit({ type: 'draft.set', key, value: { operationId, payload } });
                   const result = valueOf(await api.capture(payload));
@@ -140,7 +140,8 @@ export function renderNewBoardDialogs(view) {
       {modal.type === 'about' && (
         <>
           <p>
-            此工作区在本机保存笔记、文件、收藏和画布，按当前梦藏仓库身份分别存储。“私密”是本地标记，内容不会自动公开。单附件上限64MiB，本机工作区连同附件的总保存上限256MiB；完整备份也受此上限约束。附件编码会增加体积。
+            此工作区在本机保存笔记、文件、收藏和画布，按当前梦藏仓库身份分别存储。“私密”是本地标记，内容不会自动公开。每个附件最多 64 MiB。完整 ZIP
+            备份包含资料清单和原附件，清单最多 256 MiB。旧版兼容 JSON 将附件也编码在文件中，整个文件最多 256 MiB。
           </p>
           <p>
             关键词搜索、手工收藏与连线不调用 AI。AI 解读与分类支持 API / CLI，默认关闭，启用后点击开始分析即调用。本机

@@ -1182,6 +1182,19 @@ function planWorkspaceBackupMerge(existing, incoming, context = {}) {
 
 // Recompute against the latest stored state at commit time, not the state used
 // to display the import preview. Both inputs remain untouched.
+export function canRestoreEmptyWorkspace(state) {
+  return (
+    ['cards', 'collections', 'boards', 'savedIds', 'favoriteIds', 'hiddenIds'].every((key) => state[key]?.length === 0) &&
+    Object.keys(state.annotations || {}).length === 0 &&
+    Object.entries(state.drafts || {}).every(([key, value]) => key === 'legacyDiscoveryImported' && value === true)
+  );
+}
+export function restoreEmptyWorkspace(existing, incoming) {
+  if (!canRestoreEmptyWorkspace(existing)) throw Error('当前工作区已有本机资料或整理记录，请重新预览并使用合并备份。');
+  const restored = normalizeWorkspaceState(incoming);
+  return { ...restored, drafts: { ...existing.drafts, ...restored.drafts } };
+}
+
 export function mergeWorkspaceBackup(existing, incoming, context) {
   return planWorkspaceBackupMerge(existing, incoming, context).state;
 }

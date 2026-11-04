@@ -1,7 +1,13 @@
 import { createWorkspaceState, normalizeWorkspaceState } from './workspaceModel.js';
 import { workspaceConflict } from './workspaceStore.js';
 import { createAttachmentStore, externalizeAttachments, externalizeAttachmentUrls, hydrateAttachmentUrls } from './attachmentStore.js';
-import { createLegacyWorkspaceAccess, legacyWorkspaceSource, matchingLegacyVersion, openWorkspaceDatabase } from './workspaceMigrationV3.js';
+import {
+  createLegacyWorkspaceAccess,
+  verifyAndRemoveLegacy,
+  legacyWorkspaceSource,
+  matchingLegacyVersion,
+  openWorkspaceDatabase,
+} from './workspaceMigrationV3.js';
 import { WORKSPACE_V3_STORES, workspaceMeta, writeWorkspaceRecords, readWorkspaceRecords } from './workspaceStoreV3Entities.js';
 
 export const WORKSPACE_V3_DATABASE = 'mengcang-sublime-workspace-v3';
@@ -59,7 +65,7 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
     cache = { ...value, state };
     return cache;
   }
-  async function readRaw() {
+  async function readRaw({ fresh = false } = {}) {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(WORKSPACE_V3_STORES, 'readonly');
@@ -71,7 +77,7 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
           result = null;
           return;
         }
-        if (cache?.meta.revision === meta.revision) {
+        if (!fresh && cache?.meta.revision === meta.revision) {
           result = { ...cache, meta };
           return;
         }
@@ -128,23 +134,27 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
     if (!opening)
       opening = (async () => {
         const existing = await readRaw();
-        const previous = await legacy.read();
         if (existing) {
           await accept(existing);
+          if (existing.meta.legacyCleaned) return;
+          let previous;
+          try {
+            previous = await legacy.read();
+          } catch (error) {
+            readOnlyError = Error('旧版迁移副本无法读取。新资料库已只读打开，可导出已保存的资料。' + (error?.message || ''));
+            return;
+          }
           if (existing.meta.legacyCleanupRequested && !previous.present && !existing.meta.legacyCleaned) {
             // Deletion can finish before its completion marker reaches disk.
             // Finish only the maintenance marker, retaining every v3 entity.
             await maintain((meta) => ({ ...meta, legacyCleaned: true }), { duringStartup: true });
           }
-          if (
-            !existing.meta.legacyCleaned &&
-            !(existing.meta.legacyCleanupRequested && !previous.present) &&
-            !(await matchingLegacyVersion(previous, existing.meta.legacySource))
-          ) {
+          if (!(existing.meta.legacyCleanupRequested && !previous.present) && !(await matchingLegacyVersion(previous, existing.meta.legacySource))) {
             readOnlyError = Error('检测到旧版资料库发生变化。当前资料以只读方式打开，请先核对旧版新增内容。');
           }
           return;
         }
+        const previous = await legacy.read();
         try {
           await accept(await bootstrap(previous));
         } catch (error) {
@@ -302,16 +312,21 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
     if (!duringStartup) await initialize();
     readOnlyFailure();
     const db = await openDatabase();
-    let meta;
+    let meta, failure;
     await new Promise((resolve, reject) => {
       const tx = db.transaction('meta', 'readwrite'),
         request = tx.objectStore('meta').get(key);
       request.onsuccess = () => {
-        meta = transform(request.result);
-        tx.objectStore('meta').put(meta, key);
+        try {
+          meta = transform(request.result);
+          tx.objectStore('meta').put(meta, key);
+        } catch (error) {
+          failure = error;
+          tx.abort();
+        }
       };
       tx.oncomplete = resolve;
-      tx.onabort = tx.onerror = () => reject(tx.error || Error('迁移状态未能保存。'));
+      tx.onabort = tx.onerror = () => reject(failure || tx.error || Error('迁移状态未能保存。'));
     });
     if (cache.meta.revision === meta.revision) cache.meta = meta;
     return meta;
@@ -367,12 +382,12 @@ export function createWorkspaceStoreV3(identity = 'browser-preview', options = {
     },
     async cleanupLegacy() {
       await initialize();
+      readOnlyFailure();
       if (!migrationStatus().canCleanup) throw Error('请完成三次正常启动读回后再清理旧副本。');
-      const previous = await legacy.read();
-      if (!(await matchingLegacyVersion(previous, cache.meta.legacySource))) throw Error('旧版资料发生变化，旧副本保留，请先核对。');
-      await maintain((meta) => ({ ...meta, legacyCleanupRequested: true }));
-      await legacy.remove(previous);
-      await maintain((meta) => ({ ...meta, legacyCleaned: true }));
+      if (!locks?.request) throw Error('当前环境无法锁定跨窗口写入，旧副本已保留。请在梦藏桌面版重试。');
+      await locks.request(`${WORKSPACE_V3_DATABASE}:${key}`, () =>
+        verifyAndRemoveLegacy({ readWorkspace: () => readRaw({ fresh: true }), legacy, attachments, updateMeta: maintain }),
+      );
       return migrationStatus();
     },
   };

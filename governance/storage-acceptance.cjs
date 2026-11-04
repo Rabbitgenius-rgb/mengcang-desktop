@@ -7,6 +7,7 @@ const fs = require('node:fs/promises'),
   const root = path.resolve(__dirname, '..'),
     source = path.join(root, '源码'),
     dir = path.join(source, 'desktop/build/app');
+  const benchmarkProfile = await require('./acceptance-run.cjs').requireBenchmarkRun(dir);
   await build({
     stdin: {
       contents: `export {createWorkspaceStoreV3} from './src/sublime/workspaceStoreV3.js';export {createWorkspaceStore as createLegacyStore} from './src/sublime/workspaceStore.js';export {workspaceReducer,createWorkspaceState,parseWorkspaceBackup} from './src/sublime/workspaceModel.js';export * from './src/sublime/attachmentStore.js';export * from './src/sublime/workspaceBackup.js';`,
@@ -22,6 +23,7 @@ const fs = require('node:fs/promises'),
     const t = Date.now(),
       app = await electron.launch({ executablePath: path.join(source, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'), args: [dir] });
     try {
+      assert.equal(await app.evaluate(({ app }) => app.getPath('userData')), benchmarkProfile);
       const page = await app.firstWindow();
       await page.getByRole('textbox', { name: /搜索/ }).first().waitFor();
       await page.getByRole('button', { name: /打开 隔离性能样本 0/ }).waitFor();

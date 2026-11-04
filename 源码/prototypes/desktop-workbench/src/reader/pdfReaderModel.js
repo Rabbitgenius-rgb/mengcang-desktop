@@ -1,3 +1,4 @@
+import { attachmentRefForUrl, readAttachmentBytes } from '../sublime/attachmentStore.js';
 import { attachmentBytes } from '../sublime/attachmentPreview.js';
 import { documentSelectionText, pdfPageText } from '../sublime/documentText.js';
 
@@ -24,6 +25,7 @@ export function pdfBookOptions(source, assetBase = '') {
     canvasMaxAreaInBytes: 24000000,
     useSystemFonts: true,
   };
+  if (attachmentRefForUrl(source?.dataUrl)) return { ...options, url: source.dataUrl };
   if (source?.dataUrl) return { ...options, data: attachmentBytes(source) };
   const raw = String(source?.url || '');
   if (!/^mengcang-reader:\/\/source\/[A-Za-z0-9_-]+$/.test(raw)) throw Error('阅读器只接受已授权的本机图书。');
@@ -224,6 +226,18 @@ export function pdfReadingKeyAction(event, { page = 1, total = 1, scrollTop = 0,
 // fetched merely because the custom URL looks like a normal PDF URL.
 export function createPdfBookSource(source, { RangeTransport, fetcher = globalThis.fetch, assetBase = '', onError = () => {} } = {}) {
   const base = pdfBookOptions(source, assetBase);
+  if (attachmentRefForUrl(source?.dataUrl)) {
+    const controller = new AbortController();
+    return {
+      options: readAttachmentBytes(source, { fetch: fetcher, signal: controller.signal }).then((data) => {
+        const { url, ...options } = base;
+        return { ...options, data };
+      }),
+      abort() {
+        controller.abort();
+      },
+    };
+  }
   if (base.data) return { options: Promise.resolve(base), abort() {} };
   const controller = new AbortController();
   let aborted = false,

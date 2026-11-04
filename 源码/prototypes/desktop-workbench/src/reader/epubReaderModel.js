@@ -1,3 +1,4 @@
+import { attachmentRefForUrl, readAttachmentBytes } from '../sublime/attachmentStore.js';
 import JSZip from 'jszip';
 
 // EPUBs are untrusted documents. Nothing from a book becomes executable markup,
@@ -616,6 +617,7 @@ export async function readEpubSource(source, { signal, fetcher = globalThis.fetc
   const target = source?.dataUrl || source?.url;
   if (typeof target !== 'string' || !target) throw Error('找不到 EPUB 原文件。');
   if (source.size > EPUB_LIMITS.archiveBytes) throw Error('EPUB 文件过大，当前上限为 80 MiB。');
+  if (attachmentRefForUrl(target)) return readAttachmentBytes(source, { fetch: fetcher, signal });
   if (target.startsWith('data:')) {
     const match = target.match(/^data:application\/(?:epub\+zip|octet-stream|zip);base64,([a-z\d+/=\r\n]+)$/i);
     if (!match || match[1].length > Math.ceil((EPUB_LIMITS.archiveBytes * 4) / 3) + 100) throw Error('EPUB 文件数据无效或过大。');

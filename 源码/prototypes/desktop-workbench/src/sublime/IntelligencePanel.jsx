@@ -1,3 +1,4 @@
+import { inlineWorkspaceAttachment, inlineWorkspaceSource } from './attachmentStore.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { valueOf } from '../desktopModel.js';
 import {
@@ -144,7 +145,7 @@ export default function IntelligencePanel({
         if (!source.originalPath || !api?.readAttachment) throw Error('图片原文件暂不可读取，请先导入本机原文件。');
         attachment = valueOf(await api.readAttachment(source.path));
       }
-      const image = visionImagePayload(attachment);
+      const image = visionImagePayload(await inlineWorkspaceAttachment(attachment));
       if (!cancelled && live.current) setImageState({ source, mode: selectedMode, image, loading: false });
     })().catch((issue) => {
       if (!cancelled && live.current) setImageState({ source, mode: selectedMode, loading: false, issue: issue.message || '图片原文件读取失败' });
@@ -331,8 +332,9 @@ export default function IntelligencePanel({
           chosen.origin === 'vault' && chosen.originalPath && api?.readAttachment
             ? { ...chosen, attachment: valueOf(await api.readAttachment(chosen.path)) }
             : chosen;
+        const prepared = await inlineWorkspaceSource(source);
         setResult(null);
-        await trackedRequest(active, source, { action: 'extract', ...extractDataPayload(source) });
+        await trackedRequest(active, prepared, { action: 'extract', ...extractDataPayload(prepared) });
         return;
       }
       if (generationMode) {

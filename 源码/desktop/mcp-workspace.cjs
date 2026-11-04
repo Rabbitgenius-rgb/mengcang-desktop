@@ -1,12 +1,15 @@
 'use strict';
+const {readCommittedV3}=require('./workspace-v3-read.cjs');
 // Read committed records through the app's own IndexedDB API. Never inspect
 // Chromium's files, evaluate material text, or expose unfinished editor drafts.
 function workspaceReadScript(identity, {includeAssets = false} = {}) {
   if (typeof identity !== 'string' || !identity || identity.length > 4096) throw Error('工作区标识无效');
-  return `(${async function (key, includeAssets) {
+  return `(${async function (key, includeAssets, readV3) {
     const name = 'mengcang-sublime-workspace-v1';
     if (typeof indexedDB.databases !== 'function') throw Error('当前软件无法安全检查资料库，请更新梦藏');
-    if (!(await indexedDB.databases()).some(value => value.name === name)) return null;
+    const names=await indexedDB.databases();
+    if(names.some(value=>value.name==='mengcang-sublime-workspace-v3')){const modern=await readV3(key,includeAssets);if(modern)return modern;}
+    if (!names.some(value => value.name === name)) return null;
     return await new Promise((resolve, reject) => {
       const request = indexedDB.open(name);
       request.onupgradeneeded = () => { request.transaction.abort(); };
@@ -44,7 +47,7 @@ function workspaceReadScript(identity, {includeAssets = false} = {}) {
         tx.onabort = failed; tx.onerror = failed;
       };
     });
-  }.toString()})(${JSON.stringify(identity)},${includeAssets === true})`;
+  }.toString()})(${JSON.stringify(identity)},${includeAssets === true},${readCommittedV3.toString()})`;
 }
 
 async function readWorkspaceSnapshot(webContents, identity, options = {}) {

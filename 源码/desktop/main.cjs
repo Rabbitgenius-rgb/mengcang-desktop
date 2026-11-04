@@ -1,6 +1,7 @@
 'use strict';
 const {app,BrowserWindow,ipcMain,protocol,dialog,shell,Menu,powerMonitor,safeStorage}=require('electron');
 const fs=require('node:fs');
+const runtimeStartupId=require('node:crypto').randomUUID();
 const path=require('node:path');
 const {LocalVaultGateway}=require('./local-gateway.cjs');
 const {createReaderSources}=require('./reader-source.cjs');
@@ -25,7 +26,8 @@ protocol.registerSchemesAsPrivileged(['mengcang','mengcang-asset','mengcang-read
 if(!app.requestSingleInstanceLock()){app.quit();}else{
 let win,gateway,readerSources,mcpBridge,recallBridge,clipperBridge,recallPresentation,mcpBridgeError='',quitDrained=false,quitTask=null,quitRequested=false,quitId=null,ready=false;
 const writes=createPrivateWriteQueue(),pending=new Set(),userData=app.getPath('userData');
-const quitSensitiveRequests=new Set(['capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
+const attachments=require('./attachment-store.cjs').createFileAttachmentStore({directory:path.join(userData,'attachments-v3')});
+const quitSensitiveRequests=new Set(['attachmentPut','capture','captureArticleImage','discoveryStateSet','draftSet','preferencesSet','intelligenceConfigure','intelligenceSetKey','intelligenceRequest','nativeFilePreview','floatAppearanceSet']);
 const vaultPath=config.vaultPath||PRODUCTION_VAULT,bundleRoot=path.join(__dirname,'renderer');
 const smokeTest=app.commandLine.hasSwitch('smoke-test');let smokeTimeout;
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.wasm':'application/wasm','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.woff2':'font/woff2','.json':'application/json'};
@@ -70,9 +72,13 @@ app.whenReady().then(async()=>{
  readerSources=createReaderSources({gateway,isVisible:async note=>{const workspace=await readWorkspaceSnapshot(win?.webContents,gateway.identity.id);if(!workspace?.state||!Array.isArray(workspace.state.hiddenIds))return false;return !workspace.state.hiddenIds.some(id=>id===note.path||id===note.id);}});
  gateway.on('status',state=>emit('status',state));gateway.on('change',data=>emit('change',data));
  protocol.handle('mengcang',async request=>{try{const file=bundleFile(bundleRoot,request.url);return new Response(await fs.promises.readFile(file),{headers:{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Content-Security-Policy':csp,'X-Content-Type-Options':'nosniff'}});}catch{return new Response('页面不存在',{status:404});}});
- protocol.handle('mengcang-asset',async request=>{try{const url=new URL(request.url);if(url.hostname!=='vault')throw Error();const file=await gateway.attachment(relative(url.searchParams.get('path')));return new Response(file.data,{headers:{'Content-Type':file.contentType,'Cache-Control':'private, max-age=60','X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':'mengcang://app'}});}catch{return new Response('附件不可用',{status:404});}});
+ protocol.handle('mengcang-asset',async request=>{try{const url=new URL(request.url);if(url.hostname==='library'){const ref={sha256:url.pathname.slice(1),type:url.searchParams.get('type'),size:Number(url.searchParams.get('size'))};return new Response(await attachments.read(ref),{headers:{'Content-Type':ref.type,'X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':'mengcang://app'}});}
+ if(url.hostname!=='vault')throw Error();const file=await gateway.attachment(relative(url.searchParams.get('path')));return new Response(file.data,{headers:{'Content-Type':file.contentType,'Cache-Control':'private, max-age=60','X-Content-Type-Options':'nosniff','Access-Control-Allow-Origin':'mengcang://app'}});}catch{return new Response('附件不可用',{status:404});}});
  protocol.handle('mengcang-reader',request=>readerSources.handle(request));
- handle('status',()=>gateway.status());handle('snapshot',()=>gateway.snapshot());handle('readNote',value=>gateway.readNote(relative(value)));handle('readAttachment',value=>gateway.readAttachment(relative(value)));
+ handle('attachmentPut',value=>attachments.put(value));
+ handle('attachmentRead',async value=>{const bytes=await attachments.read(value);return {dataUrl:`data:${value.type};base64,${bytes.toString('base64')}`};});
+ handle('attachmentCapacity',()=>attachments.capacity());
+ handle('status',()=>({...gateway.status(),runtimeStartupId}));handle('snapshot',()=>gateway.snapshot());handle('readNote',value=>gateway.readNote(relative(value)));handle('readAttachment',value=>gateway.readAttachment(relative(value)));
  handle('readingSource',value=>readerSources.issue(relative(value)));
  handle('capture',value=>{captureJson(value);return gateway.capture(value);});
  handle('discoveryAnalyze',()=>rejectAiRequest());
@@ -105,7 +111,7 @@ app.whenReady().then(async()=>{
  handle('floatAppearanceShow',()=>floatAppearance.show());
  ready=true;await createWindow();
  try{
-  const reader=createLibraryReader({gateway,getWorkspace:options=>readWorkspaceSnapshot(win?.webContents,gateway.identity.id,options)});
+  const reader=createLibraryReader({gateway,getAttachment:ref=>attachments.read(ref),getWorkspace:options=>readWorkspaceSnapshot(win?.webContents,gateway.identity.id,options)});
   mcpBridge=await startMcpBridge({userData,tools:MCP_TOOLS,callTool:(name,args)=>{
    if(quitRequested)throw Error('梦藏正在保存并退出，请稍后重新打开软件');
    return reader.callTool(name,args);

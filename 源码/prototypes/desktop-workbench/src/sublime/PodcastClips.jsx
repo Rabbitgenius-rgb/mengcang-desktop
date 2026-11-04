@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { IconArrowLeft, IconUpload, IconCheck } from '@tabler/icons-react';
 import { attachmentBytes, fileTypeFor } from './attachmentPreview.js';
+import { attachmentRefForUrl, readAttachmentBytes } from './attachmentStore.js';
 import { MAX_ATTACHMENT_BYTES, normalizeWorkspaceAttachment } from './workspaceModel.js';
 import {
   buildPodcastClip,
@@ -66,17 +67,27 @@ function useAudioFingerprint(attachment, enabled = true) {
 function useAudioSource(attachment) {
   const [source, setSource] = useState({ url: '', error: '' });
   useEffect(() => {
-    let url = '';
+    let url = '',
+      cancelled = false;
     setSource({ url: '', error: '' });
     if (!attachment) return;
+    const loaded = (bytes) => {
+      if (cancelled) return;
+      url = URL.createObjectURL(new Blob([bytes], { type: attachment.type }));
+      setSource({ url, error: '' });
+    };
+    const failed = (error) => {
+      if (!cancelled) setSource({ url: '', error: error.message || '无法读取原音频。' });
+    };
     try {
       if (fileTypeFor(attachment)?.kind !== 'audio') throw Error('请选择可播放的音频文件。');
-      url = URL.createObjectURL(new Blob([attachmentBytes(attachment)], { type: attachment.type }));
-      setSource({ url, error: '' });
+      if (attachmentRefForUrl(attachment.dataUrl)) void readAttachmentBytes(attachment).then(loaded).catch(failed);
+      else loaded(attachmentBytes(attachment));
     } catch (error) {
-      setSource({ url: '', error: error.message || '无法读取原音频。' });
+      failed(error);
     }
     return () => {
+      cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
   }, [attachment?.dataUrl, attachment?.type, attachment?.size, attachment?.name]);

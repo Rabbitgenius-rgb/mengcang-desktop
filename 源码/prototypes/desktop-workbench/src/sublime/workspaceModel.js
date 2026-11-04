@@ -1,3 +1,4 @@
+import { attachmentRefForUrl } from './attachmentRegistry.js';
 // Pure workspace data. No storage, network, native bridge, or AI is invoked here.
 import { exportSelectedItems, parseCsv, safeImportUrl } from '../discoveryModel.js';
 import { normalizeDocumentIndex, chooseDocumentTextIndex } from './documentIndex.js';
@@ -296,7 +297,8 @@ export function normalizeWorkspaceAttachment(value) {
   const type = text(value.type, '附件类型', 100);
   if (type.trim().toLowerCase() === 'application/epub+zip' && !/\.epub$/i.test(name.trim())) fail('EPUB 原件需要使用 .epub 扩展名');
   const dataUrl = text(value.dataUrl, '附件内容', Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200);
-  const inspected = inspectFileDataUrl(dataUrl);
+  const registered = attachmentRefForUrl(dataUrl);
+  const inspected = registered ? { mime: registered.type, size: registered.size } : inspectFileDataUrl(dataUrl);
   if (
     canonicalMime(type.trim().toLowerCase()) !== canonicalMime(inspected.mime) ||
     !supportedMime.has(type.trim().toLowerCase()) ||
@@ -311,6 +313,7 @@ function safeImage(value) {
   const image = text(value, '图片', Math.ceil(MAX_ATTACHMENT_BYTES / 3) * 4 + 200).trim();
   if (!image) return '';
   if (safeSourceUrl(image)) return image;
+  if (attachmentRefForUrl(image)) return image;
   if (/^data:/i.test(image)) {
     try {
       return rasterMime.has(canonicalMime(inspectFileDataUrl(image).mime)) ? image : '';

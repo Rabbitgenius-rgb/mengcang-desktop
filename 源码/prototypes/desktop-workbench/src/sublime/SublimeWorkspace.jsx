@@ -47,7 +47,9 @@ import {
   mergeWorkspaceBackup,
   previewWorkspaceBackupMerge,
 } from './workspaceModel.js';
-import { createWorkspaceStore } from './workspaceStore.js';
+import { createWorkspaceStoreV3 as createWorkspaceStore } from './workspaceStoreV3.js';
+import { createAttachmentStore, hydrateAttachmentUrls, inlineWorkspaceAttachment } from './attachmentStore.js';
+import { exportWorkspaceZip, importWorkspaceBackup, exportLegacyWorkspace } from './workspaceBackup.js';
 import { listeningCard } from './referenceCards.js';
 import { CardEditor, CollectionEditor, CanvasEditor, ImportEditor, SafeRichBody } from './SublimeEditors.jsx';
 import { publicDiscoveryItem, dedupeImports } from '../discoveryModel.js';
@@ -173,6 +175,7 @@ const AI_LABELS = {
 const aiLabel = (mode) =>
   ({ ...AI_LABELS, ...INSIGHT_LABELS, Settings: 'AI 连接与用量', OCR: '文字识别', Classification: '分类建议', Discover: '灵感发现' })[mode] || mode;
 const initialFilters = { query: '', media: 'All', sort: 'newest', inLibrary: false, favorite: false };
+const attachmentFiles = createAttachmentStore();
 const MAX_PASTED_BACKUP_BYTES = 4 * 1024 * 1024;
 function checkPastedBackupSize(text) {
   if (text.length > MAX_PASTED_BACKUP_BYTES || new Blob([text]).size > MAX_PASTED_BACKUP_BYTES) throw Error('粘贴内容超过 4MiB，请使用文件导入。');
@@ -508,7 +511,8 @@ export default function SublimeWorkspace({
   apiRef.current = api;
   const sessions = useRef(new Map());
   const session = useMemo(() => {
-    if (!sessions.current.has(identityId)) sessions.current.set(identityId, createWorkspaceSession(createWorkspaceStore(identityId)));
+    if (!sessions.current.has(identityId))
+      sessions.current.set(identityId, createWorkspaceSession(createWorkspaceStore(identityId, { attachments: attachmentFiles })));
     return sessions.current.get(identityId);
   }, [identityId]);
   const [state, setState] = useState(createWorkspaceState),
@@ -728,6 +732,9 @@ export default function SublimeWorkspace({
         draftRef.current = session.drafts();
         loadedIdentity.current = identityId;
         setReady(true);
+        const storage = session.migrationStatus?.();
+        if (storage?.readOnly) setError(storage.issue || '资料库以只读模式打开，请导出备份后检查迁移。');
+        else if (apiRef.current?.runtimeStartupId) await session.recordSuccessfulStartup?.(apiRef.current.runtimeStartupId);
         if (migrationError) setError(migrationError);
       })
       .catch((e) => {
@@ -1021,7 +1028,7 @@ export default function SublimeWorkspace({
     const safe = value == null ? null : JSON.parse(JSON.stringify(value));
     perform({ type: 'draft.set', key, value: safe });
   }
-  async function backup() {
+  async function backup(legacy = false) {
     const run = epoch.current;
     try {
       await modalRef.current?.editor?.flush();
@@ -1034,12 +1041,15 @@ export default function SublimeWorkspace({
       const belongsHere = ([key, record]) => key === `${identityId}:${record.id}`;
       if ([...aiVolatile.current].some(belongsHere) || [...podcastVolatile.current].some(belongsHere))
         throw Error('仍有 AI/转录结果只保留在此窗口，完整备份尚未生成。请重新保存结果后再备份；也可先复制这些文字保留。');
-      const text = serializeWorkspace(latest),
-        filename = '梦藏-资料库备份.json';
+      const text = legacy
+          ? await exportLegacyWorkspace(latest, attachmentFiles)
+          : await exportWorkspaceZip(latest, attachmentFiles, session.backupMetadata?.()),
+        filename = legacy ? '梦藏-旧版兼容备份.json' : '梦藏-资料库备份.zip',
+        contentType = legacy ? 'application/json' : 'application/zip';
       setError('');
       setPopover(null);
-      setModal({ type: 'backup', text, filename });
-      download(text, filename);
+      setModal({ type: 'backup', text, filename, contentType });
+      download(text, filename, contentType);
       notify('备份已生成，已请求浏览器下载；也可点击对话框中的下载链接。');
     } catch (e) {
       if (run === epoch.current) setError(e.message);
@@ -1093,10 +1103,21 @@ export default function SublimeWorkspace({
       viewRef.current.route === originRoute &&
       modalRef.current === originModal;
     try {
-      if (file.size > MAX_WORKSPACE_BACKUP_BYTES) throw Error('备份超过256MiB，请使用分批卡片导入。');
-      const text = await file.text();
-      if (!current()) return;
-      previewBackupText(text, file.name);
+      const isZip = /\.zip$/i.test(file.name);
+      if (!isZip && file.size > MAX_WORKSPACE_BACKUP_BYTES) throw Error('旧 JSON 备份超过256MiB，请选择完整 ZIP 备份。');
+      if (isZip) {
+        const parsed = await importWorkspaceBackup(await file.arrayBuffer(), attachmentFiles);
+        const value = normalizeWorkspaceState(await hydrateAttachmentUrls(parsed.state, attachmentFiles));
+        if (current()) {
+          setError('');
+          setPopover(null);
+          setModal({ type: 'restore', value, filename: file.name });
+        }
+      } else {
+        const text = await file.text();
+        if (!current()) return;
+        previewBackupText(text, file.name);
+      }
     } catch (issue) {
       if (current()) setError(`无法读取备份“${file.name}”：${issue.message || '文件读取失败。'}`);
     }
@@ -1963,7 +1984,7 @@ export default function SublimeWorkspace({
     }
     let response, finalRecord;
     try {
-      response = valueOf(await api.intelligenceRequest({ action: 'transcribe', attachment }));
+      response = valueOf(await api.intelligenceRequest({ action: 'transcribe', attachment: await inlineWorkspaceAttachment(attachment) }));
       if (response?.cancelled) throw Error('本次转录已取消，未自动重试');
       finalRecord = normalizePodcastTranscription({
         ...record,
@@ -3266,6 +3287,20 @@ export default function SublimeWorkspace({
                     <button role="menuitem" onClick={backup}>
                       导出完整备份
                     </button>
+                    {session.migrationStatus?.().canCleanup && (
+                      <button
+                        role="menuitem"
+                        onClick={() => {
+                          setPopover(null);
+                          setModal({ type: 'legacy-cleanup' });
+                        }}
+                      >
+                        清理旧版迁移副本
+                      </button>
+                    )}
+                    <button role="menuitem" onClick={() => backup(true)}>
+                      导出旧版兼容备份
+                    </button>
                     <button role="menuitem" onClick={() => backupInput.current?.click()}>
                       导入备份并预览
                     </button>
@@ -3410,10 +3445,29 @@ export default function SublimeWorkspace({
                   ))}
                 </>
               )}
+              {modal.type === 'legacy-cleanup' && (
+                <>
+                  <p>新资料库已完成三次启动读回。清理旧版迁移副本后，自动备份仍可用于恢复。</p>
+                  <button onClick={() => setModal(null)}>取消</button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await session.cleanupLegacy();
+                        setModal(null);
+                        notify('旧版迁移副本已清理');
+                      } catch (issue) {
+                        setError(issue.message);
+                      }
+                    }}
+                  >
+                    确认清理旧副本
+                  </button>
+                </>
+              )}
               {modal.type === 'backup' && (
                 <>
                   <p>备份已生成。若浏览器没有自动保存，请点击下面的链接下载同一份备份。</p>
-                  <GeneratedDownload text={modal.text} name={modal.filename} type="application/json" label="下载完整备份" />
+                  <GeneratedDownload text={modal.text} name={modal.filename} type={modal.contentType || 'application/zip'} label="下载完整备份" />
                 </>
               )}
               {modal.type === 'share' && (
@@ -3732,11 +3786,16 @@ export default function SublimeWorkspace({
                           if (!connected) throw Error(VAULT_DISCONNECTED_MESSAGE);
                           const key = `vault:${modal.card.id}`,
                             operationId = stateRef.current.drafts[key]?.operationId || uid(),
-                            payload = cardCapturePayload(modal.card, {
-                              operationId,
-                              caption: state.annotations[modal.card.id]?.note ?? modal.card.caption,
-                              includeAttachment: modal.includeAttachment,
-                            });
+                            payload = cardCapturePayload(
+                              modal.includeAttachment && modal.card.attachment
+                                ? { ...modal.card, attachment: await inlineWorkspaceAttachment(modal.card.attachment) }
+                                : modal.card,
+                              {
+                                operationId,
+                                caption: state.annotations[modal.card.id]?.note ?? modal.card.caption,
+                                includeAttachment: modal.includeAttachment,
+                              },
+                            );
                           const prior = stateRef.current.drafts[key];
                           if (prior?.payload && JSON.stringify(prior.payload) !== JSON.stringify(payload))
                             throw Error('上次请求的内容已变化，请保留这张卡并核对仓库后再新建副本。');
@@ -3898,7 +3957,7 @@ export default function SublimeWorkspace({
                 })()}
             </Modal>
           )}
-          <input ref={backupInput} hidden type="file" accept=".json,application/json" onChange={readBackupFile} />
+          <input ref={backupInput} hidden type="file" accept=".zip,.json,application/zip,application/json" onChange={readBackupFile} />
           {error && (
             <div className="sw-error" role="alert">
               {error}

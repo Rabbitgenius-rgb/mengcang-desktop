@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { GlobalWorkerOptions, getDocument, TextLayer } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
-import { attachmentBytes } from './attachmentPreview.js';
+import { readAttachmentBytes } from './attachmentStore.js';
 import { pdfDocumentOptions, fitPdfViewport } from './pdfPreview.js';
 import { indexPdfDocument, documentMatches, pdfPageText, pdfSearchParts, selectionInPage, chooseDocumentTextIndex } from './documentText.js';
 GlobalWorkerOptions.workerSrc = workerUrl;
@@ -86,49 +86,54 @@ export default function PdfAttachmentPreview({
     setQuery('');
     setZoom(1);
     setNotice('');
-    try {
-      task = getDocument(pdfDocumentOptions(attachmentBytes(attachment), assetBase));
-      task.onPassword = (update, reason) => {
+    void (async () => {
+      try {
+        const bytes = await readAttachmentBytes(attachment);
         if (request !== run.current) return;
-        clearTimeout(timer);
-        unlock.current = update;
-        setNeedsPassword(true);
-        setStatus('password');
-        setError(reason === 2 ? '密码不正确，请重试。' : '');
-      };
-      timer = setTimeout(() => {
-        if (request === run.current) {
-          setError('PDF 加载超时，原文件仍保留。');
-          setStatus('error');
-          void task.destroy();
-        }
-      }, 20000);
-      task.promise
-        .then((pdf) => {
+        task = getDocument(pdfDocumentOptions(bytes, assetBase));
+        task.onPassword = (update, reason) => {
+          if (request !== run.current) return;
           clearTimeout(timer);
-          if (request !== run.current) {
-            void pdf.destroy();
-            return;
-          }
-          documentRef.current = pdf;
-          unlock.current = null;
-          setNeedsPassword(false);
-          setPassword('');
-          setPages(pdf.numPages);
-          setPage(Math.max(1, Math.min(pdf.numPages, Number(initialPage) || 1)));
-          setPaint((value) => value + 1);
-        })
-        .catch((problem) => {
-          clearTimeout(timer);
+          unlock.current = update;
+          setNeedsPassword(true);
+          setStatus('password');
+          setError(reason === 2 ? '密码不正确，请重试。' : '');
+        };
+        timer = setTimeout(() => {
           if (request === run.current) {
-            setError(problem.message || 'PDF 无法读取，原文件仍保留。');
+            setError('PDF 加载超时，原文件仍保留。');
             setStatus('error');
+            void task.destroy();
           }
-        });
-    } catch (problem) {
-      setError(problem.message);
-      setStatus('error');
-    }
+        }, 20000);
+        task.promise
+          .then((pdf) => {
+            clearTimeout(timer);
+            if (request !== run.current) {
+              void pdf.destroy();
+              return;
+            }
+            documentRef.current = pdf;
+            unlock.current = null;
+            setNeedsPassword(false);
+            setPassword('');
+            setPages(pdf.numPages);
+            setPage(Math.max(1, Math.min(pdf.numPages, Number(initialPage) || 1)));
+            setPaint((value) => value + 1);
+          })
+          .catch((problem) => {
+            clearTimeout(timer);
+            if (request === run.current) {
+              setError(problem.message || 'PDF 无法读取，原文件仍保留。');
+              setStatus('error');
+            }
+          });
+      } catch (problem) {
+        if (request !== run.current) return;
+        setError(problem.message);
+        setStatus('error');
+      }
+    })();
     return () => {
       run.current++;
       clearTimeout(timer);

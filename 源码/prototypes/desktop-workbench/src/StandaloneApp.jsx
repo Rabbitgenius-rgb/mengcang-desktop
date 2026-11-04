@@ -41,12 +41,13 @@ export default function StandaloneApp() {
   const workspaceApi = useMemo(
     () => ({
       ...api,
+      runtimeStartupId: data?.status.runtimeStartupId,
       captureAvailable: data?.snapshot.capabilities?.capture === true,
       captureAttachmentAvailable: data?.snapshot.capabilities?.captureAttachment === true,
       discoveryStateGet: () => api.discoveryStateGet(identity?.id || 'unpaired'),
       discoveryStateSet: (value) => api.discoveryStateSet(value, identity?.id || 'unpaired'),
     }),
-    [api, data?.snapshot.capabilities?.capture, data?.snapshot.capabilities?.captureAttachment, identity?.id],
+    [api, data?.status.runtimeStartupId, data?.snapshot.capabilities?.capture, data?.snapshot.capabilities?.captureAttachment, identity?.id],
   );
   const items = useMemo(() => standaloneRecords(data?.snapshot, api), [data?.snapshot, api]);
   const ready = useCallback(() => {

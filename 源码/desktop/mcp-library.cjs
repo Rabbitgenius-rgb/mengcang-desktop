@@ -107,10 +107,10 @@ function vaultCard(note,state) {
 }
 function workspaceCard(card,state,previous) {
   const annotation=object(state.annotations?.[card.id])?state.annotations[card.id]:{};
-  return {id:card.id,title:text(card.title),type:text(card.type)||'text',sourceKind:'workspace',body:text(card.body),ocrText:text(card.ocrText),note:typeof annotation.note==='string'?annotation.note:text(card.caption),sourceTitle:text(card.sourceTitle),sourceUrl:sourceUrl(card.sourceUrl),author:text(card.author),page:text(String(card.page??'')),sourceLocation:text(card.sourceLocation),tags:array(card.tags).filter(item=>typeof item==='string'),documentIndex:normalizeIndex(card.documentIndex),documentHighlights:array(card.documentHighlights),attachment:object(card.attachment)?card.attachment:null,image:text(card.image),hasImage:card.imageAvailable===true||/^data:image\//i.test(text(card.image))||canonicalMime(card.attachment?.type).startsWith('image/')||previous?.hasImage===true,vaultNote:previous?.vaultNote,original:previous?.original||null};
+  return {id:card.id,title:text(card.title),type:text(card.type)||'text',sourceKind:'workspace',body:text(card.body),ocrText:text(card.ocrText),note:typeof annotation.note==='string'?annotation.note:text(card.caption),sourceTitle:text(card.sourceTitle),sourceUrl:sourceUrl(card.sourceUrl),author:text(card.author),page:text(String(card.page??'')),sourceLocation:text(card.sourceLocation),tags:array(card.tags).filter(item=>typeof item==='string'),documentIndex:normalizeIndex(card.documentIndex),documentHighlights:array(card.documentHighlights),attachment:object(card.attachment)?card.attachment:null,image:text(card.image),imageReference:card.image?.$attachment,hasImage:card.imageAvailable===true||/^data:image\//i.test(text(card.image))||canonicalMime(card.attachment?.type).startsWith('image/')||previous?.hasImage===true,vaultNote:previous?.vaultNote,original:previous?.original||null};
 }
 
-function createLibraryReader({gateway,getWorkspace}) {
+function createLibraryReader({gateway,getWorkspace,getAttachment}) {
   if(!gateway||typeof gateway.snapshot!=='function'||typeof getWorkspace!=='function')throw Error('只读资料库适配器未配置。');
   async function load(includeAssets=false) {
     let workspace=null,snapshot=null;
@@ -148,7 +148,9 @@ function createLibraryReader({gateway,getWorkspace}) {
   }
   async function readImage(card) {
     let attachment;
-    if(card.attachment?.dataUrl)attachment=normalizeWorkspaceAttachment(card.attachment);
+    const reference=card.attachment?.dataUrl?.$attachment||card.imageReference;
+    if(reference){if(!Number.isSafeInteger(reference.size)||reference.size>6*1024*1024)throw Error('原图超过单次传输上限');if(typeof getAttachment!=='function')throw Error('本机原图暂无法读取');const bytes=await getAttachment(reference);attachment=normalizeWorkspaceAttachment({name:card.attachment?.name||'image.png',type:reference.type,size:reference.size,dataUrl:`data:${reference.type};base64,${bytes.toString('base64')}`});}
+    else if(card.attachment?.dataUrl)attachment=normalizeWorkspaceAttachment(card.attachment);
     else if(/^data:/i.test(card.image||'')) {
       const match=/^data:([^;,]+);base64,([A-Za-z0-9+/]*={0,2})$/i.exec(card.image);
       if(!match)throw Error('这张卡片没有有效的本机图片数据。');

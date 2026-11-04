@@ -599,6 +599,10 @@ export function createWorkspaceSession(store, { sessionId = createSessionId() } 
   }
   return {
     load,
+    migrationStatus: () => store.migrationStatus?.(),
+    recordSuccessfulStartup: (startupId) => store.recordSuccessfulStartup?.(startupId),
+    cleanupLegacy: () => store.cleanupLegacy?.(),
+    backupMetadata: () => ({ revision: storageMeta.revision, entityVersions: storageMeta.entityVersions }),
     commit,
     settled,
     drafts,

@@ -11,7 +11,7 @@ import {
   IconHighlight,
 } from '@tabler/icons-react';
 import { valueOf } from '../desktopModel.js';
-import { attachmentBytes } from '../sublime/attachmentPreview.js';
+import { readAttachmentBytes } from '../sublime/attachmentStore.js';
 import { requestWorkspaceDownload } from '../sublime/workspaceDownload.js';
 import { bookFormat, normalizeReaderState, readerNotesMarkdown, readerReducer, readerStateKey, supersedeReaderActions } from './readerState.js';
 import PdfBookReader from './PdfBookReader.jsx';
@@ -115,7 +115,7 @@ export default function BookReader({
         setSelection(null);
         let source;
         if (card.attachment) {
-          const bytes = attachmentBytes(card.attachment),
+          const bytes = await readAttachmentBytes(card.attachment),
             hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (n) => n.toString(16).padStart(2, '0')).join('');
           source = { ...card.attachment, sourceKey: hash };
         } else if (typeof api?.readingSource === 'function') source = valueOf(await api.readingSource(card.path || card.id));

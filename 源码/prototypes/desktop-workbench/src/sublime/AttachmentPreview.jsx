@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IconDownload, IconLoader2 } from '@tabler/icons-react';
-import { attachmentBytes, attachmentKind, inspectDocxPreviewArchive } from './attachmentPreview.js';
+import { attachmentKind, inspectDocxPreviewArchive } from './attachmentPreview.js';
+import { readAttachmentBytes } from './attachmentStore.js';
 import { documentSelectionText } from './documentText.js';
 import { previewNativeAttachment } from './nativeFilePreview.js';
 import './sublimeEditors.css';
@@ -63,60 +64,64 @@ export default function AttachmentPreview({
       setStatus('idle');
       return;
     }
-    try {
-      const bytes = attachmentBytes(attachment);
-      objectUrl = URL.createObjectURL(new Blob([bytes], { type: attachment.type }));
-      setUrl(objectUrl);
-      if (kind === 'word' && attachment.type.toLowerCase().includes('openxmlformats')) {
-        inspectDocxPreviewArchive(bytes.buffer);
-        worker = new Worker(new URL('./attachmentWord.worker.js', import.meta.url), { type: 'module' });
-        const finish = () => {
-          clearTimeout(timer);
-          worker.terminate();
-        };
-        worker.onmessage = (event) => {
-          finish();
-          if (!mounted.current || request !== run.current) return;
-          if (!event.data.ok) {
-            setError(event.data.error);
-            setStatus('error');
-            return;
-          }
-          setText(event.data.value.text);
-          setNotice([event.data.value.truncated ? '文字预览显示前 200,000 字。' : '', ...event.data.value.warnings].filter(Boolean).join(' '));
-          setStatus(event.data.value.text.trim() ? 'ready' : 'empty');
-        };
-        worker.onerror = () => {
-          finish();
-          if (mounted.current && request === run.current) {
-            setError('无法加载 Word 文字预览，原文件仍保留。');
-            setStatus('error');
-          }
-        };
-        timer = setTimeout(() => {
-          finish();
-          if (mounted.current && request === run.current) {
-            setError('Word 预览超时，原文件仍保留。');
-            setStatus('error');
-          }
-        }, 15000);
-        worker.postMessage(bytes.buffer, [bytes.buffer]);
-      } else if (kind === 'word') {
-        setStatus('unsupported');
-        setNotice('当前浏览器不支持旧版 DOC 文字预览，原始 Word 文件仍保留。');
-      } else if (kind === 'pdf') {
-        setStatus('ready');
-      } else if (kind === 'epub') {
-        setStatus('ready');
-        setNotice('EPUB 原书已保留。保存卡片后，点击“开始阅读”打开章节阅读器。');
-      } else if (kind === 'unsupported') {
-        setStatus('unsupported');
-        setNotice('此文件类型暂不支持预览。');
+    void (async () => {
+      try {
+        const bytes = await readAttachmentBytes(attachment);
+        if (!mounted.current || request !== run.current) return;
+        objectUrl = URL.createObjectURL(new Blob([bytes], { type: attachment.type }));
+        setUrl(objectUrl);
+        if (kind === 'word' && attachment.type.toLowerCase().includes('openxmlformats')) {
+          inspectDocxPreviewArchive(bytes.buffer);
+          worker = new Worker(new URL('./attachmentWord.worker.js', import.meta.url), { type: 'module' });
+          const finish = () => {
+            clearTimeout(timer);
+            worker.terminate();
+          };
+          worker.onmessage = (event) => {
+            finish();
+            if (!mounted.current || request !== run.current) return;
+            if (!event.data.ok) {
+              setError(event.data.error);
+              setStatus('error');
+              return;
+            }
+            setText(event.data.value.text);
+            setNotice([event.data.value.truncated ? '文字预览显示前 200,000 字。' : '', ...event.data.value.warnings].filter(Boolean).join(' '));
+            setStatus(event.data.value.text.trim() ? 'ready' : 'empty');
+          };
+          worker.onerror = () => {
+            finish();
+            if (mounted.current && request === run.current) {
+              setError('无法加载 Word 文字预览，原文件仍保留。');
+              setStatus('error');
+            }
+          };
+          timer = setTimeout(() => {
+            finish();
+            if (mounted.current && request === run.current) {
+              setError('Word 预览超时，原文件仍保留。');
+              setStatus('error');
+            }
+          }, 15000);
+          worker.postMessage(bytes.buffer, [bytes.buffer]);
+        } else if (kind === 'word') {
+          setStatus('unsupported');
+          setNotice('当前浏览器不支持旧版 DOC 文字预览，原始 Word 文件仍保留。');
+        } else if (kind === 'pdf') {
+          setStatus('ready');
+        } else if (kind === 'epub') {
+          setStatus('ready');
+          setNotice('EPUB 原书已保留。保存卡片后，点击“开始阅读”打开章节阅读器。');
+        } else if (kind === 'unsupported') {
+          setStatus('unsupported');
+          setNotice('此文件类型暂不支持预览。');
+        }
+      } catch (problem) {
+        if (!mounted.current || request !== run.current) return;
+        setError(problem instanceof Error ? problem.message : String(problem));
+        setStatus('error');
       }
-    } catch (problem) {
-      setError(problem instanceof Error ? problem.message : String(problem));
-      setStatus('error');
-    }
+    })();
     return () => {
       clearTimeout(timer);
       worker?.terminate();

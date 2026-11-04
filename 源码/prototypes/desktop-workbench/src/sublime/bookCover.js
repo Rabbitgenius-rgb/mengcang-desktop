@@ -1,4 +1,5 @@
-import { attachmentBytes, fileTypeFor } from './attachmentPreview.js';
+import { fileTypeFor } from './attachmentPreview.js';
+import { readAttachmentBytes } from './attachmentStore.js';
 import { openEpub, rasterDimensions, rasterMime } from '../reader/epubReaderModel.js';
 import { pdfDocumentOptions } from './pdfPreview.js';
 
@@ -36,7 +37,7 @@ export async function imageBookCover(blob) {
 }
 export async function openBookCover(attachment, { signal } = {}) {
   const kind = fileTypeFor(attachment)?.kind,
-    bytes = attachmentBytes(attachment);
+    bytes = await readAttachmentBytes(attachment, { signal });
   if (signal?.aborted) throw new DOMException('已取消。', 'AbortError');
   if (kind === 'epub') {
     const book = await openEpub(bytes, { signal });

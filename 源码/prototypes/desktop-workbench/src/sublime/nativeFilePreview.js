@@ -1,5 +1,7 @@
+import { inlineWorkspaceAttachment } from './attachmentStore.js';
 /** Explicit local preview; the original attachment remains untouched. */
 export async function previewNativeAttachment(attachment) {
+  attachment = await inlineWorkspaceAttachment(attachment);
   if (globalThis.window?.mengcang?.nativeFilePreview) {
     const result = await window.mengcang.nativeFilePreview(attachment);
     if (!result?.ok) throw Object.assign(new Error(result?.error?.message || '附件预览未完成，原文件仍可下载。'), { code: result?.error?.code });

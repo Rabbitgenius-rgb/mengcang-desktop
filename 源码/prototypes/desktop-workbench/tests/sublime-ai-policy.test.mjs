@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import discoveryVite from '../discovery-vite.mjs';
-import {makeDiscoveryPreview} from '../src/discoveryPreview.js';
+import {makeDiscoveryPreview} from './fixtures/discoveryPreview.js';
 import {AI_MODES, aiPlaceholder} from '../src/sublime/workspaceModel.js';
 
 const require = createRequire(import.meta.url);

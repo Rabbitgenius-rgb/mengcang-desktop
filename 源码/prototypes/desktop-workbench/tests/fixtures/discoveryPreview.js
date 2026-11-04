@@ -1,4 +1,4 @@
-import { validateDiscoveryState } from './discoveryModel.js';
+import { validateDiscoveryState } from '../../src/discoveryModel.js';
 export const discoveryPreviewIdentity = { id: 'sublime-discovery-browser-preview', name: '隔离本地预览' };
 export const discoverySeeds = [
   {

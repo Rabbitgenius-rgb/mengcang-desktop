@@ -1,0 +1,21 @@
+{
+  "name": "mengcang-governance",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node governance/check.mjs",
+    "format:check": "prettier --check 源码/prototypes/desktop-workbench/src governance eslint.config.mjs package.json",
+    "lint": "node governance/lint.mjs",
+    "lint:baseline": "node governance/lint.mjs --update-baseline",
+    "reachability": "node governance/reachability.mjs",
+    "size": "node governance/size.mjs",
+    "lint:strict": "node governance/lint.mjs --strict"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "eslint": "10.12.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "fake-indexeddb": "6.2.4",
+    "prettier": "3.8.1"
+  }
+}

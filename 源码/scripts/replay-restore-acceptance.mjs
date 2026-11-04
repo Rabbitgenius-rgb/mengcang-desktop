@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
-import {callPrivate} from '../../shared/private-rpc.cjs';
+import {callPrivate} from '../shared/private-rpc.cjs';
 import {normalizeRecallCapture} from '../src/recall/contract.mjs';
 import {parseWorkspaceBackup} from '../prototypes/desktop-workbench/src/sublime/workspaceModel.js';
 

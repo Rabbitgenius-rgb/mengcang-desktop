@@ -34,7 +34,7 @@ function readConfig(directory = __dirname) {
 async function handleRequest(request, {origin, directory, callPrivate} = {}) {
   if (origin !== ORIGIN) throw fail('FORBIDDEN_EXTENSION', '此扩展未被允许连接梦藏。');
   const {method, params} = validateRequest(request);
-  const call = callPrivate || require('../../shared/private-rpc.cjs').callPrivate;
+  const call = callPrivate || require('../shared/private-rpc.cjs').callPrivate;
   try {return await call({directory: directory || readConfig(), service: 'browser-clipper', method, params, timeoutMs: method==='capture'?120000:30000});}
   catch (error) {
     if (['SERVICE_UNAVAILABLE', 'ENOENT', 'ECONNREFUSED', 'CONNECTION_CLOSED', 'LIBRARY_NOT_READY'].includes(error.code)) throw fail('DESKTOP_UNAVAILABLE', '请先打开梦藏，并等待资料库加载完成后重试。');

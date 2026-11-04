@@ -1,5 +1,5 @@
 'use strict';
-const {startPrivateServer}=require('../../shared/private-rpc.cjs');
+const {startPrivateServer}=require('../shared/private-rpc.cjs');
 const {createRecallDispatcher}=require('./recall-bridge.cjs');
 const {captureClipperImage}=require('./clipper-image.cjs');
 const {prepareArticleImages}=require('./clipper-article.cjs');

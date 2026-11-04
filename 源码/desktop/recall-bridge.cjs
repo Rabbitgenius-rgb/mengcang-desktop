@@ -1,6 +1,6 @@
 'use strict';
 const {randomUUID}=require('node:crypto');
-const {startPrivateServer}=require('../../shared/private-rpc.cjs');
+const {startPrivateServer}=require('../shared/private-rpc.cjs');
 const {trustedFrame}=require('./security.cjs');
 const failure=(code,message)=>Object.assign(new Error(message),{code});
 

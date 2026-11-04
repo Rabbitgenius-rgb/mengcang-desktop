@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {IconPalette,IconCheck,IconArrowUpRight,IconRefresh,IconMessageCircle,IconFileText,IconBulb} from '@tabler/icons-react';
-import {FLOAT_PRESETS,DEFAULT_FLOAT_APPEARANCE,presetAppearance,normalizeFloatAppearance,floatCSS} from '../../../../../shared/float-appearance.mjs';
+import {FLOAT_PRESETS,DEFAULT_FLOAT_APPEARANCE,presetAppearance,normalizeFloatAppearance,floatCSS} from '../../../../shared/float-appearance.mjs';
 import {valueOf} from '../desktopModel.js';
 import './floatStyleLibrary.css';
 const key='mengcang-float-style-preview-v1';

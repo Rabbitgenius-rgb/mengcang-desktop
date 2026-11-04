@@ -1,46 +1,41 @@
 # 梦藏 · Mengcang
 
-梦藏是一个中文 macOS 个人资料库应用，可收集素材、检索内容、管理收藏集与画布，并通过 API 或 CLI 使用 AI。当前版本为 **0.8.6**，项目快照日期为 **2026-10-05**。
+本仓库以当前梦藏 0.9.0 源码作为唯一开发来源。治理候选版采用独立名称、bundle ID、资料库和桥接目录，供本机验收。
 
-## 下载完整项目
+## 构建与检查
 
-[下载梦藏 0.8.6 项目包](https://github.com/Rabbitgenius-rgb/mengcang-desktop/releases/tag/v0.8.6)
-
-在 Releases 中下载 `mengcang-0.8.6-project-20261005.zip`（约 685 MB）和对应的 `.sha256` 文件。这个 ZIP 包含 macOS 应用、源码、完整本机音频转录运行时、使用说明与验收记录。
-
-仓库中的源码可以直接浏览和克隆；完整应用、语音模型与其他较大的运行时文件放在版本附件中。
-
-## 功能范围
-
-- 中文界面，素材卡片、搜索、收藏集、标星、画布与导入导出。
-- 本机草稿、恢复记录、保存与重启读回。
-- AI 通过 API 或 CLI 接入，每次实际调用前确认；结果由用户决定是否保存。
-- 本机 OCR 与向量功能；whisper.cpp 音频转录按需启动，结束后退出。
-- 当前单人版本不提供账号、通知、协作。
-
-项目包不包含 API 密钥、个人资料库或应用用户目录。
-
-## 使用与开发
-
-应用面向 **macOS 13.0+ / Apple Silicon arm64**。当前应用采用 ad-hoc 签名，尚未公证；其他电脑的首次启动尚未验收。
-
-完整构建步骤见 [使用说明](使用说明.md)。源码位于 [源码](源码/)，当前独立软件入口为 `源码/desktop/main.cjs` 与 `源码/prototypes/desktop-workbench/src/StandaloneApp.jsx`。
-
-从本仓库开发时，先下载并解压完整项目 ZIP，将其中 `应用/` 放在仓库根目录，供准备脚本复制本机转录资源：
+需要 macOS 13+、Apple Silicon、Node.js 24+、Xcode Command Line Tools。依赖版本由两个源码锁文件和仓库根工具锁文件固定。
 
 ```sh
-cd 源码
-node scripts/prepare-bundled-runtime.mjs
 npm ci
-(cd prototypes/desktop-workbench && npm ci)
-npm run desktop:build
-npm run desktop:package
+npm ci --prefix 源码
+npm ci --prefix 源码/prototypes/desktop-workbench
+node 源码/scripts/prepare-bundled-runtime.mjs /path/to/local-transcription
+npm run check
+npm run candidate
 ```
 
-Electron 缓存要求及本机路径配置说明见使用说明。历史原型文档保留在源码中，当前交付状态以这里的说明和 [验收记录](验收记录/) 为准。
+转录资源可来自已有本机应用的 `Contents/Resources/local-transcription` 或历史发布包。准备脚本逐文件校验已有清单中的字节数和摘要，然后复制为仓库内的本机资源。独立候选版输出在 `qa/packages/梦藏治理候选-darwin-arm64/梦藏治理候选.app`。
 
-## 验证与依赖
+## 预览与验收
 
-0.8.6 已完成 225 项相关检查、隔离资料库保存与重启读回、打包一致性和签名检查。完整 ZIP 已通过 CRC、文件清单 SHA-256、权限、符号链接与独立解压验证。
+`npm run preview` 打开共用界面的 `preview.html`。浏览器预览使用独立资料库，首次为空，可通过正常界面新建卡片。
 
-[文件清单](文件清单.json) 对应完整 ZIP 的原始内容；不用于描述本仓库新增的说明文件。应用中的第三方依赖许可随对应资源保留，本机转录资源许可位于 `应用/梦藏.app/Contents/Resources/local-transcription/`。
+`npm run acceptance:desktop` 在开发候选版的隔离资料库运行搜索、阅读定位、图片放大、关联笔记、整理和回看验收，并关闭重开读回。该命令会重建自己的测试资料。`npm run acceptance:browser` 检查浏览器新建、刷新读回、收藏集、ZIP导出、键盘和双尺寸布局。
+
+本轮验收结果与画面保存在 `验收记录/`。性能使用合成附件测量，应用重开计时从新进程启动至资料库可操作。AI测试采用模拟调用。
+
+## 存储与恢复
+
+v3将卡片、收藏集、画布、备注、草稿和元数据分开保存。桌面附件由主进程按SHA-256管理，浏览器附件保存在IndexedDB Blob。迁移前自动备份并校验v2，连续三次成功启动后提供旧副本手动清理。
+
+完整备份为ZIP，包含清单与原附件。旧JSON继续可导入，也可生成旧版兼容备份。超过旧版256MiB上限时阻止降级，使用v3完整备份恢复。恢复旧版本须包含迁移后新增卡片与修改，具体演练见验收记录。
+
+## 版本来源
+
+- `governance-0.8.6-baseline` 保留原交付快照。
+- `governance-0.9.0-import` 保留本轮导入的最新源码。
+- `codex/archive-workbench` 保留旧工作台、模型、样式与历史fixture。
+- 原 `梦藏-Sublime功能-20261002`、`work/harness-recall-v1-20261024/mengcang` 及旧ZIP登记为历史来源，后续开发在本仓库继续。
+
+历史0.8.6发布包仍可在原GitHub Releases找回。本轮源码与候选版按本仓库的构建及验收记录辨认。

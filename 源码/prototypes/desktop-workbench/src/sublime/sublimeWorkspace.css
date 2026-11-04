@@ -2556,3 +2556,41 @@
     display: none;
   }
 }
+
+/* Keep card actions reachable in narrow windows without covering previews. */
+.sublime-workspace[data-theme='dark'] {
+  --sw-muted: #abb5c0;
+  --sw-icon: #a4aeba;
+}
+.sublime-workspace .sw-dock-item {
+  color: var(--sw-text);
+}
+@media (max-width: 600px) {
+  .sublime-workspace .sw-tile-actions,
+  .sublime-workspace .pr-actions {
+    opacity: 1;
+    pointer-events: auto;
+    width: 36px;
+    left: auto;
+    right: 8px;
+  }
+  .sublime-workspace .sw-tile-actions .pr-save,
+  .sublime-workspace .pr-actions .pr-save,
+  .sublime-workspace .sw-tile-actions .sw-icon-button:not(:last-child),
+  .sublime-workspace .pr-actions .sw-icon-button:not(:last-child) {
+    display: none;
+  }
+  .sublime-workspace .sw-media-tabs {
+    padding-right: 8px;
+    scroll-padding: 20px;
+  }
+  .sublime-workspace .sw-media-tabs::after {
+    content: '›';
+    position: sticky;
+    right: 0;
+    padding: 7px 4px 7px 12px;
+    color: var(--sw-text);
+    background: linear-gradient(90deg, transparent, var(--sw-bg) 40%);
+    pointer-events: none;
+  }
+}

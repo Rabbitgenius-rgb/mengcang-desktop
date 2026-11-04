@@ -61,7 +61,9 @@ export async function exportWorkspaceZip(state, store, { type = 'blob', revision
     attachments: refs,
   });
   const zip = new JSZip();
-  zip.file('manifest.json', JSON.stringify(manifest));
+  const manifestText = JSON.stringify(manifest);
+  if (new Blob([manifestText]).size > MAX_WORKSPACE_BACKUP_BYTES) throw Error('资料文字清单超过256MiB安全上限，完整备份尚未生成，请先分批导出文字资料。');
+  zip.file('manifest.json', manifestText);
   const added = new Set();
   for (const ref of refs) {
     if (added.has(ref.sha256)) continue;

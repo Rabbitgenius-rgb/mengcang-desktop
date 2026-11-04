@@ -26,6 +26,8 @@ run(node, [
   'package.json',
 ]);
 run(node, [path.join(root, 'governance/lint.mjs'), '--strict']);
+// Native OCR/PDF tests need the helper even in a completely clean checkout.
+run(node, [path.join(source, 'scripts/build-discovery-helper.mjs')], source);
 const unit = await testFiles(path.join(ui, 'tests'));
 const buildDependent = unit.filter((file) => file.endsWith('/sites-worker.test.mjs'));
 run(node, ['--test', ...(await testFiles(path.join(source, 'tests'))), ...unit.filter((file) => !buildDependent.includes(file))]);

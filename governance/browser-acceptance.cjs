@@ -61,6 +61,11 @@ const fs = require('node:fs/promises'),
     assert.ok(manifest.state.cards.some((c) => c.body.includes('原始正文保留')));
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: '资料库', exact: true }).click();
+    await page.locator('.sw-tile').first().hover();
+    await page.waitForTimeout(200);
+    const contrast = await require('./contrast.cjs').scanContrast(page);
+    assert.ok(contrast.checked > 0);
+    assert.deepEqual(contrast.failures, [], JSON.stringify(contrast.failures));
     const layouts = [];
     for (const [width, height] of [
       [1440, 900],
@@ -75,7 +80,7 @@ const fs = require('node:fs/promises'),
       layouts.push({ width, height, noHorizontalOverflow: true });
     }
     assert.deepEqual(errors, []);
-    const result = { checks: ['菜单键盘与Esc返焦', '新建保存并刷新读回', '收藏集创建与归属', '完整ZIP导出读回'], layouts, errors };
+    const result = { checks: ['菜单键盘与Esc返焦', '新建保存并刷新读回', '收藏集创建与归属', '完整ZIP导出读回'], layouts, contrast, errors };
     await fs.writeFile(path.join(root, '验收记录/governance-browser-acceptance.json'), JSON.stringify(result, null, 2));
     console.log(result);
   } finally {

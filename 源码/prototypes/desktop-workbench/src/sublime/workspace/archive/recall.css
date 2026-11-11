@@ -1,0 +1,156 @@
+/*
+ * 回看 inside the shared shell: the global sidebar owns brand and navigation,
+ * so the workbench column becomes a thread list (Bear's second column).
+ * Colours follow the 梦藏 tokens and therefore the dark / light setting.
+ */
+.sublime-workspace .recall-workbench.rw-workspace {
+  --rw-bg: var(--mc-bg);
+  --rw-panel: var(--mc-surface);
+  --rw-border: var(--mc-border);
+  --rw-text: var(--mc-text);
+  --rw-muted: var(--mc-text-3);
+  --rw-accent: var(--mc-accent);
+  --rw-lilac: var(--mc-accent);
+  background: var(--mc-bg);
+  color: var(--mc-text-body);
+  color-scheme: inherit;
+  font-family: var(--mc-font-ui);
+  min-height: calc(100svh - var(--mc-nav-h) - var(--mc-foot-h));
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-page-header h1,
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader h2,
+.sublime-workspace .recall-workbench.rw-workspace .rw-card-content strong {
+  font-family: var(--mc-font-serif);
+}
+.sublime-workspace .rw-workspace ::selection {
+  background: var(--mc-accent-soft);
+  color: var(--mc-text);
+}
+.sublime-workspace .rw-workspace :is(button, input, textarea, select):focus-visible {
+  outline-color: var(--mc-focus);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-sidebar {
+  width: 220px;
+  height: calc(100svh - var(--mc-nav-h) - var(--mc-foot-h));
+  min-height: 0;
+  padding-top: 26px;
+  background: var(--mc-bg);
+  border-right: 1px solid var(--mc-border);
+}
+.sublime-workspace .recall-workbench.rw-workspace :is(.rw-brand, .rw-sidebar-bottom, .rw-space-label) {
+  display: none;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-sidebar nav button,
+.sublime-workspace .recall-workbench.rw-workspace .rw-thread-list button {
+  border-radius: var(--mc-radius-sm);
+  color: var(--mc-text-2);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-sidebar nav button.active,
+.sublime-workspace .recall-workbench.rw-workspace .rw-thread-list button.selected {
+  background: var(--mc-selected);
+  color: var(--mc-text);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-page-header {
+  padding-top: 26px;
+  border-color: var(--mc-border);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-page-header h1 {
+  font-size: 34px;
+  font-weight: 600;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card {
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-surface);
+  box-shadow: none;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card:hover,
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card.selected {
+  border-color: var(--mc-border-strong);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card.selected,
+.sublime-workspace .recall-workbench.rw-workspace .rw-review-grid .rw-recall-card.selected {
+  background: var(--mc-selected);
+  border-color: var(--mc-border-strong);
+  box-shadow: inset 2px 0 0 var(--mc-accent);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader-source {
+  border: 1px solid var(--mc-border);
+  background: var(--mc-surface-2);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-dot {
+  background: var(--mc-accent);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-search {
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius);
+  background: var(--mc-surface);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader {
+  border-color: var(--mc-border);
+  background: var(--mc-surface);
+}
+
+@media (max-width: 760px) {
+  .sublime-workspace .recall-workbench.rw-workspace .rw-sidebar {
+    display: none;
+  }
+}
+
+/* 回看 in the archive voice: catalogue rows, and the opened excerpt on paper. */
+.sublime-workspace .recall-workbench.rw-workspace .rw-card-list {
+  gap: 0;
+  border-top: 1px solid var(--mc-border-strong);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card,
+.sublime-workspace .recall-workbench.rw-workspace .rw-review-grid .rw-recall-card {
+  margin: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--mc-border) !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card:hover {
+  background: var(--mc-surface) !important;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-recall-card.selected,
+.sublime-workspace .recall-workbench.rw-workspace .rw-review-grid .rw-recall-card.selected {
+  background: var(--mc-surface) !important;
+  box-shadow: inset 2px 0 0 var(--mc-accent) !important;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-card-content strong,
+.sublime-workspace .recall-workbench.rw-workspace .rw-card-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader {
+  border: 0;
+  border-radius: 2px;
+  background: var(--mc-paper-0);
+  color: var(--mc-ink);
+  box-shadow: 0 24px 60px #00000059;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader :is(h2, .rw-rich-body, .rw-rich-body p) {
+  color: var(--mc-ink);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader h2 {
+  font-size: 28px;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader :is(.rw-reader-label, .rw-reader-source, .rw-reader-source *) {
+  color: var(--mc-ink-2);
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader .rw-reader-source {
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--mc-ink) 18%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--mc-ink) 18%, transparent);
+  border-radius: 0;
+  background: none;
+}
+.sublime-workspace .recall-workbench.rw-workspace .rw-reader .rw-icon {
+  color: var(--mc-ink-2);
+}
+
+.sublime-workspace .rw-workspace :is(.rw-primary, .rw-send) {
+  color: var(--mc-on-accent) !important;
+}

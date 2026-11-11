@@ -15,6 +15,7 @@ import * as linkedNotes from '../../src/sublime/linkedNotes.js';
 import * as saveOptions from '../../src/sublime/saveOptions.js';
 import * as recallSession from '../../src/recallSession.js';
 import * as recallModel from '../../src/recall/recallModel.js';
+import * as relatedBrowser from '../../src/sublime/relatedBrowser.js';
 
 export const createFixtureAttachments = () => attachmentStore.createAttachmentStore({ indexedDB: new IDBFactory() });
 export async function readFixtureBackup(input) {
@@ -37,6 +38,7 @@ export const workspaceDependencies = {
  './articleFigures.js':articleFigures,
  '../recallSession.js':recallSession,
  '../recall/recallModel.js':recallModel,
+ './relatedBrowser.js':relatedBrowser,
  './CardContent.jsx':{default:()=>null,CollectionChips:()=>null},
  './ZoomableImage.jsx':{default:()=>null}, './CardReturnPreview.jsx':{default:()=>null},
  './SaveCardPanel.jsx':{default:()=>null}, './saveOptions.js':saveOptions,

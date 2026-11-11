@@ -1,0 +1,961 @@
+/*
+ * 梦藏 · 夜间档案馆 — library presentation.
+ * Masthead (M+), three catalogue scales (Studio Freight), objects (A24),
+ * hover-preview index (Dennis Snellenberg).
+ */
+
+/* ---------- Shared controls ---------- */
+.sublime-workspace .sw-icon-button,
+.sublime-workspace .sw-back {
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--mc-text-2);
+}
+.sublime-workspace .sw-icon-button svg,
+.sublime-workspace .sw-back svg {
+  width: 18px;
+  height: 18px;
+}
+.sublime-workspace .sw-icon-button:hover,
+.sublime-workspace .sw-back:hover {
+  background: var(--mc-hover);
+  color: var(--mc-text);
+}
+.sublime-workspace .sw-primary,
+.sublime-workspace .sw-status > button {
+  border: 0;
+  border-radius: 999px;
+  background: var(--mc-text);
+  color: var(--mc-bg);
+  font-weight: 550;
+}
+.sublime-workspace .sw-save {
+  width: auto;
+  height: 30px;
+  margin-left: 6px;
+  padding: 0 8px 0 13px;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mc-text);
+  color: var(--mc-bg);
+  font-size: 12.5px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+}
+.sublime-workspace .sw-save svg {
+  width: 15px;
+  height: 15px;
+}
+.sublime-workspace .sw-save.is-saved {
+  border: 1px solid var(--mc-border-strong);
+  background: none;
+  color: var(--mc-text);
+}
+.sublime-workspace[data-theme='light'] :is(.sw-save, .sw-primary, .se-save) {
+  background: var(--mc-text);
+  color: var(--mc-bg);
+}
+.sublime-workspace .sw-menu,
+.sublime-workspace .sw-popover {
+  border: 0;
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-surface-2);
+  box-shadow: var(--mc-shadow-pop);
+  font-size: 13.5px;
+}
+.sublime-workspace .sw-menu > button[role='menuitem'] {
+  border-radius: var(--mc-radius-sm);
+  font-size: 13.5px;
+}
+.sublime-workspace .sw-menu > button[role='menuitem']:hover {
+  background: var(--mc-hover);
+}
+.sublime-workspace .sw-menu > label.sw-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.sublime-workspace .sw-menu > label.sw-field select {
+  flex: 1;
+  min-width: 0;
+}
+.sublime-workspace .sw-modal {
+  border: 1px solid var(--mc-border-strong);
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-surface);
+  box-shadow: var(--mc-shadow-pop);
+}
+.sublime-workspace .sw-toast {
+  bottom: calc(var(--mc-foot-h) + 14px);
+  border: 1px solid var(--mc-border-strong);
+  border-radius: 999px;
+  background: var(--mc-surface-2);
+  color: var(--mc-text);
+  box-shadow: var(--mc-shadow-pop);
+}
+
+/* ---------- Masthead ---------- */
+.sublime-workspace .am-head {
+  padding: 30px var(--mc-gutter) 0;
+}
+.sublime-workspace .am-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 28px;
+  color: var(--mc-text-3);
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+}
+.sublime-workspace .am-scopes {
+  display: flex;
+  gap: 22px;
+}
+.sublime-workspace .am-scopes button {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--mc-text-3);
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+}
+.sublime-workspace .am-scopes button:hover,
+.sublime-workspace .am-scopes button[aria-current='page'] {
+  color: var(--mc-text);
+}
+.sublime-workspace .am-scopes button[aria-current='page']::before {
+  content: '• ';
+  color: var(--mc-accent);
+}
+.sublime-workspace .am-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--mc-text-2);
+}
+.sublime-workspace .am-crumb .am-back {
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  border: 1px solid var(--mc-border-strong);
+}
+.sublime-workspace .am-count {
+  color: var(--mc-text-2);
+  font-family: var(--mc-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.sublime-workspace .am-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 0;
+}
+.sublime-workspace .am-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: clamp(40px, 6.4vw, 92px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  caret-color: var(--mc-accent);
+}
+.sublime-workspace .am-search input::placeholder {
+  color: var(--mc-text-3);
+  opacity: 0.55;
+}
+.sublime-workspace .am-search:focus-within input::placeholder {
+  opacity: 0.3;
+}
+.sublime-workspace .am-lede {
+  max-width: 640px;
+  margin: 10px 0 0;
+  color: var(--mc-text-2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.sublime-workspace .am-rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 22px;
+  padding: 8px 0;
+  border-top: 1px solid var(--mc-border-strong);
+  border-bottom: 1px solid var(--mc-border);
+}
+.sublime-workspace .am-types {
+  display: flex;
+  gap: 4px 18px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sublime-workspace .am-types button {
+  flex: none;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--mc-text-3);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.sublime-workspace .am-types button:hover {
+  color: var(--mc-text);
+}
+.sublime-workspace .am-types button.active {
+  color: var(--mc-text);
+  text-decoration: underline;
+  text-decoration-color: var(--mc-accent);
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+}
+.sublime-workspace .am-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.sublime-workspace .am-views,
+.sublime-workspace .am-tools .ms-modes {
+  display: flex;
+  height: 28px;
+  margin-right: 8px;
+  padding: 2px;
+  border: 1px solid var(--mc-border-strong);
+  border-radius: 999px;
+  background: none;
+}
+.sublime-workspace .am-views button,
+.sublime-workspace .am-tools .ms-modes button {
+  white-space: nowrap;
+  height: 22px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--mc-text-3);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.sublime-workspace .am-views button[aria-pressed='true'],
+.sublime-workspace .am-tools .ms-modes button[aria-pressed='true'] {
+  background: var(--mc-text);
+  color: var(--mc-bg);
+}
+.sublime-workspace .sw-search-summary,
+.sublime-workspace .sw-reference-caption {
+  width: auto;
+  margin: 14px var(--mc-gutter) 0;
+  color: var(--mc-text-3);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+}
+.sublime-workspace .sw-library-content {
+  min-height: 0;
+  padding-bottom: 80px;
+}
+
+/* ---------- Wall: objects, not cards ---------- */
+.sublime-workspace .aw-wall {
+  margin: 28px var(--mc-gutter) 0;
+  columns: 5 220px;
+  column-gap: 14px;
+}
+.sublime-workspace .ao {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 22px;
+  break-inside: avoid;
+  vertical-align: top;
+  animation: ao-in 0.42s var(--mc-ease) both;
+}
+@keyframes ao-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.sublime-workspace .ao-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  transition: transform 0.24s var(--mc-ease);
+}
+.sublime-workspace .ao-open:hover {
+  transform: translateY(-3px);
+}
+.sublime-workspace .ao.is-active .ao-open {
+  outline: 1px solid var(--mc-accent);
+  outline-offset: 4px;
+}
+.sublime-workspace .ao-picture {
+  display: block;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--mc-surface);
+}
+.sublime-workspace .ao-picture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: cover;
+}
+.sublime-workspace .ao-paper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 16px 18px;
+  border-radius: 2px;
+  background: var(--mc-paper-0);
+  color: var(--mc-ink);
+  box-shadow:
+    0 1px 0 #ffffff40 inset,
+    0 10px 24px #00000040;
+}
+.sublime-workspace .ao-tone-1 {
+  background: var(--mc-paper-1);
+}
+.sublime-workspace .ao-tone-2 {
+  background: var(--mc-paper-2);
+}
+.sublime-workspace .ao-tone-3 {
+  background: var(--mc-paper-3);
+}
+.sublime-workspace .ao-paper-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--mc-ink-2);
+  font-family: var(--mc-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+.sublime-workspace .ao-host {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sublime-workspace .ao-paper-title {
+  color: var(--mc-ink);
+  font-family: var(--mc-font-serif);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .ao-paper-text {
+  display: -webkit-box;
+  color: var(--mc-ink-2);
+  font-size: 13px;
+  line-height: 1.75;
+  overflow: hidden;
+  white-space: pre-line;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+}
+/* Tickets: a perforated stub between source and title. */
+.sublime-workspace .ao-ticket {
+  position: relative;
+}
+.sublime-workspace .ao-ticket .ao-paper-head {
+  padding-bottom: 10px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--mc-ink) 30%, transparent);
+}
+/* Quotes: typeset like a printed epigraph. */
+.sublime-workspace .ao-quote {
+  gap: 4px;
+  padding: 22px 20px 20px;
+}
+.sublime-workspace .ao-mark {
+  height: 30px;
+  color: color-mix(in srgb, var(--mc-ink) 35%, transparent);
+  font-family: var(--mc-font-serif);
+  font-size: 54px;
+  line-height: 1;
+}
+.sublime-workspace .ao-quote-text {
+  display: -webkit-box;
+  color: var(--mc-ink);
+  font-family: var(--mc-font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.65;
+  overflow: hidden;
+  white-space: pre-line;
+  -webkit-line-clamp: 9;
+  -webkit-box-orient: vertical;
+}
+.sublime-workspace .ao-cite {
+  margin-top: 8px;
+  color: var(--mc-ink-2);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+.sublime-workspace .ao-caption {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-top: 8px;
+  color: var(--mc-text-3);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.sublime-workspace .ao-no {
+  flex: none;
+  font-family: var(--mc-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+}
+.sublime-workspace .ao-caption-title {
+  min-width: 0;
+  color: var(--mc-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sublime-workspace .ao-actions,
+.sublime-workspace .ai-actions,
+.sublime-workspace .az-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.sublime-workspace .ao-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mc-bg) 86%, transparent);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.18s var(--mc-ease),
+    transform 0.18s var(--mc-ease);
+}
+.sublime-workspace .ao:is(:hover, :focus-within) .ao-actions,
+.sublime-workspace .ao.is-active .ao-actions {
+  opacity: 1;
+  transform: none;
+}
+.sublime-workspace :is(.ao-actions, .ai-actions, .az-actions) .sw-icon-button {
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  color: var(--mc-text-2);
+}
+.sublime-workspace :is(.ao-actions, .ai-actions, .az-actions) .sw-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+.sublime-workspace :is(.ao-actions, .ai-actions, .az-actions) .sw-save {
+  height: 26px;
+  margin: 0 2px 0 0;
+  padding: 0 7px 0 10px;
+  font-size: 12px;
+}
+.sublime-workspace .ao-star {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: var(--mc-accent);
+}
+.sublime-workspace .ao-select {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--mc-bg);
+}
+.sublime-workspace .ao-select input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--mc-accent);
+}
+
+/* ---------- Index: catalogue rows ---------- */
+.sublime-workspace .ai-index {
+  margin: 10px var(--mc-gutter) 0;
+}
+.sublime-workspace .ai-head,
+.sublime-workspace .ai-open {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 90px minmax(0, 200px) 100px;
+  gap: 20px;
+  align-items: baseline;
+}
+.sublime-workspace .ai-head {
+  padding: 14px 190px 10px 0;
+  color: var(--mc-text-3);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.sublime-workspace .ai-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--mc-border-strong);
+}
+.sublime-workspace .ai-row {
+  position: relative;
+  border-bottom: 1px solid var(--mc-border);
+  animation: ao-in 0.36s var(--mc-ease) both;
+}
+.sublime-workspace .ai-open {
+  width: 100%;
+  padding: 18px 190px 18px 0;
+  border: 0;
+  background: none;
+  color: var(--mc-text-2);
+  font-size: 13px;
+  text-align: left;
+  transition:
+    padding 0.24s var(--mc-ease),
+    color 0.2s var(--mc-ease);
+}
+.sublime-workspace .ai-open:hover {
+  padding-left: 14px;
+  color: var(--mc-text);
+}
+.sublime-workspace .ai-row.is-active .ai-open {
+  color: var(--mc-text);
+}
+.sublime-workspace .ai-no,
+.sublime-workspace .ai-date {
+  color: var(--mc-text-3);
+  font-family: var(--mc-font-mono);
+  font-size: 11.5px;
+}
+.sublime-workspace .ai-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sublime-workspace .ai-title strong {
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.sublime-workspace .ai-title small {
+  color: var(--mc-text-3);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sublime-workspace .ai-src {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sublime-workspace .ai-actions {
+  position: absolute;
+  white-space: nowrap;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.18s var(--mc-ease);
+}
+.sublime-workspace .ai-row:is(:hover, :focus-within, .is-active) .ai-actions {
+  opacity: 1;
+}
+.sublime-workspace .ai-row .ao-select {
+  top: 50%;
+  left: -40px;
+  transform: translateY(-50%);
+}
+.sublime-workspace .ai-float {
+  position: fixed;
+  z-index: 25;
+  top: 0;
+  left: 0;
+  width: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s var(--mc-ease);
+}
+.sublime-workspace .ai-float[data-visible='true'] {
+  opacity: 1;
+}
+.sublime-workspace .ai-float img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 20px 50px #000000a0;
+}
+
+/* ---------- Zoom: one object at a time ---------- */
+.sublime-workspace .az-zoom {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 560px) minmax(180px, 1fr);
+  gap: 40px;
+  align-items: center;
+  min-height: calc(100svh - var(--mc-nav-h) - var(--mc-foot-h) - 260px);
+  margin: 0 var(--mc-gutter);
+  padding: 40px 0 110px;
+  outline: 0;
+}
+.sublime-workspace .az-side {
+  align-self: center;
+}
+.sublime-workspace .az-no {
+  color: var(--mc-text-3);
+  font-family: var(--mc-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.sublime-workspace .az-no i {
+  font-style: normal;
+  opacity: 0.6;
+}
+.sublime-workspace .az-title {
+  margin: 14px 0 22px;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sublime-workspace .az-steps {
+  display: flex;
+  gap: 8px;
+}
+.sublime-workspace .az-steps button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--mc-border-strong);
+  border-radius: 50%;
+  background: none;
+  color: var(--mc-text);
+}
+.sublime-workspace .az-steps button:hover:not(:disabled) {
+  border-color: var(--mc-text);
+}
+.sublime-workspace .az-stage {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  animation: az-in 0.42s var(--mc-ease) both;
+}
+@keyframes az-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+}
+.sublime-workspace .az-stage .ao-picture img {
+  max-height: calc(100svh - 320px);
+  object-fit: contain;
+  background: var(--mc-bg);
+}
+.sublime-workspace .az-stage .ao-paper {
+  padding: 34px 34px 36px;
+  gap: 16px;
+}
+.sublime-workspace .az-stage .ao-paper-title {
+  font-size: 30px;
+}
+.sublime-workspace .az-stage .ao-paper-text {
+  font-size: 15.5px;
+  -webkit-line-clamp: 14;
+}
+.sublime-workspace .az-stage .ao-quote-text {
+  font-size: 26px;
+  -webkit-line-clamp: 12;
+}
+.sublime-workspace .az-spec {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  margin: 0 0 16px;
+  border-top: 1px solid var(--mc-border-strong);
+  font-size: 13px;
+}
+.sublime-workspace .az-spec :is(dt, dd) {
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--mc-border);
+}
+.sublime-workspace .az-spec dt {
+  color: var(--mc-text-3);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.sublime-workspace .az-spec dd {
+  color: var(--mc-text-body);
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .az-next {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  max-width: 560px;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--mc-border-strong);
+  background: none;
+  color: var(--mc-text-2);
+  transform: translateX(-50%);
+  width: min(560px, 60%);
+  text-align: left;
+}
+.sublime-workspace .az-next span {
+  color: var(--mc-text-3);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.sublime-workspace .az-next strong {
+  font-family: var(--mc-font-serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.sublime-workspace .az-next:hover strong {
+  color: var(--mc-text);
+}
+
+/* ---------- Collections, canvases, empty library ---------- */
+.sublime-workspace .sw-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0;
+  width: auto;
+  margin: 28px var(--mc-gutter) 80px;
+  border-top: 1px solid var(--mc-border-strong);
+  border-left: 1px solid var(--mc-border);
+}
+.sublime-workspace .sw-collection-card,
+.sublime-workspace .sw-collection-grid > .sw-start-tile {
+  min-height: 220px;
+  padding: 22px;
+  border: 0;
+  border-right: 1px solid var(--mc-border);
+  border-bottom: 1px solid var(--mc-border);
+  border-radius: 0;
+  background: none;
+  color: var(--mc-text-body);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.sublime-workspace .sw-collection-card:hover {
+  background: var(--mc-surface);
+}
+.sublime-workspace .sw-collection-card svg:first-child {
+  color: var(--mc-accent);
+}
+.sublime-workspace .sw-collection-card :is(h2, h3) {
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sublime-workspace .sw-collection-card small {
+  color: var(--mc-text-3);
+  font-family: var(--mc-font-mono);
+  font-size: 11px;
+}
+.sublime-workspace .sw-collection-grid > .sw-start-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  color: var(--mc-text-3);
+}
+.sublime-workspace .sw-collection-grid > .sw-start-tile:hover {
+  color: var(--mc-text);
+}
+.sublime-workspace .sw-empty-library {
+  align-items: flex-start;
+  margin: 28px var(--mc-gutter) 80px;
+}
+.sublime-workspace .sw-empty-library h1 {
+  margin: 0 0 24px;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 28px;
+}
+.sublime-workspace .sw-start-panel {
+  width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.sublime-workspace .sw-start-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.sublime-workspace .sw-start-tile {
+  min-height: 180px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--mc-paper-0);
+  color: var(--mc-ink);
+  font-family: var(--mc-font-serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+.sublime-workspace .sw-start-tile:nth-child(2) {
+  background: var(--mc-paper-1);
+}
+.sublime-workspace .sw-start-tile:nth-child(3) {
+  background: var(--mc-paper-2);
+}
+.sublime-workspace .sw-start-tile svg,
+.sublime-workspace .sw-start-tile small {
+  color: var(--mc-ink-2);
+}
+.sublime-workspace .sw-status h1,
+.sublime-workspace .sw-status h2 {
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 24px;
+  font-weight: 600;
+}
+.sublime-workspace .sw-selection {
+  bottom: calc(var(--mc-foot-h) + 14px);
+  border: 1px solid var(--mc-border-strong);
+  border-radius: 999px;
+  background: var(--mc-surface-2);
+  box-shadow: var(--mc-shadow-pop);
+}
+
+/* ---------- Light paper theme adjustments ---------- */
+.sublime-workspace[data-theme='light'] .ao-paper {
+  box-shadow:
+    0 0 0 1px #00000010,
+    0 8px 20px #3b2f1c14;
+}
+
+/* ---------- Narrow windows ---------- */
+@media (max-width: 900px) {
+  .sublime-workspace .ai-head,
+  .sublime-workspace .ai-open {
+    grid-template-columns: 40px minmax(0, 1fr) 70px;
+  }
+  .sublime-workspace :is(.ai-head, .ai-open) > :nth-child(n + 4) {
+    display: none;
+  }
+  .sublime-workspace .az-zoom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .sublime-workspace .az-next {
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .sublime-workspace .am-rail {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .sublime-workspace .am-tools {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    row-gap: 8px;
+  }
+  .sublime-workspace .am-kicker {
+    flex-wrap: wrap;
+  }
+  .sublime-workspace .am-scopes {
+    gap: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sublime-workspace .am-scopes button {
+    flex: none;
+  }
+  /* Touch: keep only the menu affordance on each object. */
+  .sublime-workspace .ao .ao-actions > :not(:last-child) {
+    display: none;
+  }
+  .sublime-workspace .aw-wall {
+    columns: 2 140px;
+    column-gap: 10px;
+  }
+  .sublime-workspace .ao-actions {
+    opacity: 1;
+    transform: none;
+  }
+  .sublime-workspace .sw-start-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sublime-workspace :is(.ao, .ai-row, .az-stage) {
+    animation: none;
+  }
+  .sublime-workspace :is(.ao-open, .ai-open, .ao-actions) {
+    transition: none;
+  }
+}
+
+/* Compact "整理 / 保存" pill used in every object action group. */
+.sublime-workspace :is(.ao-actions, .ai-actions, .az-actions, .pr-actions) .pr-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  margin-right: 2px;
+  padding: 0 9px 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mc-text);
+  color: var(--mc-bg);
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.sublime-workspace :is(.ao-actions, .ai-actions, .az-actions, .pr-actions) .pr-save svg {
+  width: 13px;
+  height: 13px;
+}

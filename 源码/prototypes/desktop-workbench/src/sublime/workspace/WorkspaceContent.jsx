@@ -1,7 +1,6 @@
 import React from 'react';
-import { IconButton } from './WorkspacePrimitives.jsx';
 import { LinkedNoteEditor } from './LinkedNoteEditor.jsx';
-import { IconBookmark, IconPlus, IconCheck, IconHomeFilled, IconSettings } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 import { workspaceReducer } from '../workspaceModel.js';
 import { CardEditor, CollectionEditor, CanvasEditor, ImportEditor } from '../SublimeEditors.jsx';
 import BookReader from '../../reader/BookReader.jsx';
@@ -15,6 +14,7 @@ import { renderCardDetail } from './CardDetailView.jsx';
 import { renderLibrary } from './LibraryView.jsx';
 import { renderOperationMenu } from './OperationMenu.jsx';
 import { renderWorkspaceDialogs } from './WorkspaceDialogs.jsx';
+import { renderArchiveNav } from './archive/ArchiveNav.jsx';
 export function renderWorkspaceContent(view) {
   const {
     route,
@@ -286,52 +286,7 @@ export function renderWorkspaceContent(view) {
         />
       )}
       {!['recall', 'home', 'reader', 'card', 'add', 'edit-collection', 'import', 'canvas'].includes(route.page) && renderLibrary(view)}
-      {!isEditor && (
-        <>
-          <nav className="sw-dock" aria-label="主导航">
-            <button className="sw-dock-item" onClick={() => navigate('recall')}>
-              <IconBookmark size={25} />
-              <span>回看</span>
-            </button>
-            <button
-              className={`sw-dock-item ${['home', 'staff', 'discover', 'following'].includes(route.page) ? 'active' : ''}`}
-              aria-current={route.page === 'home' ? 'page' : undefined}
-              onClick={() => navigate('home')}
-            >
-              <img src="/assets/sublime-mark.svg" alt="" />
-              <span>星空</span>
-            </button>
-            <button
-              className={`sw-dock-item ${['library', 'collection', 'collections', 'favorites', 'canvases', 'trash'].includes(route.page) ? 'active' : ''}`}
-              aria-current={route.page === 'library' ? 'page' : undefined}
-              onClick={() => navigate('library')}
-            >
-              <IconHomeFilled size={25} />
-              <span>资料库</span>
-            </button>
-            <span className="sw-dock-spacer" />
-            <IconButton
-              label="本机工具"
-              onClick={(event) => setPopover({ type: 'tools', anchor: event.currentTarget })}
-              aria-haspopup="menu"
-              aria-expanded={popover?.type === 'tools'}
-            >
-              <IconSettings size={26} />
-            </IconButton>
-          </nav>
-          {['library', 'collection', 'collections', 'favorites', 'canvases'].includes(route.page) && (
-            <IconButton
-              label="添加卡片"
-              className="sw-add"
-              onClick={(event) => setPopover({ type: 'add', anchor: event.currentTarget })}
-              aria-haspopup="menu"
-              aria-expanded={popover?.type === 'add'}
-            >
-              <IconPlus size={41} />
-            </IconButton>
-          )}
-        </>
-      )}
+      {(!isEditor || route.page === 'recall') && renderArchiveNav(view)}
       {popover?.type === 'saved' && menuCard && (
         <SaveCardPanel
           key={menuCard.id}

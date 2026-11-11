@@ -18,6 +18,7 @@ import ZoomableImage from '../ZoomableImage.jsx';
 import CardReturnPreview from '../CardReturnPreview.jsx';
 import { PodcastClipPlayback } from '../PodcastClips.jsx';
 import { isImageReference } from '../intelligenceHelpers.js';
+import ArchiveSpec from './archive/ArchiveSpec.jsx';
 export function renderCardDetail(view) {
   const {
     current,
@@ -73,6 +74,7 @@ export function renderCardDetail(view) {
       </header>
       <section className={`sw-detail-stage ${current.type === 'article' ? 'sw-article-stage' : isImageReference(current) ? 'sw-image-stage' : ''}`}>
         <div className="sw-detail-cluster">
+          {current.type !== 'article' && <ArchiveSpec card={current} collections={state.collections} onCollection={(id) => navigate('collection', id)} />}
           {current.type !== 'article' &&
             safeSourceUrl(current.sourceUrl) &&
             !(current.webAnchor && articleOriginalLocation(current.sourceUrl, current.webAnchor)) && (
@@ -209,7 +211,7 @@ export function renderCardDetail(view) {
             )}
           </article>
           {current.type !== 'article' && linkedNoteLinks}
-          {current.tags?.length > 0 && <p className="sw-muted">标签：{current.tags.join(' · ')}</p>}
+          {current.type === 'article' && current.tags?.length > 0 && <p className="sw-muted">标签：{current.tags.join(' · ')}</p>}
           {current.ocrText && (
             <details className="sw-personal-note">
               <summary>

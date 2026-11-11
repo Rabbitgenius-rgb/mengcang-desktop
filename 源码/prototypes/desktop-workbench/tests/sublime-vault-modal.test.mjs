@@ -1,3 +1,4 @@
+import {withArchivePresentation} from './support/archive-presentation.mjs';
 import {compileWorkspace} from './support/compile-workspace.mjs';
 import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as rendererQuit from '../src/sublime/rendererQuit.js';
@@ -32,6 +33,7 @@ function workspace({cards=[structuredClone(card)],items=[],hash='#/library',open
  const slots=[],refs=[];let stateCursor=0,refCursor=0,tree,commits=0,captures=[],navigations=[];
  const identity={id:'test-vault-modal'};
  const react={useCallback:callback=>callback,Fragment:Symbol('fragment'),memo:value=>value,createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useEffect:()=>{},useLayoutEffect:()=>{},useCallback:callback=>callback,useMemo:factory=>factory(),useRef:initial=>{const index=refCursor++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateCursor++;if(!slots[index])slots[index]={value:index===0?state:index===1?true:typeof initial==='function'?initial():initial};return [slots[index].value,next=>{slots[index].value=typeof next==='function'?next(slots[index].value):next;}];}};
+ react.createElement=withArchivePresentation(react,react.createElement);
  const icons=new Proxy({},{get:(_,name)=>function Icon(){return react.createElement('svg',{'data-icon':String(name)});}});
  const session={writing:0,drafts:()=>state.drafts,recoverableDrafts:()=>[],commit:async action=>{commits++;state=typeof action==='function'?action(state):model.workspaceReducer(state,structuredClone(action));return state;}};
  const api={captureAvailable:true,captureAttachmentAvailable:true,capture:async payload=>{captures.push(structuredClone(payload));return {ok:true,data:{note:{path:'01_sources/cards/text/synthetic.md'}}};}};

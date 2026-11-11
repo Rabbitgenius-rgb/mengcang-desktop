@@ -1,8 +1,14 @@
 async function scanContrast(page) {
-  return page.evaluate(() => {
+  return page.evaluate(async () => {
+    // Measure settled colors, excluding infinite decorative animations.
+    const finite = document.getAnimations().filter((animation) => Number.isFinite(animation.effect?.getComputedTiming().endTime));
+    await Promise.all(finite.map((animation) => animation.finished.catch(() => {})));
     const rgb = (text) => {
       const v = text.match(/[\d.]+/g)?.map(Number);
-      return v?.length >= 3 ? [v[0], v[1], v[2], v[3] ?? 1] : null;
+      if (!v || v.length < 3) return null;
+      // color-mix(in srgb, ...) computes to normalized color(srgb ...) values.
+      const scale = /^color\(srgb\s/.test(text) ? 255 : 1;
+      return [v[0] * scale, v[1] * scale, v[2] * scale, v[3] ?? 1];
     };
     const over = (a, b) => a.slice(0, 3).map((x, i) => x * a[3] + b[i] * (1 - a[3]));
     const light = (c) =>

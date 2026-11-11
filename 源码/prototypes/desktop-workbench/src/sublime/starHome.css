@@ -422,42 +422,6 @@
   overflow: hidden;
   background: #07090c;
 }
-.sublime-workspace[data-star-home='true'] .sw-dock {
-  background: #161a20e8 !important;
-  border: 1px solid #383f48 !important;
-  backdrop-filter: blur(18px);
-  color: #a8b1be;
-  box-shadow: 0 8px 28px #0005;
-  bottom: 28px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock .sw-dock-item {
-  color: #afb7c2 !important;
-  font-size: 12px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock .active {
-  color: #edece4 !important;
-  background: #ffffff09 !important;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock .sw-icon-button {
-  color: #afb7c2 !important;
-}
-.sublime-workspace[data-star-home='true'] .sw-add {
-  display: grid;
-  place-items: center;
-  bottom: 35px;
-  right: 26px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: #171c24;
-  color: #c2cbd5;
-  border: 1px solid #39414c;
-  box-shadow: none;
-}
-.sublime-workspace[data-star-home='true'] .sw-add svg {
-  width: 23px;
-  height: 23px;
-}
 @keyframes starPanelIn {
   from {
     opacity: 0;
@@ -494,46 +458,6 @@
   .mc-star-panel {
     animation: none;
   }
-}
-
-.sublime-workspace[data-star-home='true'] .sw-dock {
-  left: 50%;
-  transform: translateX(-50%);
-  width: 310px;
-  min-width: 0;
-  height: 53px;
-  padding: 6px 9px;
-  border-radius: 28px;
-  gap: 4px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock-item {
-  min-width: 0;
-  min-height: 0;
-  height: 39px;
-  padding: 0 13px;
-  flex-direction: row;
-  gap: 9px;
-  border-radius: 22px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock-item svg,
-.sublime-workspace[data-star-home='true'] .sw-dock-item img {
-  width: 19px;
-  height: 19px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock-item img {
-  filter: brightness(0) invert(1);
-}
-.sublime-workspace[data-star-home='true'] .sw-dock .sw-icon-button {
-  width: 32px;
-  height: 32px;
-}
-.sublime-workspace[data-star-home='true'] .sw-dock .sw-icon-button svg {
-  width: 19px;
-  height: 19px;
-}
-
-.sublime-workspace[data-star-home='true'] .sw-dock-item.active img {
-  filter: brightness(0) invert(1);
 }
 .mc-star-panel-body {
   display: flex;

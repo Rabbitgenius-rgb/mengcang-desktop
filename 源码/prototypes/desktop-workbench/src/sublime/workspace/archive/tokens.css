@@ -1,0 +1,77 @@
+/*
+ * 梦藏 · 夜间档案馆 — design tokens.
+ * Night ink ground, hairlines instead of grey slabs, four stable paper tones
+ * for text objects, one moon-gold accent. See docs/前端重设计-夜间档案馆-20261105.md.
+ * Legacy --sw-* / --rw-* names are aliased onto these in the component sheets.
+ */
+.sublime-workspace {
+  --mc-font-ui:
+    -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --mc-font-serif: 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'Times New Roman', serif;
+  --mc-font-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+
+  --mc-bg: #0c0d10;
+  --mc-sidebar: #0c0d10;
+  --mc-surface: #141519;
+  --mc-surface-2: #1b1c21;
+  --mc-hover: #1f2026;
+  --mc-selected: #25262d;
+  --mc-border: #24252b;
+  --mc-border-strong: #3a3b43;
+
+  --mc-text: #f1ede6;
+  --mc-text-body: #d6d1c8;
+  --mc-text-2: #a19c93;
+  --mc-text-3: #938d83;
+
+  --mc-accent: #e3b866;
+  --mc-accent-soft: color-mix(in srgb, var(--mc-accent) 14%, transparent);
+  --mc-on-accent: #19140a;
+  --mc-danger: #e5786d;
+  --mc-focus: #e3b866;
+
+  /* Paper objects: stable tones, never a category. */
+  --mc-paper-0: #ebe5d8;
+  --mc-paper-1: #d3ddd5;
+  --mc-paper-2: #e6d3cf;
+  --mc-paper-3: #e9dcb6;
+  --mc-ink: #1c1a17;
+  --mc-ink-2: #5d574e;
+
+  --mc-radius-sm: 4px;
+  --mc-radius: 6px;
+  --mc-radius-lg: 8px;
+  --mc-shadow-pop: 0 18px 50px #000000b3, 0 0 0 1px var(--mc-border-strong);
+  --mc-gutter: clamp(20px, 3.2vw, 48px);
+  --mc-ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --mc-nav-h: 56px;
+  --mc-foot-h: 34px;
+}
+
+.sublime-workspace[data-theme='light'] {
+  --mc-bg: #f1ece2;
+  --mc-sidebar: #f1ece2;
+  --mc-surface: #f8f5ef;
+  --mc-surface-2: #e9e3d7;
+  --mc-hover: #e6dfd2;
+  --mc-selected: #ddd5c6;
+  --mc-border: #d9d2c4;
+  --mc-border-strong: #bdb4a3;
+
+  --mc-text: #191714;
+  --mc-text-body: #2f2b26;
+  --mc-text-2: #625c53;
+  --mc-text-3: #6a6459;
+
+  --mc-accent: #9c6a17;
+  --mc-on-accent: #fff8ea;
+  --mc-danger: #b5463b;
+  --mc-focus: #9c6a17;
+
+  --mc-paper-0: #fbf8f1;
+  --mc-paper-1: #e3ebe4;
+  --mc-paper-2: #f1e3df;
+  --mc-paper-3: #f3e9c9;
+  --mc-shadow-pop: 0 18px 44px #3b2f1c2e, 0 0 0 1px var(--mc-border-strong);
+}

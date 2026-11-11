@@ -10,6 +10,7 @@ export function renderWorkspaceView(view) {
         if (ready && loadedIdentity.current === identityId && !scrollRestore.current) navigation.record();
       }}
       data-with-dock={!isEditor}
+      data-archive-nav={!isEditor || route.page === 'recall'}
       data-star-home={route.page === 'home'}
       data-ai-policy="analysis-click-to-run"
       data-theme={theme === 'system' ? (systemLight ? 'light' : 'dark') : theme}

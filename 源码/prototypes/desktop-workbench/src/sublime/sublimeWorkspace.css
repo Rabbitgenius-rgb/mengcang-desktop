@@ -1,13 +1,13 @@
-/* Logged-in Sublime reference: isolated from the existing 梦藏 workspace. */
+/* 梦藏 workspace shell. Colours come from ../design/tokens.css; --sw-* are legacy aliases. */
 .sublime-workspace {
-  --sw-bg: #111;
-  --sw-card: #21262d;
-  --sw-panel: #30363d;
-  --sw-active: #282e36;
-  --sw-text: #b1bac4;
-  --sw-muted: #8b949e;
-  --sw-icon: #6e7681;
-  --sw-white: #e6edf3;
+  --sw-bg: var(--mc-bg);
+  --sw-card: var(--mc-surface);
+  --sw-panel: var(--mc-surface-2);
+  --sw-active: var(--mc-hover);
+  --sw-text: var(--mc-text-body);
+  --sw-muted: var(--mc-text-2);
+  --sw-icon: var(--mc-text-3);
+  --sw-white: var(--mc-text);
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -17,20 +17,13 @@
   overflow-y: auto;
   background: var(--sw-bg);
   color: var(--sw-text);
-  font:
-    18px/1.5 ui-sans-serif,
-    system-ui,
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol',
-    'Noto Color Emoji';
-  font-feature-settings: 'ss12' on;
-  letter-spacing: -0.3375px;
+  font: 15px/1.6 var(--mc-font-ui);
+  letter-spacing: 0;
   text-align: left;
   color-scheme: dark;
   scrollbar-width: thin;
-  scrollbar-color: #30363d transparent;
+  scrollbar-color: var(--mc-border-strong) transparent;
+  -webkit-font-smoothing: antialiased;
   -webkit-app-region: no-drag;
 }
 
@@ -54,15 +47,16 @@
   opacity: 0.45;
 }
 .sublime-workspace :focus-visible {
-  outline: 2px solid #00aaff;
+  outline: 2px solid var(--mc-focus);
   outline-offset: 3px;
 }
 .sublime-workspace h1,
 .sublime-workspace h2,
 .sublime-workspace h3 {
   font-family: inherit;
-  font-weight: 400;
-  letter-spacing: -0.3375px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--mc-text);
 }
 .sublime-workspace a {
   color: inherit;
@@ -601,71 +595,6 @@
   bottom: 10px;
   color: #d6d9dd;
 }
-
-.sublime-workspace .sw-dock {
-  position: fixed;
-  z-index: 20;
-  bottom: 30px;
-  left: 30px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 400px;
-  max-width: calc(100vw - 60px);
-  height: 75px;
-  padding: 10px;
-  border: 0;
-  border-radius: 25px;
-  background: var(--sw-card);
-  color: var(--sw-muted);
-  box-shadow: 0 10px 50px #0006;
-}
-.sublime-workspace .sw-dock-item {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  flex-shrink: 0;
-  min-width: 70px;
-  height: 55px;
-  padding: 5px 10px;
-  border: 0;
-  border-radius: 15px;
-  background: transparent;
-  color: var(--sw-icon);
-  font-size: 12.5px;
-  line-height: 15px;
-}
-.sublime-workspace .sw-dock-item svg {
-  width: 30px;
-  height: 30px;
-}
-.sublime-workspace .sw-dock-item img {
-  display: block;
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}
-.sublime-workspace .sw-dock-spacer {
-  flex: 1;
-}
-.sublime-workspace .sw-dock-item:nth-child(2) {
-  margin-right: auto;
-}
-.sublime-workspace .sw-dock-item:hover {
-  background: var(--sw-active);
-  color: var(--sw-text);
-}
-.sublime-workspace .sw-dock-item.is-active,
-.sublime-workspace .sw-dock-item.active,
-.sublime-workspace .sw-dock-item[aria-current='page'] {
-  background: #fff;
-  color: #111;
-}
-.sublime-workspace .sw-dock-item.active img {
-  filter: brightness(0);
-}
 .sublime-workspace .sw-avatar {
   display: inline-flex;
   align-items: center;
@@ -687,31 +616,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.sublime-workspace .sw-add {
-  position: fixed;
-  right: 30px;
-  bottom: 35px;
-  z-index: 20;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 65px;
-  height: 65px;
-  padding: 10px;
-  border: 0;
-  border-radius: 50%;
-  background: #fff;
-  color: #6e7681;
-  box-shadow: 0 10px 50px #0006;
-}
-.sublime-workspace .sw-add svg {
-  width: 45px;
-  height: 45px;
-}
-.sublime-workspace .sw-add:hover {
-  background: #e6edf3;
-  color: #111;
 }
 
 .sublime-workspace .sw-empty-library {
@@ -876,11 +780,6 @@
 .sublime-workspace .sw-actions > .sw-menu {
   top: 55px;
   right: 0;
-}
-.sublime-workspace .sw-dock > .sw-popover,
-.sublime-workspace .sw-dock > .sw-menu {
-  bottom: 85px;
-  left: 0;
 }
 .sublime-workspace .sw-menu-row,
 .sublime-workspace .sw-menu > button[role='menuitem'] {
@@ -1653,33 +1552,6 @@
   .sublime-workspace .sw-tile-actions {
     opacity: 1;
   }
-  .sublime-workspace .sw-dock {
-    bottom: max(15px, env(safe-area-inset-bottom));
-    left: 15px;
-    right: 15px;
-    width: auto;
-    max-width: none;
-    gap: 5px;
-  }
-  .sublime-workspace .sw-dock-item {
-    min-width: 65px;
-    padding: 5px 8px;
-  }
-  .sublime-workspace .sw-dock .sw-avatar {
-    width: 45px;
-    height: 45px;
-  }
-  .sublime-workspace .sw-add {
-    right: 20px;
-    bottom: calc(110px + env(safe-area-inset-bottom));
-    width: 55px;
-    height: 55px;
-    padding: 8px;
-  }
-  .sublime-workspace .sw-add svg {
-    width: 39px;
-    height: 39px;
-  }
   .sublime-workspace .sw-empty-library {
     min-height: calc(100svh - 150px);
     padding: 25px 15px 125px;
@@ -1789,14 +1661,6 @@
     margin-left: 5px;
     width: 75px;
   }
-  .sublime-workspace .sw-dock {
-    gap: 2px;
-    padding: 10px 8px;
-  }
-  .sublime-workspace .sw-dock-item {
-    min-width: 55px;
-    padding: 5px 4px;
-  }
   .sublime-workspace .sw-start-panel {
     padding: 20px;
   }
@@ -1830,19 +1694,7 @@
   font-size: 12px;
   color: var(--sw-muted);
 }
-.sublime-workspace .sw-popover-tools {
-  bottom: 110px;
-  left: 135px;
-}
 .sublime-workspace[data-theme='light'] {
-  --sw-bg: #fff;
-  --sw-card: #f1f2f3;
-  --sw-panel: #e6e9ec;
-  --sw-active: #e9edef;
-  --sw-text: #414850;
-  --sw-muted: #606971;
-  --sw-icon: #69727c;
-  --sw-white: #161b22;
   color-scheme: light;
 }
 .sublime-workspace[data-theme='light'] .sw-save,
@@ -1862,13 +1714,6 @@
   border-radius: 8px;
   background: var(--sw-card);
   overflow-wrap: anywhere;
-}
-@media (max-width: 600px) {
-  .sublime-workspace .sw-popover-tools {
-    bottom: calc(100px + env(safe-area-inset-bottom));
-    left: auto;
-    right: 15px;
-  }
 }
 
 /* Note reading: compact rhythm, original content and source links retained. */
@@ -2246,14 +2091,6 @@
   color: var(--sw-muted);
   font-size: 13px;
 }
-.sublime-workspace .sw-dock {
-  box-shadow: 0 8px 26px #0003;
-  background: color-mix(in srgb, var(--sw-card) 85%, transparent);
-  backdrop-filter: blur(18px);
-}
-.sublime-workspace .sw-dock-item {
-  font-size: 12px;
-}
 .sublime-workspace .sw-popover {
   box-shadow: 0 8px 28px #0004;
   border: 1px solid color-mix(in srgb, var(--sw-icon) 15%, transparent);
@@ -2435,77 +2272,6 @@
   }
 }
 
-/* Keep the scroll viewport above the fixed controls. The sky still fills its window. */
-.sublime-workspace[data-with-dock='true'] {
-  --dock-band: 68px;
-  --dock-edge: 16px;
-}
-.sublime-workspace[data-with-dock='true'][data-star-home='false'] {
-  bottom: var(--dock-band);
-  scroll-padding-bottom: 12px;
-}
-.sublime-workspace[data-with-dock='true'][data-star-home='false']::after {
-  content: '';
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--dock-band);
-  pointer-events: none;
-  background: var(--sw-bg);
-  border-top: 1px solid color-mix(in srgb, var(--sw-muted) 12%, transparent);
-  z-index: 16;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock {
-  left: var(--dock-edge);
-  bottom: 10px;
-  right: auto;
-  transform: none;
-  width: max-content;
-  max-width: calc(100vw - 32px);
-  min-width: 0;
-  height: 48px;
-  gap: 2px;
-  padding: 5px 7px;
-  border-radius: 24px;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock .sw-dock-item {
-  display: flex;
-  flex-flow: row;
-  gap: 6px;
-  margin: 0;
-  min-width: 0;
-  min-height: 0;
-  height: 36px;
-  padding: 0 11px;
-  border-radius: 18px;
-  font-size: 13px;
-  line-height: 1;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock .sw-dock-item :is(svg, img) {
-  width: 18px;
-  height: 18px;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock .sw-dock-spacer {
-  width: 1px;
-  height: 16px;
-  flex: none;
-  background: var(--sw-muted);
-  opacity: 0.28;
-  margin: 0 3px;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock .sw-icon-button {
-  width: 32px;
-  height: 32px;
-}
-.sublime-workspace[data-with-dock='true'] nav.sw-dock .sw-icon-button svg {
-  width: 18px;
-  height: 18px;
-}
-.sublime-workspace[data-with-dock='true'] .mc-star-caption {
-  left: calc(var(--dock-edge) + 8px);
-  bottom: calc(var(--dock-band) + 7px);
-}
 .sublime-workspace[data-with-dock='true'] .article-reader .ar-reading-jump {
   left: 50%;
   right: auto;
@@ -2520,21 +2286,6 @@
   padding: 6px 8px 6px 12px;
   gap: 8px;
   z-index: 24;
-}
-.sublime-workspace[data-with-dock='true'] .sw-add {
-  width: 44px;
-  height: 44px;
-  right: 18px;
-  bottom: 12px;
-  padding: 8px;
-}
-.sublime-workspace[data-with-dock='true'] .sw-add svg {
-  width: 28px;
-  height: 28px;
-}
-.sublime-workspace[data-with-dock='true'] .sw-popover-tools {
-  left: var(--dock-edge);
-  bottom: var(--dock-band);
 }
 .sublime-workspace .sw-search-summary {
   width: min(890px, calc(100% - 60px));
@@ -2558,13 +2309,6 @@
 }
 
 /* Keep card actions reachable in narrow windows without covering previews. */
-.sublime-workspace[data-theme='dark'] {
-  --sw-muted: #abb5c0;
-  --sw-icon: #a4aeba;
-}
-.sublime-workspace .sw-dock-item {
-  color: var(--sw-text);
-}
 @media (max-width: 600px) {
   .sublime-workspace .sw-tile-actions,
   .sublime-workspace .pr-actions {

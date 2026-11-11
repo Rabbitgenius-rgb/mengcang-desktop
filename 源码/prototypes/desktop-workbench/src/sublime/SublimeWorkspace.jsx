@@ -4,8 +4,12 @@ import { useWorkspaceModels } from './workspace/useWorkspaceModels.jsx';
 import { useWorkspaceActions } from './workspace/useWorkspaceActions.jsx';
 import { useWorkspaceLifecycle } from './workspace/useWorkspaceLifecycle.jsx';
 import { renderWorkspaceView } from './workspace/WorkspaceView.jsx';
+import './workspace/archive/tokens.css';
 import './sublimeWorkspace.css';
 import './cardIdentity.css';
+import './workspace/archive/nav.css';
+import './workspace/archive/archive.css';
+import './workspace/archive/detail.css';
 
 export default function SublimeWorkspace({
   items = [],

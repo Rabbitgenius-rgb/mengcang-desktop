@@ -1,0 +1,349 @@
+/*
+ * Detail: the object first, its identity beside it (Rabo / M+ / A24 spec sheet),
+ * reading and related material below a hairline.
+ */
+.sublime-workspace .sw-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  min-height: 0;
+  padding: 14px var(--mc-gutter);
+  gap: 14px;
+  background: var(--mc-bg);
+  border-bottom: 1px solid var(--mc-border);
+}
+.sublime-workspace .sw-topbar .sw-back {
+  border: 1px solid var(--mc-border-strong);
+}
+.sublime-workspace .sw-write-linked {
+  min-height: 30px;
+  padding: 0 13px;
+  margin-left: 6px;
+  border: 1px solid var(--mc-border-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--mc-text);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+}
+.sublime-workspace .sw-write-linked:hover {
+  border-color: var(--mc-text);
+}
+
+.sublime-workspace .sw-detail-stage {
+  display: block;
+  min-height: 0;
+  padding: 40px var(--mc-gutter) 56px;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  column-gap: clamp(32px, 5vw, 80px);
+  row-gap: 18px;
+  align-items: start;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  transform: none;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster > * {
+  grid-column: 2;
+  margin: 0;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster > .sw-detail-card {
+  grid-column: 1;
+  grid-row: 1 / span 30;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-origin-link,
+.sublime-workspace .sw-detail-caption > div:first-child {
+  display: none;
+}
+
+/* The object. Text is set on paper; pictures sit on the night ground. */
+.sublime-workspace .sw-detail-card {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  box-shadow: none;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-card > .sw-card-body {
+  padding: clamp(28px, 4vw, 56px);
+  border-radius: 2px;
+  background: var(--mc-paper-0);
+  color: var(--mc-ink);
+  font-size: 17px;
+  line-height: 1.9;
+  box-shadow: 0 24px 60px #00000059;
+}
+.sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-card > .sw-card-body :is(a, strong) {
+  color: var(--mc-ink);
+}
+.sublime-workspace .sw-detail-card img {
+  border-radius: 2px;
+}
+.sublime-workspace .sw-detail-caption {
+  padding: 12px 0 0;
+  color: var(--mc-text-3);
+  font-size: 12px;
+}
+
+/* Identity sheet. */
+.sublime-workspace .as-spec {
+  padding-top: 4px;
+}
+.sublime-workspace .as-kind {
+  color: var(--mc-accent);
+  font-size: 11.5px;
+  letter-spacing: 0.24em;
+}
+.sublime-workspace .as-title {
+  margin: 12px 0 26px;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .as-sheet {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  margin: 0;
+  border-top: 1px solid var(--mc-border-strong);
+  font-size: 13.5px;
+}
+.sublime-workspace .as-sheet :is(dt, dd) {
+  margin: 0;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--mc-border);
+}
+.sublime-workspace .as-sheet dt {
+  color: var(--mc-text-3);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  line-height: 1.9;
+}
+.sublime-workspace .as-sheet dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--mc-text-body);
+  overflow-wrap: anywhere;
+}
+.sublime-workspace .as-sheet a,
+.sublime-workspace .as-sheet button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mc-text);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--mc-border-strong);
+  text-underline-offset: 4px;
+}
+.sublime-workspace .as-sheet a:hover,
+.sublime-workspace .as-sheet button:hover {
+  text-decoration-color: var(--mc-accent);
+}
+.sublime-workspace .as-mono {
+  font-family: var(--mc-font-mono);
+  font-size: 12.5px;
+}
+.sublime-workspace .sw-personal-note,
+.sublime-workspace .sw-detail-info {
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--mc-border);
+  border-radius: 0;
+  background: none;
+  color: var(--mc-text-body);
+  font-size: 13.5px;
+}
+.sublime-workspace .sw-personal-note > small,
+.sublime-workspace .sw-detail-info summary,
+.sublime-workspace .sw-personal-note summary {
+  color: var(--mc-text-3);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+/* Article reading keeps a single column in the same voice. */
+.sublime-workspace .article-reader {
+  color: var(--mc-text-body);
+}
+.sublime-workspace .article-reader .ar-layout,
+.sublime-workspace .article-reader .ar-header {
+  width: 680px;
+  max-width: 100%;
+}
+.sublime-workspace .article-reader .ar-eyebrow {
+  justify-content: flex-start;
+  color: var(--mc-text-3);
+  letter-spacing: 0.1em;
+}
+.sublime-workspace .article-reader .ar-source-pill {
+  border: 1px solid var(--mc-border-strong);
+  background: none;
+  color: var(--mc-text-2);
+}
+.sublime-workspace .article-reader .ar-header h1 {
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: clamp(32px, 3.6vw, 50px);
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: 0;
+}
+.sublime-workspace .article-reader .ar-body {
+  color: var(--mc-text-body);
+  font-size: 17px;
+  line-height: 1.9;
+}
+.sublime-workspace .article-reader .ar-body blockquote {
+  border-left: 2px solid var(--mc-accent);
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+}
+.sublime-workspace .article-reader .ar-reading-jump {
+  bottom: calc(var(--mc-foot-h) + 14px);
+  border: 1px solid var(--mc-border-strong);
+  background: var(--mc-surface-2);
+}
+
+/* Related material: a hairline section, not a filled panel. */
+.sublime-workspace .sw-related,
+.sublime-workspace .article-reader .ar-discovery {
+  max-width: none;
+  min-height: 0;
+  margin: 40px var(--mc-gutter) 0;
+  padding: 26px 0 60px;
+  border: 0;
+  border-top: 1px solid var(--mc-border-strong);
+  border-radius: 0;
+  background: none;
+}
+.sublime-workspace .article-reader .ar-discovery {
+  margin-inline: 0;
+}
+.sublime-workspace .article-reader .ar-discovery-tabs {
+  justify-content: flex-start;
+  margin-bottom: 22px;
+}
+.sublime-workspace .article-reader .ar-discovery-tabs button {
+  border-radius: 999px;
+  color: var(--mc-text-3);
+  letter-spacing: 0.08em;
+}
+.sublime-workspace .article-reader .ar-discovery-tabs button[aria-selected='true'] {
+  background: var(--mc-text);
+  color: var(--mc-bg);
+}
+.sublime-workspace .pr-panel {
+  max-width: none;
+}
+.sublime-workspace .pr-heading h2 {
+  padding: 0;
+  background: none;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 22px;
+  font-weight: 600;
+}
+.sublime-workspace .pr-grid,
+.sublime-workspace .article-reader .ar-highlights {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px 14px;
+}
+.sublime-workspace .pr-grid:has(.pr-actions) {
+  margin-top: 0;
+}
+.sublime-workspace .pr-column {
+  display: contents;
+}
+.sublime-workspace .pr-card {
+  border: 0;
+  border-radius: 2px;
+  background: var(--mc-surface);
+}
+.sublime-workspace .pr-card:hover {
+  border: 0;
+  outline: 1px solid var(--mc-border-strong);
+}
+.sublime-workspace .pr-actions {
+  top: 8px;
+  right: 8px;
+  left: auto;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mc-bg) 86%, transparent);
+}
+.sublime-workspace .sc-content {
+  border-radius: 2px;
+  background: none;
+}
+.sublime-workspace .sc-heading {
+  display: block;
+  padding: 14px 14px 0;
+  color: var(--mc-text);
+  font-family: var(--mc-font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.sublime-workspace .sc-excerpt {
+  max-height: 200px;
+  padding: 8px 14px 0;
+  color: var(--mc-text-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.sublime-workspace .sc-footer {
+  padding: 8px 14px 12px;
+  color: var(--mc-text-3);
+  font-size: 11.5px;
+}
+
+@media (max-width: 900px) {
+  .sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster > *,
+  .sublime-workspace .sw-detail-stage:not(.sw-article-stage) .sw-detail-cluster > .sw-detail-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+/* Article stage: one centred reading column across the whole window. */
+.sublime-workspace .sw-article-stage .sw-detail-cluster {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  transform: none;
+}
+.sublime-workspace .sw-article-stage .article-reader .ar-layout,
+.sublime-workspace .sw-article-stage .article-reader .ar-header {
+  margin-inline: auto;
+}
+
+/* Related items read as paper prints, matching the wall. */
+.sublime-workspace .pr-card {
+  background: var(--mc-paper-0);
+  box-shadow: 0 10px 24px #00000040;
+}
+.sublime-workspace .pr-card :is(.sc-heading, .sc-title, .sc-excerpt, .sc-excerpt p, .sc-match-title) {
+  color: var(--mc-ink);
+}
+.sublime-workspace .pr-card :is(.sc-footer, .sc-origin, .sc-origin small, .sc-reason, .sc-caption) {
+  color: var(--mc-ink-2);
+}
+.sublime-workspace .pr-card .sc-origin .sc-source-link {
+  color: var(--mc-ink);
+}
+.sublime-workspace .pr-card .sc-picture {
+  background: var(--mc-paper-0);
+}

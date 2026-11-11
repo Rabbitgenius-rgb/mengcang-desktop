@@ -36,7 +36,11 @@ export default function CardContent({
   const source = card.sourceTitle && card.sourceTitle !== title ? card.sourceTitle : hostname;
   const caption = preview.image ? (card.caption || '').trim() : '';
   const showTitle = !textFirst || (!source && !text.startsWith(title));
-  const lines = text.split('\n').filter((line) => line.trim());
+  // Text cards lead with their title (Bear / Reader); quotes and pictures lead with content.
+  const headingFirst = !preview.image && showTitle && kind !== 'highlight';
+  const lines = (headingFirst && !preview.text ? '' : text)
+    .split('\n')
+    .filter((line, index) => line.trim() && !(headingFirst && index === 0 && line.trim() === title));
   const titleParts = keyword && titleMatchParts(title, keyword);
   const firstIndex = titleParts && !preview.image && lines.length ? lines[0].indexOf(title) : -1;
   const markedTitle = titleParts && titleParts.map(([part, hit], i) => (hit ? <mark key={i}>{part}</mark> : part));
@@ -49,6 +53,7 @@ export default function CardContent({
         aria-label={openLabel || '打开 ' + title}
       >
         {markedTitle && firstIndex < 0 && <strong className="sc-match-title">{markedTitle}</strong>}
+        {headingFirst && !markedTitle && <strong className="sc-heading">{title}</strong>}
         {preview.image ? (
           <div className="sc-picture">
             {failedImage === preview.image ? (
@@ -61,27 +66,29 @@ export default function CardContent({
             )}
           </div>
         ) : (
-          <div className="sc-excerpt">
-            {lines.map((line, index) => (
-              <p key={index}>
-                {index === 0 && firstIndex >= 0 ? (
-                  <>
-                    {line.slice(0, firstIndex)}
-                    {markedTitle}
-                    {line.slice(firstIndex + title.length)}
-                  </>
-                ) : (
-                  line
-                )}
-              </p>
-            ))}
-          </div>
+          lines.length > 0 && (
+            <div className="sc-excerpt">
+              {lines.map((line, index) => (
+                <p key={index}>
+                  {index === 0 && firstIndex >= 0 ? (
+                    <>
+                      {line.slice(0, firstIndex)}
+                      {markedTitle}
+                      {line.slice(firstIndex + title.length)}
+                    </>
+                  ) : (
+                    line
+                  )}
+                </p>
+              ))}
+            </div>
+          )
         )}
         {actionHint && <span className="sc-action-hint">{actionHint}</span>}
       </button>
       <footer className={'sc-footer' + (preview.image ? ' sc-image-footer' : '')}>
         {caption && <p className="sc-caption">{caption}</p>}
-        {showTitle && !markedTitle && title !== caption && title !== sourceAction?.title && <span className="sc-title">{title}</span>}
+        {showTitle && !headingFirst && !markedTitle && title !== caption && title !== sourceAction?.title && <span className="sc-title">{title}</span>}
         {sourceFooter ??
           (sourceAction || source || card.author ? (
             <div className="sc-origin">

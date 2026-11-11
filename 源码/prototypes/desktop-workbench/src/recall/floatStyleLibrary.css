@@ -39,7 +39,7 @@
   align-items: start;
 }
 .rw-style-options {
-  background: #fff;
+  background: var(--mc-surface);
   border: 1px solid var(--rw-border);
   border-radius: 12px;
   padding: 24px;
@@ -73,7 +73,7 @@
 .rw-style-preset.selected {
   border-color: var(--rw-accent);
   color: var(--rw-accent);
-  background: #f7f8ff;
+  background: var(--mc-accent-soft);
 }
 .rw-style-swatch {
   display: flex;
@@ -224,14 +224,14 @@
 .rw-style-error {
   margin-bottom: 20px;
   padding: 12px 15px;
-  background: #fff4f1;
-  border: 1px solid #edcbc4;
+  background: var(--mc-accent-soft);
+  border: 1px solid var(--mc-danger);
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
   gap: 12px;
   font-size: 12px;
-  color: #984e41;
+  color: var(--mc-danger);
 }
 .rw-style-preview-column {
   position: sticky;
@@ -249,7 +249,7 @@
 }
 .rw-style-desktop {
   position: relative;
-  background: linear-gradient(150deg, #d5dce9, #e6e1df 52%, #d8dce5);
+  background: linear-gradient(150deg, var(--mc-hover), var(--mc-hover) 52%, var(--mc-hover));
   border: 1px solid var(--rw-border);
   border-radius: 12px;
   min-height: 570px;
@@ -325,7 +325,7 @@
 .rw-float-mock-row i {
   width: 5px;
   height: 5px;
-  background: #e56861;
+  background: var(--mc-danger);
   border-radius: 50%;
 }
 .rw-float-status {

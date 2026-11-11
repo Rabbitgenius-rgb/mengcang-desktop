@@ -19,6 +19,7 @@ import { SafeRichBody } from './RichBody.jsx';
 import './recallWorkbench.css';
 import './recallWorkspace.css';
 import './recallMotion.css';
+import '../sublime/workspace/archive/recall.css';
 import { valueOf } from '../desktopModel.js';
 import FloatStyleLibrary from './FloatStyleLibrary.jsx';
 

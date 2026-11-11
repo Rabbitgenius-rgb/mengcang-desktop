@@ -1,65 +1,37 @@
 import React from 'react';
-import { MEDIA } from './constants.js';
-import { MEDIA_LABELS } from './constants.js';
-import { MEDIA_ICONS } from './constants.js';
 import { initialFilters } from './constants.js';
 import { IconButton } from './WorkspacePrimitives.jsx';
-import {
-  IconArrowLeft,
-  IconPlus,
-  IconDots,
-  IconSparkles,
-  IconSearch,
-  IconAdjustmentsHorizontal,
-  IconStar,
-  IconX,
-  IconTrash,
-  IconPencil,
-  IconFolder,
-  IconLayoutBoard,
-  IconArrowsShuffle,
-} from '@tabler/icons-react';
+import { IconPlus, IconSparkles, IconStar, IconTrash, IconPencil, IconFolder, IconLayoutBoard } from '@tabler/icons-react';
 import LibraryMeaningSearch from '../LibraryMeaningSearch.jsx';
+import { renderArchiveMasthead } from './archive/ArchiveMasthead.jsx';
+import { renderArchiveViews } from './archive/ArchiveViews.jsx';
 export function renderLibrary(view) {
-  const { popover } = view;
-
   const {
     route,
-    searchLabel,
     filters,
-    personalScope,
     meaningActive,
     personalSearch,
-    groupPage,
     visibleCollections,
     visibleBoards,
     libraryCards,
     moreOptions,
-    currentCollection,
     demo,
     searchScope,
     visibleCards,
     meaningSearch,
     keywordCards,
-    tile,
     selectionMode,
     selectedCards,
     finishSelection,
-    navigation,
     navigate,
-    changeLibraryQuery,
     changeSearchMode,
-    setShuffle,
-    setFilterDraft,
     setModal,
-    setPopover,
     showAi,
     cards,
     state,
     setCollectionPinned,
     openEditor,
     setMoreOptions,
-    setFilters,
     setSelected,
     openExport,
     perform,
@@ -67,89 +39,7 @@ export function renderLibrary(view) {
   } = view;
   return (
     <>
-      <header className="sw-topbar sw-library-header">
-        {route.page === 'collection' ? (
-          <IconButton label="返回" className="sw-back" onClick={() => navigation.back()}>
-            <IconArrowLeft size={22} />
-          </IconButton>
-        ) : (
-          <nav className="sw-tabs">
-            {['staff', 'discover', 'following'].includes(route.page)
-              ? [
-                  ['staff', '精选素材'],
-                  ['discover', '发现'],
-                  ['following', '来源'],
-                ].map(([page, label]) => (
-                  <button
-                    key={page}
-                    aria-current={route.page === page ? 'page' : undefined}
-                    className={`sw-tab ${route.page === page ? 'active' : ''}`}
-                    onClick={() => navigate(page)}
-                  >
-                    {label}
-                  </button>
-                ))
-              : [
-                  ['library', '全部资料'],
-                  ['favorites', '已标星'],
-                  ['collections', '收藏集'],
-                  ['canvases', '画布'],
-                ].map(([page, label]) => (
-                  <button
-                    key={page}
-                    aria-current={route.page === page ? 'page' : undefined}
-                    className={`sw-tab ${route.page === page ? 'active' : ''}`}
-                    onClick={() => navigate(page)}
-                  >
-                    {label}
-                  </button>
-                ))}
-          </nav>
-        )}
-        <div className="sw-actions">
-          <label className="sw-search">
-            <IconSearch size={22} />
-            <input aria-label={searchLabel} placeholder={searchLabel} value={filters.query} onChange={(event) => changeLibraryQuery(event.target.value)} />
-            {filters.query && (
-              <IconButton label="清除搜索" onClick={() => changeLibraryQuery('')}>
-                <IconX size={16} />
-              </IconButton>
-            )}
-          </label>
-          {personalScope && (
-            <div className="ms-modes" role="group" aria-label="搜索方式">
-              <button type="button" aria-pressed={!meaningActive} onClick={() => changeSearchMode('keyword')}>
-                关键词
-              </button>
-              <button type="button" aria-pressed={meaningActive} disabled={!personalSearch} onClick={() => changeSearchMode('meaning')}>
-                按意思找
-              </button>
-            </div>
-          )}
-          <IconButton label="随机排列" onClick={() => setShuffle((value) => value + 1)}>
-            <IconArrowsShuffle size={23} />
-          </IconButton>
-          {!groupPage && (
-            <IconButton
-              label="筛选"
-              onClick={() => {
-                setFilterDraft(filters);
-                setModal({ type: 'filters' });
-              }}
-            >
-              <IconAdjustmentsHorizontal size={23} />
-            </IconButton>
-          )}
-          <IconButton
-            label="资料库选项"
-            onClick={(event) => setPopover({ type: 'library', anchor: event.currentTarget })}
-            aria-haspopup="menu"
-            aria-expanded={popover?.type === 'library'}
-          >
-            <IconDots size={22} />
-          </IconButton>
-        </div>
-      </header>
+      {renderArchiveMasthead(view)}
       {route.page === 'discover' ? (
         <div className="sw-status">
           <IconSparkles size={36} />
@@ -250,37 +140,8 @@ export function renderLibrary(view) {
         </main>
       ) : (
         <main className="sw-library-content">
-          {route.page === 'collection' && currentCollection && (
-            <div className="sw-collection-title">
-              <h1>{currentCollection.title}</h1>
-              <p>{currentCollection.description}</p>
-              <small>{libraryCards.filter((card) => currentCollection.cardIds.includes(card.id)).length} 条资料</small>
-            </div>
-          )}
-          {route.page === 'trash' && (
-            <div className="sw-collection-title">
-              <h1>已归档卡片</h1>
-              <p>已归档素材可搜索、筛选，并在卡片菜单中恢复。</p>
-            </div>
-          )}
+          {route.page === 'trash' && <p className="sw-reference-caption">已归档素材可搜索、筛选，并在卡片菜单中恢复。</p>}
           {route.page === 'staff' && demo && <p className="sw-reference-caption">公开参考素材 · 保存后进入你的本机资料库</p>}
-          {route.page === 'following' && <p className="sw-reference-caption">已标记的来源</p>}
-          <div className="sw-media-tabs" role="group" aria-label="资料类型，可横向滚动">
-            {MEDIA.map((media) => {
-              const MediaIcon = MEDIA_ICONS[media];
-              return (
-                <button
-                  key={media}
-                  aria-pressed={filters.media === media}
-                  className={filters.media === media ? 'active' : ''}
-                  onClick={() => setFilters((value) => ({ ...value, media }))}
-                >
-                  <MediaIcon size={17} />
-                  {MEDIA_LABELS[media]}
-                </button>
-              );
-            })}
-          </div>
           {personalSearch && (
             <p className="sw-search-summary" aria-live="polite">
               {searchScope}
@@ -297,11 +158,7 @@ export function renderLibrary(view) {
               onSettings={() => showAi('Settings')}
             />
           )}
-          {visibleCards.length > 0 && (
-            <div className="sw-masonry" role="grid" aria-label={meaningActive ? '按意思找到的本机资料' : undefined}>
-              {visibleCards.map(tile)}
-            </div>
-          )}
+          {visibleCards.length > 0 && renderArchiveViews(view)}
           {!personalSearch && !visibleCards.length && (
             <div className="sw-status">
               <h2>{route.page === 'following' ? '尚未保存来源' : route.page === 'trash' ? '没有匹配的归档卡片' : '这里还没有卡片'}</h2>

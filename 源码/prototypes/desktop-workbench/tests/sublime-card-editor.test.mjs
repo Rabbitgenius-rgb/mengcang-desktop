@@ -1,3 +1,4 @@
+import {withArchivePresentation} from './support/archive-presentation.mjs';
 import {compileWorkspace} from './support/compile-workspace.mjs';
 import {workspaceDependencies,currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
@@ -110,6 +111,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],useMeaningSearch}=
  const identity={id:'synthetic-editor'},states=[],refs=[],memos=[],layouts=[],begins=[],ends=[],submissions=[];let stateIndex=0,refIndex=0,memoIndex=0,layoutIndex=0,tree,scheduled=[];
  const same=(a,b)=>a&&b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
  const react={useCallback:callback=>callback,Fragment:Symbol(),memo:component=>component,createElement:(type,props,...children)=>({type,props:{...props,children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
+ react.createElement=withArchivePresentation(react,react.createElement);
  const CardEditor=()=>null,empty=()=>null,icons=new Proxy({},{get:()=>empty});
  const observedSession={...session,get state(){return session.state;},get writing(){return session.writing;},beginEdit:(...args)=>{begins.push(args[0]);return session.beginEdit(...args);},endEdit:(...args)=>{ends.push(args[0]);return session.endEdit(...args);},commit:(actions,options)=>{submissions.push({actions,options});return session.commit(actions,options);}};
  let navigation;const location={hash,href:'https://example.test/'},history={state:{},replaceState(){},pushState(){}};

@@ -1,3 +1,4 @@
+import {withArchivePresentation} from './support/archive-presentation.mjs';
 import {compileWorkspace} from './support/compile-workspace.mjs';
 import {currentWorkspaceModule} from './fixtures/workspace-dependencies.mjs';
 import * as starHomeView from '../src/sublime/starHomeView.js';
@@ -53,6 +54,7 @@ function workspaceUI(session,{hash='#/add/edit:card',items=[],realNavigation=fal
  const identity={id:'synthetic-editor'},states=[],refs=[],memos=[],layouts=[],begins=[],ends=[],submissions=[];let stateIndex=0,refIndex=0,memoIndex=0,layoutIndex=0,tree,scheduled=[];
  const same=(a,b)=>a&&b&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
  const react={useCallback:callback=>callback,Fragment:Symbol(),createElement:(type,props,...children)=>({type,props:{...props,...(props?.onClick?{onClick:(event={currentTarget:{getBoundingClientRect:()=>({left:0,top:0,width:100,height:40,right:100,bottom:40}),focus(){}},preventDefault(){},stopPropagation(){}})=>props.onClick(event)}:{}),children}}),useEffect:()=>{},useMemo:(factory,deps)=>{const index=memoIndex++;if(!memos[index]||!same(deps,memos[index].deps))memos[index]={deps,value:factory()};return memos[index].value;},useRef:initial=>{const index=refIndex++;return refs[index]??(refs[index]={current:index===4?identity.id:initial});},useState:initial=>{const index=stateIndex++;if(!states[index])states[index]={value:index===0?{...session.state,drafts:session.drafts()}:index===1?true:typeof initial==='function'?initial():initial};return [states[index].value,next=>{states[index].value=typeof next==='function'?next(states[index].value):next;}];},useLayoutEffect:(effect,deps)=>{const index=layoutIndex++;if(!layouts[index]||!same(deps,layouts[index].deps))scheduled.push(()=>{layouts[index]?.cleanup?.();layouts[index]={deps,cleanup:effect()};});}};
+ react.createElement=withArchivePresentation(react,react.createElement);
  const CardEditor=()=>null,ImportEditor=()=>null,CollectionEditor=()=>null,empty=()=>null,icons=new Proxy({},{get:()=>empty});
  const observedSession={...session,get state(){return session.state;},get writing(){return session.writing;},beginEdit:(...args)=>{begins.push(args[0]);return session.beginEdit(...args);},endEdit:(...args)=>{ends.push(args[0]);return session.endEdit(...args);},commit:(actions,options)=>{submissions.push({actions,options});return session.commit(actions,options);}};
  let navigation;const location={hash,href:'https://example.test/'},entries=[{state:{},hash}],history={
@@ -436,21 +438,21 @@ test('read-only native identities above the persisted saved-ID limit remain view
  const {store,one}=await setup(),before=await store.load(),ui=workspaceUI(one,{hash:'#/library'});
  ui.find(node=>node.props?.['aria-label']==='搜索资料库').props.onChange({target:{value:'UNIQUE-LARGE-LIBRARY'}});ui.render();
  const items=Array.from({length:20001},(_,index)=>({path:'native/source-'+index+'.md',title:index===20000?'UNIQUE-LARGE-LIBRARY':'Native source '+index,body:'Read-only body'}));
- ui.render({items});assert.ok(ui.find(node=>node.props?.card?.title==='UNIQUE-LARGE-LIBRARY'&&typeof node.props?.onOpen==='function'));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：UNIQUE-LARGE-LIBRARY'));assert.deepEqual(await store.load(),before);
+ ui.render({items});assert.ok(ui.find(node=>node.type==='button'&&node.props?.className==='ao-open'&&node.props['aria-label'].includes('UNIQUE-LARGE-LIBRARY')));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：UNIQUE-LARGE-LIBRARY'));assert.deepEqual(await store.load(),before);
 });
 
 test('native membership updates when distinct source ID arrays have the same joined text',async()=>{
  const {one}=await setup(),items=ids=>ids.map(path=>({path,title:path,body:'Native source body'})),ui=workspaceUI(one,{hash:'#/library',items:items(['a|b','c'])});
  assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：a|b'));
- ui.render({items:items(['a','b|c'])});assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：a'));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：b|c'));assert.equal(ui.find(node=>node.props?.card?.id==='a|b'&&typeof node.props?.onOpen==='function'),null);
+ ui.render({items:items(['a','b|c'])});assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：a'));assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：b|c'));assert.equal(ui.find(node=>node.type==='article'&&node.props?.key==='a|b'),null);
 });
 
 test('memoized native membership reflects saved hidden and favorite array replacements',async()=>{
  const {one}=await setup(),item={path:'native',title:'Native title',body:'Native body'},ui=workspaceUI(one,{hash:'#/library',items:[item]});assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：Native title'));
- await one.commit([{type:'card.favorite',id:'native',value:true},{type:'card.hide',id:'native',hidden:true}]);ui.refresh();assert.equal(ui.find(node=>node.props?.card?.title==='Native title'&&typeof node.props?.onOpen==='function'),null);
- ui.navigate('trash');assert.ok(ui.find(node=>node.props?.card?.title==='Native title'&&typeof node.props?.onOpen==='function'));assert.ok(ui.find(node=>node.props?.className==='sw-favorite-mark'));
+ await one.commit([{type:'card.favorite',id:'native',value:true},{type:'card.hide',id:'native',hidden:true}]);ui.refresh();assert.equal(ui.find(node=>node.type==='button'&&node.props?.className==='ao-open'&&node.props['aria-label'].includes('Native title')),null);
+ ui.navigate('trash');assert.ok(ui.find(node=>node.type==='button'&&node.props?.className==='ao-open'&&node.props['aria-label'].includes('Native title')));assert.ok(ui.find(node=>node.props?.['aria-label']==='已标星'));
  await one.commit({type:'card.hide',id:'native',hidden:false});ui.refresh();ui.navigate('library');assert.ok(ui.find(node=>node.props?.['aria-label']==='整理：Native title'));
- await one.commit({type:'card.favorite',id:'native',value:false});ui.refresh();assert.equal(ui.find(node=>node.props?.className==='sw-favorite-mark'),null);
+ await one.commit({type:'card.favorite',id:'native',value:false});ui.refresh();assert.equal(ui.find(node=>node.props?.['aria-label']==='已标星'),null);
 });
 
 for(const nextView of ['share','share-closed','note'])test(`pending source verification preserves a later ${nextView} context`,async()=>{
@@ -498,14 +500,15 @@ test('same-title insights retain separate exact-card actions through filtering a
  ];
  await one.commit(cards.flatMap(card=>[{type:'card.upsert',card},{type:'card.save',id:card.id,saved:true}]));
  const before=JSON.stringify(await store.load()),ui=workspaceUI(one,{hash:'#/library',realNavigation:true});
- const open=card=>ui.find(node=>node.props?.card?.id===card.id&&typeof node.props?.onOpen==='function');
+ const object=card=>ui.find(node=>node.type==='article'&&node.props?.key===card.id);
+ const open=card=>findNode(object(card),node=>node.type==='button'&&node.props?.className==='ao-open');
  assert.ok(open(cards[0]));assert.ok(open(cards[1]));
- assert.notEqual(open(cards[0]).props.card.id,open(cards[1]).props.card.id);
- assert.equal(open(cards[0]).props.card.body,cards[0].body);
- assert.equal(open(cards[1]).props.card.body,cards[1].body);
+ assert.notEqual(object(cards[0]).props.key,object(cards[1]).props.key);
+ assert.ok(text(object(cards[0])).includes(cards[0].body));
+ assert.ok(text(object(cards[1])).includes(cards[1].body));
  ui.find(node=>node.props?.['aria-label']==='搜索资料库').props.onChange({target:{value:'仅第一份匹配'}});ui.render();
  assert.ok(open(cards[0]));assert.equal(open(cards[1]),null);
- open(cards[0]).props.onOpen(cards[0].id);ui.render();
+ open(cards[0]).props.onClick();ui.render();
  const detail=ui.find(node=>node.type?.name==='CardIdentity');
  assert.ok(detail);assert.equal(detail.props.card.id,cards[0].id);
  assert.equal(detail.props.card.createdAt,cards[0].createdAt);
